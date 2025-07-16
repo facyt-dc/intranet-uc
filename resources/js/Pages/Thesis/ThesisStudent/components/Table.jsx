@@ -16,8 +16,18 @@ import { useTranslation } from "react-i18next";
 
 export default function thesisStudentTable({ thesisStudent }) {
     const paperElevation = 5;
-    console.log(thesisStudent);
     const { t } = useTranslation(["translation"]);
+    // Si usas Inertia:
+    // const { visit } = usePage().props;
+    // Si usas react-router:
+    // const navigate = useNavigate();
+
+    const handleRowClick = (id) => {
+        // Si usas Inertia:
+        window.location.href = route("thesisStudent.show", id);
+        // Si usas react-router:
+        // navigate(`/thesisStudent/${id}`);
+    };
 
     return (
         <TableContainer
@@ -34,8 +44,7 @@ export default function thesisStudentTable({ thesisStudent }) {
                         <TableCell fontWeight="700">{t("ID")}</TableCell>
                         <TableCell align="left">{t("Name")}</TableCell>
                         <TableCell align="left">{t("Email")}</TableCell>
-                        <TableCell align="left">{t("Tesis")}</TableCell> 
-
+                        <TableCell align="left">{t("Tesis")}</TableCell>
                         <TableCell align="left"></TableCell>
                     </TableRow>
                 </TableHead>
@@ -43,11 +52,12 @@ export default function thesisStudentTable({ thesisStudent }) {
                     {thesisStudent.map((student) => (
                         <TableRow
                             key={student.id}
+                            hover
                             sx={{
-                                "&:last-child td, &:last-child th": {
-                                    border: 0,
-                                },
+                                cursor: "pointer",
+                                "&:last-child td, &:last-child th": { border: 0 },
                             }}
+                            onClick={() => handleRowClick(student.id)}
                         >
                             <TableCell component="th" scope="row">
                                 {student.id}
@@ -55,14 +65,16 @@ export default function thesisStudentTable({ thesisStudent }) {
                             <TableCell align="left">{student.name}</TableCell>
                             <TableCell align="left">{student.email}</TableCell>
                             <TableCell align="left">
-                            {student.theses && student.theses.length > 0
-                                ? student.theses.map(t => t.title).join(', ')
-                                : <span style={{ color: '#aaa' }}>Sin tesis</span>
-                            }
+                                {student.theses && student.theses.length > 0
+                                    ? student.theses.map(t => t.title).join(', ')
+                                    : <span style={{ color: '#aaa' }}>Sin tesis</span>
+                                }
                             </TableCell>
-
                             <TableCell align="right">
-                                <div className="flex justify-end flex-col sm:flex-row gap-2">
+                                <div
+                                    className="flex justify-end flex-col sm:flex-row gap-2"
+                                    onClick={e => e.stopPropagation()} // Evita que el click en los botones dispare el click de la fila
+                                >
                                     <Link href={route("thesisStudent.edit", student)}>
                                         <Button
                                             variant="contained"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Head, useForm } from "@inertiajs/react";
 
 import Typography from "@mui/material/Typography";
@@ -34,6 +34,7 @@ export default function File({ auth, errors: serverErrors }) {
     const [openManualAddDialog, setOpenManualAddDialog] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [fileName, setFileName] = useState("");
+    const fileInputRef = useRef(null);
 
 
     // Formulario para la subida de Excel
@@ -67,6 +68,9 @@ export default function File({ auth, errors: serverErrors }) {
             setSelectedFile(null);
             setFileName("");
             resetExcelForm('excel_file');
+        if (fileInputRef.current) {
+                fileInputRef.current.value = ""; // <--- limpia el input
+            }
         },
         onError: (errors) => {
             console.error("Error al importar Excel:", errors);
@@ -88,7 +92,7 @@ export default function File({ auth, errors: serverErrors }) {
                                 sx={{ mr: 2,  }}
                             >
                                 Seleccionar Archivo
-                                <VisuallyHiddenInput type="file" accept=".xlsx, .xls, .csv" onChange={handleFileChange} />
+                                <VisuallyHiddenInput type="file" accept=".xlsx, .xls, .csv" onChange={handleFileChange} ref={fileInputRef} />
                             </Button>
                             {fileName && <Typography variant="caption" display="block" gutterBottom sx={{mt:1}}>{fileName}</Typography>}
 
