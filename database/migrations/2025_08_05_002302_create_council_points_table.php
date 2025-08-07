@@ -12,11 +12,15 @@ return new class extends Migration {
     {
         Schema::create('council_points', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('council_id')->constrained()->onDelete('cascade');
-            $table->text('topic');
-            $table->foreignId('requested_by_id')->constrained('users');
-            $table->string('status')->default('pending'); // pending, open, closed
-            $table->integer('minimum_votes')->default(1);
+            $table->foreignId('council_id')->constrained('councils')->onDelete('cascade');
+            // Campo de texto para almacenar el nombre del consejero que solicitó el punto.
+            // Esta información la introduce el Director manualmente.
+            $table->string('requesting_counselor');
+            $table->text('description');
+            // Estado del punto (ej. 'Pendiente', 'Abierto para Votación', 'Cerrado').
+            $table->string('status')->default('Pendiente');
+            // Cantidad mínima de votos requerida para habilitar la notificación de cierre.
+            $table->unsignedInteger('min_votes_to_close')->default(1);
             $table->timestamps();
         });
     }

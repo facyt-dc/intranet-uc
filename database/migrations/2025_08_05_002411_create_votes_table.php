@@ -11,10 +11,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('votes', function (Blueprint $table) {
+            // Columna de ID primario autoincremental para cada voto.
             $table->id();
-            $table->foreignId('council_point_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('voting_option_id')->constrained();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('council_point_id')->constrained('council_points')->onDelete('cascade');
+            $table->foreignId('voting_option_id')->constrained('voting_options');
+            $table->unique(['user_id', 'council_point_id']);
             $table->timestamps();
         });
     }

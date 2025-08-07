@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Council;
 
 return new class extends Migration {
     /**
@@ -12,10 +13,13 @@ return new class extends Migration {
     {
         Schema::create('councils', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->foreignId('director_id')->constrained('users');
+            $table->string('code')->unique();
+            $table->foreignId('director_id')
+                  ->constrained('users')
+                  ->onUpdate('cascade') // Si el ID del usuario cambia, se actualiza aquí también.
+                  ->onDelete('cascade'); // Impide que se pueda borrar un usuario si tiene consejos asociados.
+            $table->string('status')->default(Council::STATUS_SCHEDULED);
             $table->dateTime('scheduled_at');
             $table->dateTime('closed_at')->nullable();
             $table->timestamps();

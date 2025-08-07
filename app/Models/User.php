@@ -63,4 +63,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Council::class);
     }
 
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    // Puntos en los que este consejero está autorizado a votar
+    public function votablePoints()
+    {
+        return $this->belongsToMany(CouncilPoint::class, 'point_user');
+    }
 }

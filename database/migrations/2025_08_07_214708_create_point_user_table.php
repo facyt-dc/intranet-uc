@@ -4,16 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('council_user', function (Blueprint $table) {
-            $table->foreignId('council_id')->constrained('councils')->onDelete('cascade');
+        Schema::create('point_user', function (Blueprint $table) {
+            $table->foreignId('council_point_id')->constrained('council_points')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->primary(['council_id', 'user_id']);
+            $table->primary(['council_point_id', 'user_id']);
         });
     }
 
@@ -22,6 +23,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('council_user');
+        Schema::dropIfExists('point_user');
     }
 };
