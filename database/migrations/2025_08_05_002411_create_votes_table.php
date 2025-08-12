@@ -11,13 +11,24 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('votes', function (Blueprint $table) {
-            // Columna de ID primario autoincremental para cada voto.
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('council_point_id')->constrained('council_points')->onDelete('cascade');
-            $table->foreignId('voting_option_id')->constrained('voting_options');
-            $table->unique(['user_id', 'council_point_id']);
+            $table->foreignId('council_point_id')
+                  ->constrained('council_points')
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
+            $table->foreignId('user_id')
+                  ->constrained('users')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+            $table->foreignId('voting_option_id')
+                  ->constrained('voting_options')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
+            // timestamps: Añade las columnas 'created_at' y 'updated_at'.
+            // 'created_at' servirá como la marca de tiempo oficial de cuándo se emitió el voto.
             $table->timestamps();
+            $table->unique(['council_point_id', 'user_id']);
         });
     }
 

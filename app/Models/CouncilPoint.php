@@ -29,14 +29,16 @@ class CouncilPoint extends Model
 
     protected $fillable = [
         'council_id',
-        'requesting_counselor',
         'description',
+        'requested_by_user_id',
         'status',
         'min_votes_to_close',
+        'order',
     ];
 
     protected $casts = [
         'min_votes_to_close' => 'integer',
+        'order' => 'integer',
     ];
 
     /**
@@ -60,14 +62,13 @@ class CouncilPoint extends Model
     }
 
     /**
-     * Obtiene los usuarios (Consejeros) que están autorizados para votar en este punto.
-     * La relación se define a través de la tabla pivote 'point_user'.
+     * Obtiene la colección de usuarios (Consejeros) que tienen permiso para votar en este punto específico.
      *
      * @return BelongsToMany
      */
-    public function voters(): BelongsToMany
+    public function votableUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'point_user');
+        return $this->belongsToMany(User::class, 'council_point_votable_user');
     }
 
     /**
@@ -78,6 +79,16 @@ class CouncilPoint extends Model
      */
     public function votingOptions(): BelongsToMany
     {
-        return $this->belongsToMany(VotingOption::class, 'point_voting_option');
+        return $this->belongsToMany(VotingOption::class, 'council_point_voting_option');
+    }
+
+    /**
+     * Obtiene el usuario (Consejero) que solicitó la inclusión de este punto.
+     *
+     * @return BelongsTo
+     */
+    public function requester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'requested_by_user_id');
     }
 }

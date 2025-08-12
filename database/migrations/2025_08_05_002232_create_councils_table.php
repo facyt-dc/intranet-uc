@@ -13,15 +13,18 @@ return new class extends Migration {
     {
         Schema::create('councils', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->string('code')->unique();
+            $table->string('name');
+            $table->dateTime('date');
+            $table->string('status')->default('Programado');
             $table->foreignId('director_id')
                   ->constrained('users')
-                  ->onUpdate('cascade') // Si el ID del usuario cambia, se actualiza aquí también.
-                  ->onDelete('cascade'); // Impide que se pueda borrar un usuario si tiene consejos asociados.
-            $table->string('status')->default(Council::STATUS_SCHEDULED);
-            $table->dateTime('scheduled_at');
-            $table->dateTime('closed_at')->nullable();
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
+            // closed_at: Marca de tiempo para saber cuándo se cerró el consejo.
+            // Es 'nullable' porque solo tendrá valor cuando el director lo cierre.
+            $table->timestamp('closed_at')->nullable();
             $table->timestamps();
         });
     }

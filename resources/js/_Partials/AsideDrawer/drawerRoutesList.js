@@ -65,6 +65,16 @@ const drawerRoutesList = [
             },
         ],
     },
+    {
+        permissionNeeded: "vote in councils",
+        subHeaderText: "Agenda de consejos",
+        routes: [
+            {
+                linkText: "Consejos",
+                routeName: "councils.index",
+            },
+        ],
+    },
 ];
 
 export default drawerRoutesList;

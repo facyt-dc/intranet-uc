@@ -12,17 +12,19 @@ use Illuminate\Support\Carbon;
 class Council extends Model
 {
     use HasFactory;
-
-    public const STATUS_SCHEDULED = 'Agendado';
-    public const STATUS_IN_PROGRESS = 'En Progreso';
-    public const STATUS_CLOSED = 'Cerrado';
     
-    protected $fillable = [
+     protected $fillable = [
+        'code',
         'name',
-        'director_id',
-        'scheduled_at',
+        'date',
         'status',
+        'director_id',
         'closed_at',
+    ];
+
+    protected $casts = [
+        'date' => 'datetime',
+        'closed_at' => 'datetime',
     ];
 
     /**
@@ -31,49 +33,50 @@ class Council extends Model
      *
      * @return void
      */
-    protected static function boot(): void
+    protected static function boot()
     {
         parent::boot();
 
         /**
-         * Se ejecuta antes de que un nuevo consejo sea insertado en la base de datos.
-         * Genera un código secuencial basado en el año actual.
-         * Ejemplo: 001_2025, 002_2025, 001_2026, etc.
+         * Escucha el evento 'creating' para generar automáticamente el código del consejo
+         * antes de que se guarde en la base de datos.
+         * El formato del código es 'NNN_YYYY'.
          */
-        static::creating(function (self $council) {
-            // Si el código ya ha sido establecido manualmente, no hacer nada.
+        static::creating(function ($council) {
+            // Si el código ya está establecido por alguna razón, no hacer nada.
             if ($council->code) {
                 return;
             }
 
-            $year = now()->year;
-
-            // Busca el último consejo creado en el mismo año para determinar el siguiente número.
-            $lastCouncilThisYear = self::whereYear('created_at', $year)
-                ->orderBy('id', 'desc')
-                ->first();
-
-            $nextNumber = 1;
-            if ($lastCouncilThisYear) {
-                // Extrae el número del código del último consejo y le suma 1.
-                // substr extrae los 3 primeros caracteres del código (ej: '001').
-                $lastNumber = (int) substr($lastCouncilThisYear->code, 0, 3);
-                $nextNumber = $lastNumber + 1;
-            }
-
-            // Formatea el nuevo número para que siempre tenga 3 dígitos (ej: 1 -> '001')
-            // y le concatena el año.
-            $council->code = str_pad($nextNumber, 3, '0', STR_PAD_LEFT) . '_' . $year;
+            $currentYear = Carbon::now()->year;
+            
+            // Contar cuántos consejos ya existen para el año actual para determinar el siguiente número.
+            $lastCouncilCount = self::whereYear('created_at', $currentYear)->count();
+            
+            // El nuevo número será el conteo actual + 1.
+            $newCouncilNumber = $lastCouncilCount + 1;
+            
+            // Formatear el número a 3 dígitos con ceros a la izquierda (001, 002, ..., 010, ..., 100).
+            $formattedNumber = str_pad($newCouncilNumber, 3, '0', STR_PAD_LEFT);
+            
+            $council->code = "{$formattedNumber}_{$currentYear}";
         });
     }
 
-    protected $casts = [
-        'scheduled_at' => 'datetime',
-        'closed_at' => 'datetime',
-    ];
+    /**
+     * Obtiene la clave de la ruta para el modelo.
+     * Esto permite usar el campo 'code' en lugar del 'id' en las URLs (Route Model Binding).
+     * Por ejemplo: /councils/001_2025
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'code';
+    }
 
     /**
-     * Define la relación "pertenece a" con el usuario que es el director del consejo.
+     * Obtiene el usuario (Director) que creó y organiza el consejo.
      *
      * @return BelongsTo
      */
@@ -83,24 +86,22 @@ class Council extends Model
     }
 
     /**
-     * Define la relación "pertenece a muchos" con los usuarios que son consejeros.
+     * Obtiene todos los usuarios (Consejeros) que participan en este consejo.
      *
      * @return BelongsToMany
      */
-    public function counselors(): BelongsToMany
+    public function participants(): BelongsToMany
     {
-        // Se especifica el nombre de la tabla pivote 'council_user'.
-        // withTimestamps() asegura que las columnas created_at y updated_at en la tabla pivote se gestionen automáticamente.
-        return $this->belongsToMany(User::class, 'council_user', 'council_id', 'user_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'council_user');
     }
 
     /**
-     * Define la relación "tiene muchos" con los puntos del consejo.
+     * Obtiene todos los puntos a discutir en este consejo.
      *
      * @return HasMany
      */
     public function points(): HasMany
     {
-        return $this->hasMany(Point::class);
+        return $this->hasMany(CouncilPoint::class);
     }
 }

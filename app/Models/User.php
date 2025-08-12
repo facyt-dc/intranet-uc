@@ -53,12 +53,12 @@ class User extends Authenticatable
         return $this->hasMany(Document::class);
     }
 
-    public function councilsAsDirector()
+    public function directedCouncils()
     {
         return $this->hasMany(Council::class, 'director_id');
     }
 
-    public function councilsAsCounselor()
+    public function councils()
     {
         return $this->belongsToMany(Council::class);
     }

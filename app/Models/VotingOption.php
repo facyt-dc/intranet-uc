@@ -22,17 +22,27 @@ class VotingOption extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $table = 'voting_options';
+
+    protected $fillable = [
+        'name',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     /**
-     * Obtiene todos los Puntos que utilizan esta opción de votación.
+     * Obtiene los puntos de consejo que utilizan esta opción de votación.
      *
-     * La relación se define a través de la tabla pivote 'point_voting_option'.
+     * Esta relación permite saber en qué puntos se ha ofrecido esta opción específica,
+     * aunque su uso principal será a la inversa (desde CouncilPoint para ver sus opciones).
      *
      * @return BelongsToMany
      */
     public function points(): BelongsToMany
     {
-        return $this->belongsToMany(Point::class, 'point_voting_option');
+        return $this->belongsToMany(CouncilPoint::class, 'council_point_voting_option');
     }
 }

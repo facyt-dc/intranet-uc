@@ -23,16 +23,20 @@ class Vote extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['council_point_id', 'user_id', 'voting_option_id'];
+    protected $fillable = [
+        'council_point_id',
+        'user_id',
+        'voting_option_id',
+    ];
 
     /**
-     * Obtiene el Punto al que pertenece este voto.
+     * Obtiene el punto del consejo al que pertenece este voto.
      *
      * @return BelongsTo
      */
-    public function councilPoint()
+    public function point(): BelongsTo
     {
-        return $this->belongsTo(CouncilPoint::class);
+        return $this->belongsTo(CouncilPoint::class, 'council_point_id');
     }
 
     /**
@@ -50,8 +54,8 @@ class Vote extends Model
      *
      * @return BelongsTo
      */
-    public function votingOption(): BelongsTo
+    public function option(): BelongsTo
     {
-        return $this->belongsTo(VotingOption::class);
+        return $this->belongsTo(VotingOption::class, 'voting_option_id');
     }
 }

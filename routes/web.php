@@ -10,6 +10,12 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DocumentController;
 
+use App\Http\Controllers\CouncilController;
+use App\Http\Controllers\CouncilPointController;
+use App\Http\Controllers\VoteController;
+use App\Http\Controllers\Settings\VotingOptionController;
+use Spatie\Permission\Middleware\RoleMiddleware;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -49,6 +55,33 @@ Route::middleware(['auth','verified'])->group(function(){
         ->only(['index','create','show','edit','update','destroy'])
         ->names('document');
 
+});
+
+Route::middleware(['auth', 'verified', 'role:director'])->group(function () {
+
+    // --- Gestión de Consejos (Council) ---
+    Route::put('councils/{council}/close', [CouncilController::class, 'close'])->name('councils.close');
+    Route::resource('councils', CouncilController::class);
+
+    // --- Gestión de Puntos de Consejo (CouncilPoint) ---
+    // Es un recurso anidado bajo los consejos.
+    Route::resource('councils.points', CouncilPointController::class)
+         ->only(['store', 'update', 'destroy']) // Solo se necesitan los endpoints, no las vistas.
+         ->shallow(); // Hace las URLs de update/destroy más limpias (ej: /points/123)
+
+    // --- Gestión de Opciones de Votación (VotingOption) ---
+    // Se agrupan bajo un prefijo 'settings' para organizar las URLs.
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::resource('voting-options', VotingOptionController::class)
+             ->except(['create', 'edit', 'show']); // El CRUD se maneja en el componente Index.
+    });
+});
+
+Route::middleware(['auth', 'verified', 'role:consejero'])->group(function () {
+    
+    // --- Acción de Votar ---
+    // El consejero envía un POST a esta ruta para registrar su voto.
+    Route::post('points/{point}/votes', [VoteController::class, 'store'])->name('points.votes.store');
 });
 
 require __DIR__.'/auth.php';

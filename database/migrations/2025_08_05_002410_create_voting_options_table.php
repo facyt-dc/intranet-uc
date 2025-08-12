@@ -12,7 +12,13 @@ return new class extends Migration {
     {
         Schema::create('voting_options', function (Blueprint $table) {
             $table->id();
+
+            // name: El texto de la opción de voto (ej: "A favor", "En contra").
+            // Debe ser único para evitar tener opciones duplicadas en el sistema.
             $table->string('name')->unique();
+
+            // is_active: Un booleano para habilitar o deshabilitar una opción globalmente.
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
