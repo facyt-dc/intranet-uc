@@ -52,7 +52,7 @@ class CouncilPointController extends Controller
 
         // 3. Sincronización de las relaciones "muchos a muchos"
         $point->votableUsers()->sync($validated['votable_users']);
-        $point->availableOptions()->sync($validated['available_options']);
+        $point->votingOptions()->sync($validated['available_options']);
 
         // 4. Redirección a la vista del consejo con un mensaje de éxito
         return to_route('councils.show', $council)->with('success', 'Punto del consejo añadido correctamente.');
@@ -68,8 +68,13 @@ class CouncilPointController extends Controller
      */
     public function update(Request $request, Council $council, CouncilPoint $point): RedirectResponse
     {
-        // Laravel por defecto se asegura de que el {point} pertenezca al {council}
-        // si se definen las rutas como recursos anidados.
+        if ($point->votes()->exists()) {
+            return back()->with('error', 'No se puede editar un punto que ya tiene votos.');
+        }
+
+        if ($point->council->status === 'Cerrado') {
+            return back()->with('error', 'No se pueden editar puntos de un consejo que ya ha sido cerrado.');
+        }
 
         // 1. Validación (idéntica a la de 'store')
         $validated = $request->validate([
@@ -86,7 +91,7 @@ class CouncilPointController extends Controller
             'available_options' => 'required|array|min:1',
             'available_options.*' => 'required|integer|exists:voting_options,id',
         ]);
-        
+
         // 2. Actualización de los datos principales del punto
         $point->update([
             'description' => $validated['description'],
@@ -94,10 +99,10 @@ class CouncilPointController extends Controller
             'min_votes_to_close' => $validated['min_votes_to_close'],
             'order' => $validated['order'] ?? $point->order,
         ]);
-        
+
         // 3. Resincronización de las relaciones
         $point->votableUsers()->sync($validated['votable_users']);
-        $point->availableOptions()->sync($validated['available_options']);
+        $point->votingOptions()->sync($validated['available_options']);
 
         return to_route('councils.show', $council)->with('success', 'Punto del consejo actualizado correctamente.');
     }
@@ -109,12 +114,11 @@ class CouncilPointController extends Controller
      * @param  CouncilPoint $point
      * @return RedirectResponse
      */
-    public function destroy(Council $council, CouncilPoint $point): RedirectResponse
+    public function destroy(CouncilPoint $point): RedirectResponse
     {
-        // Las restricciones de la base de datos (onDelete('cascade')) se encargarán de
-        // limpiar votos, permisos de voto y opciones de voto asociados a este punto.
+        $councilCode = $point->council->code;
         $point->delete();
 
-        return to_route('councils.show', $council)->with('success', 'Punto del consejo eliminado correctamente.');
+        return to_route('councils.show', $councilCode)->with('success', 'Punto del consejo eliminado correctamente.');
     }
 }

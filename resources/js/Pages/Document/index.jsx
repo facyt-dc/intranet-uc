@@ -28,9 +28,7 @@ export default function DocumentIndex({ auth, documents, created_at }) {
                 <h2 className="text-xl text-gray-500">Documentos</h2>
                 <Link href="#">
                     <Button variant="contained" startIcon={<AddRoundedIcon />}>
-                        {t("button.create field", {
-                            field: "Documento",
-                        })}
+                        Crear documento
                     </Button>
                 </Link>
             </div>

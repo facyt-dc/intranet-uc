@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,6 +22,8 @@ import { useTranslation } from "react-i18next";
 export default function CouncilTable({ councils }) {
     const paperElevation = 5;
     const { t } = useTranslation(["translation", "common"]);
+    const { auth } = usePage().props; // Obtenemos el usuario autenticado
+    const isDirector = auth.user.roles.some(role => role.name === 'director');
 
     // Función para manejar la paginación con Inertia
     const handleChangePage = (event, newPage) => {
@@ -56,9 +58,9 @@ export default function CouncilTable({ councils }) {
                         <TableRow
                             key={council.id}
                             sx={{
-                                "&:last-child td, &:last-child th": {
-                                    border: 0,
-                                },
+                                "&:last-child td, &:last-child th": { border: 0 },
+                                backgroundColor: council.status === 'Cerrado' ? '#fafafa' : 'inherit',
+                                color: council.status === 'Cerrado' ? '#9e9e9e' : 'inherit',
                             }}
                         >
                             <TableCell component="th" scope="row">
@@ -69,12 +71,12 @@ export default function CouncilTable({ councils }) {
                             <TableCell align="left">{council.name}</TableCell>
                             <TableCell align="left">
                                 {/* Usamos el objeto Carbonjs de Laravel, que ya está parseado por Inertia */}
-                                {new Date(council.date).toLocaleString('es-ES', { 
-                                    year: 'numeric', 
-                                    month: '2-digit', 
-                                    day: '2-digit', 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
+                                {new Date(council.date).toLocaleString('es-ES', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
                                 })}
                             </TableCell>
                             <TableCell align="left">{council.director.name}</TableCell>
@@ -91,27 +93,24 @@ export default function CouncilTable({ councils }) {
                                             {t("View")}
                                         </Button>
                                     </Link>
-                                    
-                                    {/* Link para editar el consejo */}
-                                    <Link href={route("councils.edit", council.code)}>
-                                        <Button
-                                            variant="contained"
-                                            size="small"
-                                            startIcon={<EditIcon />}
-                                        >
-                                            {t("Edit")}
-                                        </Button>
-                                    </Link>
-                                    
-                                    {/* Diálogo para eliminar el consejo */}
-                                    {/* Asumimos que DeleteDialog existe y está adaptado para Councils */}
-                                    <DeleteDialog council={council} />
+
+                                    {/* Los botones "Editar" y "Eliminar" solo se muestran si es Director */}
+                                    {isDirector && council.status !== 'Cerrado' && (
+                                        <>
+                                            <Link href={route("councils.edit", council.code)}>
+                                                <Button variant="contained" size="small" startIcon={<EditIcon />}>
+                                                    {t("Edit")}
+                                                </Button>
+                                            </Link>
+                                            <DeleteDialog council={council} />
+                                        </>
+                                    )}
                                 </div>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
-                
+
                 {/* Footer para la paginación */}
                 <TableFooter>
                     <TableRow>

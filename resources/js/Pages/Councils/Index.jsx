@@ -13,11 +13,11 @@ import CouncilTable from "./Components/CouncilTable";
 import { useTranslation } from "react-i18next";
 
 // Renombramos la prop 'roles' a 'councils'
-export default function CouncilIndex({ auth, councils, flash }) {
+export default function CouncilIndex({ auth, councils}) {
+    const { flash } = usePage().props;
     const alert = flash?.alert;
-
-    // Asumimos que tienes traducciones para 'council' en tu archivo común.
     const { t } = useTranslation(["common"]);
+    const isDirector = auth.user.roles.some(role => role.name === 'director');
 
     return (
         <AdminLayout auth={auth}>
@@ -39,14 +39,16 @@ export default function CouncilIndex({ auth, councils, flash }) {
                     {t("list of field", { field: t("council", { count: 2 }) })}
                 </h2>
                 
-                {/* Botón para crear un nuevo consejo */}
-                <Link href={route("councils.create")}>
-                    <Button variant="contained" startIcon={<AddRoundedIcon />}>
-                        {t("button.create field", {
-                            field: t("council", { count: 1 }),
-                        })}
-                    </Button>
-                </Link>
+                {/* Ocultamos el botón "Crear" si no es Director */}
+                {isDirector && (
+                    <Link href={route("councils.create")}>
+                        <Button variant="contained" startIcon={<AddRoundedIcon />}>
+                            {t("button.create field", {
+                                field: t("council", { count: 1 }),
+                            })}
+                        </Button>
+                    </Link>
+                )}
             </div>
 
             {/* Pasamos los datos paginados a la tabla */}

@@ -61,7 +61,7 @@ Route::middleware(['auth', 'verified', 'role:director'])->group(function () {
 
     // --- Gestión de Consejos (Council) ---
     Route::put('councils/{council}/close', [CouncilController::class, 'close'])->name('councils.close');
-    Route::resource('councils', CouncilController::class);
+    Route::resource('councils', CouncilController::class)->except(['index', 'show']);
 
     // --- Gestión de Puntos de Consejo (CouncilPoint) ---
     // Es un recurso anidado bajo los consejos.
@@ -77,7 +77,12 @@ Route::middleware(['auth', 'verified', 'role:director'])->group(function () {
     });
 });
 
-Route::middleware(['auth', 'verified', 'role:consejero'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:director|counselor'])->group(function () {
+    Route::get('/councils', [CouncilController::class, 'index'])->name('councils.index');
+    Route::get('/councils/{council}', [CouncilController::class, 'show'])->name('councils.show');
+});
+
+Route::middleware(['auth', 'verified', 'role:counselor'])->group(function () {
     
     // --- Acción de Votar ---
     // El consejero envía un POST a esta ruta para registrar su voto.

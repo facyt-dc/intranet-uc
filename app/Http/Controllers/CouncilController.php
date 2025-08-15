@@ -21,7 +21,19 @@ class CouncilController extends Controller
      */
     public function index(): Response
     {
-        $councils = Council::with('director:id,name')
+        $user = Auth::user();
+        $query = Council::query();
+
+        // Si el usuario es Consejero, filtramos los consejos
+        if ($user->hasRole('counselor')) {
+            // Obtenemos solo los consejos en los que el usuario es participante.
+            $query->whereHas('participants', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
+        }
+
+        // Construimos la consulta final con las relaciones y paginación
+        $councils = $query->with('director:id,name')
             ->withCount('participants')
             ->latest()
             ->paginate(10);
@@ -47,8 +59,13 @@ class CouncilController extends Controller
     /**
      * Almacena un nuevo consejo en la base de datos.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, Council $council): RedirectResponse
     {
+        if ($council->status === 'Cerrado') {
+            // Si está cerrado, redirigimos con un error.
+            return back()->with('error', 'No se pueden añadir puntos a un consejo que ya ha sido cerrado.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'date' => 'required|date|after_or_equal:today',
@@ -92,7 +109,7 @@ class CouncilController extends Controller
             'points' => fn($query) => $query->orderBy('order'),
             'points.requester:id,name',
             'points.votableUsers:id,name',
-            'points.availableOptions:id,name',
+            'points.votingOptions:id,name',
             'points.votes.user:id,name',
             'points.votes.option:id,name',
         ]);
@@ -120,6 +137,10 @@ class CouncilController extends Controller
      */
     public function update(Request $request, Council $council): RedirectResponse
     {
+        if ($council->status === 'Cerrado') {
+            return back()->with('error', 'No se puede editar un consejo que ya ha sido cerrado.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'date' => 'required|date',
