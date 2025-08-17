@@ -1,34 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from '@inertiajs/react';
 
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-// ... (otros imports de MUI que ya tienes, no los repito para brevedad)
-import FormGroup from '@mui/material/FormGroup';
-import FormLabel from '@mui/material/FormLabel';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
-export default function Form({ thesisStudent, routeName, method }) {
-    const [showPassword, setShowPassword] = useState(false);
+export default function Form({ thesisStudent, routeName, method = 'post', onCancel }) {
+    const isEdit = !!thesisStudent;
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, patch, processing, errors } = useForm({
         name: thesisStudent?.name ?? '',
         email: thesisStudent?.email ?? '',
         id_uc: thesisStudent?.id_uc ?? '',
         ci: thesisStudent?.ci ?? '',
-        remember: false,
+        // ... otros campos si hay
     });
 
-
     const handleChange = (e) => {
-        const key = e.target.id || e.target.name; // Usar id o name
-        const value = e.target.value;
-        setData(currentData => ({
-            ...currentData,
-            [key]: value,
-        }));
+        setData(e.target.name, e.target.value);
     };
 
     const handleSubmit = (e) => {
@@ -36,87 +27,98 @@ export default function Form({ thesisStudent, routeName, method }) {
         if (method === 'post') {
             post(route(routeName));
         } else {
-            patch(route(routeName, thesisStudent));
+            console.log('Updating thesis student:', thesisStudent?.id);
+            patch(route(routeName, thesisStudent?.id));
         }
     };
-
 
     return (
         <Box
             component="form"
-            sx={{
-                mt: 2,
-
-            }}
+            sx={{ mt: 2 }}
             onSubmit={handleSubmit}
-            id="thesisStudentForm" 
+            id="thesisStudentForm"
+            autoComplete="off"
         >
-            <FormGroup
-                sx={{
-                    display: "flex",
-                    flexDirection: "row", 
-                    flexWrap: "wrap",     
-                    gap: 2,               
-                    mb: 2,              
-                }}
-            >
-                <TextField
-                    required
-                    variant="outlined"
-                    type="text"
-                    id="name"
-                    name="name" 
-                    label="Nombre"
-                    value={data.name} 
-                    onChange={handleChange}
-                    error={!!errors.name}
-                    helperText={errors.name}
-                    sx={{ flexGrow: 1, minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' } }} // Responsive
-                />
-                <TextField
-                    required
-                    variant="outlined"
-                    type="email"
-                    id="email"
-                    name="email" 
-                    label="Correo Electronico"
-                    value={data.email}
-                    onChange={handleChange}
-                    error={!!errors.email} 
-                    helperText={errors.email}
-                    sx={{ flexGrow: 1, minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' } }} // Responsive
-                />
-                <TextField
-                    variant="outlined"
-                    type="text"
-                    id="id_uc"
-                    name="id_uc"
-                    label="ID UC"
-                    value={data.id_uc}
-                    onChange={handleChange}
-                    error={!!errors.id_uc} 
-                    helperText={errors.id_uc}
-                    sx={{ flexGrow: 1, minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' } }} // Responsive
-                />
-                <TextField
-                    variant="outlined"
-                    type="text"
-                    id="ci"
-                    name="ci" 
-                    label="Cedula"
-                    value={data.ci} 
-                    onChange={handleChange}
-                    error={!!errors.ci} 
-                    helperText={errors.ci}
-                    sx={{ flexGrow: 1, minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' } }} // Responsive
-                />
-            </FormGroup>
+            <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Nombre
+                    </Typography>
+                    <TextField
+                        required
+                        name="name"
+                        value={data.name}
+                        onChange={handleChange}
+                        error={!!errors.name}
+                        helperText={errors.name}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Correo electrónico
+                    </Typography>
+                    <TextField
+                        required
+                        name="email"
+                        value={data.email}
+                        onChange={handleChange}
+                        error={!!errors.email}
+                        helperText={errors.email}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        ID UC
+                    </Typography>
+                    <TextField
+                        name="id_uc"
+                        value={data.id_uc}
+                        onChange={handleChange}
+                        error={!!errors.id_uc}
+                        helperText={errors.id_uc}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Cédula
+                    </Typography>
+                    <TextField
+                        name="ci"
+                        value={data.ci}
+                        onChange={handleChange}
+                        error={!!errors.ci}
+                        helperText={errors.ci}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                    />
+                </Grid>
+            </Grid>
 
-         
-
-            <Button variant="contained" type="submit" disabled={processing}>
-                {thesisStudent ? 'Actualizar' : 'Crear'}
-            </Button>
+            <Box display="flex" gap={2} mt={5}>
+                <Button
+                    variant="contained"
+                    type="submit"
+                    disabled={processing}
+                >
+                    {isEdit ? 'Actualizar' : 'Crear'}
+                </Button>
+                {onCancel &&
+                    <Button variant="outlined" color="inherit" onClick={onCancel}>
+                        Cancelar
+                    </Button>
+                }
+            </Box>
         </Box>
     );
 }

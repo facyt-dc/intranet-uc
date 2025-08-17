@@ -63,6 +63,13 @@ class StudentStatusesController extends Controller
         ]);
     }
 
+     public function show(StudentStatus $studentStatus)
+    {
+        return Inertia::render('Thesis/StudentStatuses/show', [
+            'studentStatus' => $studentStatus,
+        ]);
+    }
+
     /**
      * Update the specified resource in storage.
      */

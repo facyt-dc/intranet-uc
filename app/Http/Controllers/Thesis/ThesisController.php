@@ -7,12 +7,14 @@ use Illuminate\Http\Request;
 use App\Models\ThesisStudent;
 use App\Models\StudentStatus;
 use App\Models\Thesis;
+use App\Models\ThesisFile;
 
 use Spatie\Permission\Models\Role;
 
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ThesisController extends Controller
 {
@@ -37,28 +39,102 @@ class ThesisController extends Controller
         ]);
     }
 
+        public function show(Thesis $thesis)
+    {
+
+        return Inertia::render('Thesis/ThesisProjects/show', [
+           'thesis' => $thesis->load('students', 'files'), 
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
+        {
+        // 1. VALIDACIÓN
         $request->validate([
-            "title"     => "required",
-            "date"      => "required|date",
-            "student_ids" => "required|array|min:1|max:2",
-            "student_ids.*" => "exists:thesis_student,id",
+            'title' => 'required|string|max:255|unique:thesis,title',
+            'date'  => 'required|date',
+            'student_ids'   => 'required|array|min:1|max:2',
+            'student_ids.*' => 'exists:thesis_student,id', 
+            'pteg_document' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
+            'teg_document'  => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
         ]);
+        $newThesis = null; 
 
-        // Crear el proyecto de tesis
-        $newThesis = Thesis::create([
-            'title'     => $request->title,
-            'date'      => $request->date,
-        ]);
 
-        // Asociar los estudiantes seleccionados
-        $newThesis->students()->sync($request->student_ids);
+        try{
+        DB::transaction(function () use ($request, &$newThesis) {
 
-        return to_route('Thesis.index')->with('flash',[
+            // 2. CREAR LA TESIS
+            $newThesis = Thesis::create([
+                'title'     => $request->title,
+                'date'      => $request->date,
+            ]);
+
+            // 3. GUARDAR DOCUMENTO PTEG
+            if ($request->hasFile('pteg_document')) {
+                $file = $request->file('pteg_document');
+                $path = $file->store('thesis_files', 'public');
+                $newThesis->files()->create([
+                    'type' => 'pteg',
+                    'original_name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                ]);
+            }
+
+            // 4. GUARDAR DOCUMENTO TEG
+            if ($request->hasFile('teg_document')) {
+                $file = $request->file('teg_document');
+                $path = $file->store('thesis_files', 'public');
+                $newThesis->files()->create([
+                    'type' => 'teg',
+                    'original_name' => $file->getClientOriginalName(),
+                    'path' => $path,
+
+                ]);
+            }
+
+            // 5. SINCRONIZAR ESTUDIANTES
+            $studentIds = $request->student_ids;
+            $newThesis->students()->sync($studentIds);
+
+             // Desactivar todas las tesis anteriores de los estudiantes involucrados.
+            Thesis::where('is_active', true) // Solo nos interesan las que están activas
+                    ->where('id', '!=', $newThesis->id) // Excluimos la tesis que acabamos de crear
+                    ->whereHas('students', function ($query) use ($studentIds) {
+                        // Filtramos para encontrar tesis que tengan al menos uno de los estudiantes
+                        $query->whereIn('thesis_student.id', $studentIds); 
+                    })
+                    ->update(['is_active' => false]); // Actualizamos su estado a inactivo
+                
+              
+
+                // 6. ACTUALIZAR EL ESTATUS DE LOS ESTUDIANTES A "PTEG INSCRITO"
+            
+            // Primero, encontramos el ID del estatus que queremos asignar.
+            // Usamos firstOrFail() para que, si el estatus no existe, la transacción falle y se revierta todo.
+            $ptegStatus = StudentStatus::where('name', 'PTEG inscrito')->firstOrFail();
+
+            // Luego, actualizamos todos los estudiantes seleccionados con el nuevo status_id.
+            // Esta es una consulta de actualización masiva, muy eficiente.
+            ThesisStudent::whereIn('id', $studentIds)
+                            ->update(['status_id' => $ptegStatus->id]);
+                              });
+        }
+
+         catch (Exception $e) {
+            return back()->with('flash', [
+                'alert' => [
+                    'message' => 'Ocurrió un error al crear la tesis: ' . $e->getMessage(),
+                    'severity' => 'error'
+                ]
+            ]);
+        }
+
+        // 6. REDIRECCIÓN
+        return to_route('Thesis.index')->with('flash', [
             'alert' => [
                 'id' => $newThesis->id,
                 'message' => 'Proyecto de tesis creado correctamente.',
@@ -67,41 +143,114 @@ class ThesisController extends Controller
         ]);
     }
 
-    public function edit(Thesis $thesis)
-    {
-        return Inertia::render('Thesis/ThesisProjects/edit', [
-            'thesis' => $thesis->load('students'),
-            'students' => ThesisStudent::all(),
-        ]);
-    }
+public function edit(Thesis $thesis)
+{
+    return Inertia::render('Thesis/ThesisProjects/edit', [
+        'thesis' => $thesis->load(['students', 'files']),
+        'students' => ThesisStudent::all(),
+        'statuses' => StudentStatus::all(),
+    ]);
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Thesis $thesis)
-    {
-        $request->validate([
-            "title" => "required",
-            "date"  => "required|date",
-            "student_ids" => "required|array|min:1|max:2",
-            "student_ids.*" => "exists:thesis_student,id",
-        ]);
 
-        $thesis->title = $request->title;
-        $thesis->date = $request->date;
-        $thesis->save();
+public function update(Request $request, Thesis $thesis)
+{
+    // 1. VALIDACIÓN ALINEADA CON EL FRONTEND Y EL MÉTODO 'store'
+    // Se valida explícitamente por 'pteg_document' y 'teg_document'.
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255|unique:thesis,title,' . $thesis->id,
+        'date'  => 'required|date',
+        'student_ids'   => 'required|array|min:1|max:2',
+        'student_ids.*' => 'exists:thesis_student,id', // Verifica el nombre de la tabla
+        
+        // Reglas para los archivos con sus nombres correctos
+        'pteg_document' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
+        'teg_document'  => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
 
-        // Actualizar los estudiantes asociados
-        $thesis->students()->sync($request->student_ids);
+        // La validación para los archivos a borrar se mantiene
+        'deleted_files' => 'nullable|array',
+        'deleted_files.*' => 'nullable|integer|exists:thesis_files,id',
+    ]);
 
-        return to_route('Thesis.index')->with('flash', [
-            'alert' => [
-                'id' => $thesis->id,
-                'message' => 'Proyecto de tesis actualizado correctamente.',
-                'severity' => 'success'
-            ]
-        ]);
+    // 2. USAR UNA TRANSACCIÓN PARA GARANTIZAR LA INTEGRIDAD DE LOS DATOS
+    try {
+        DB::transaction(function () use ($validatedData, $request, $thesis) {
+            
+            // A. ACTUALIZAR DATOS DE LA TESIS Y ESTUDIANTES
+            $thesis->update([
+                'title' => $validatedData['title'],
+                'date'  => $validatedData['date'],
+            ]);
+            $thesis->students()->sync($validatedData['student_ids']);
+
+            // B. BORRAR ARCHIVOS MARCADOS PARA ELIMINACIÓN
+            if (!empty($validatedData['deleted_files'])) {
+                $filesToDelete = ThesisFile::whereIn('id', $validatedData['deleted_files'])
+                    ->where('thesis_id', $thesis->id)->get();
+                
+                foreach ($filesToDelete as $file) {
+                    Storage::disk('public')->delete($file->path);
+                    $file->delete();
+                }
+            }
+
+            // C. PROCESAR Y REEMPLAZAR EL DOCUMENTO PTEG (si se subió uno nuevo)
+            if ($request->hasFile('pteg_document')) {
+                // Borramos el archivo antiguo de tipo 'pteg' si existía
+                $oldFile = $thesis->files()->where('type', 'pteg')->first();
+                if ($oldFile) {
+                    Storage::disk('public')->delete($oldFile->path);
+                    $oldFile->delete();
+                }
+
+                // Guardamos el nuevo archivo
+                $file = $request->file('pteg_document');
+                $path = $file->store('thesis_files', 'public');
+                $thesis->files()->create([
+                    'type' => 'pteg',
+                    'original_name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                    'size' => $file->getSize(),
+                ]);
+            }
+
+            // D. PROCESAR Y REEMPLAZAR EL DOCUMENTO TEG (si se subió uno nuevo)
+            if ($request->hasFile('teg_document')) {
+                // Borramos el archivo antiguo de tipo 'teg' si existía
+                $oldFile = $thesis->files()->where('type', 'teg')->first();
+                if ($oldFile) {
+                    Storage::disk('public')->delete($oldFile->path);
+                    $oldFile->delete();
+                }
+                
+                // Guardamos el nuevo archivo
+                $file = $request->file('teg_document');
+                $path = $file->store('thesis_files', 'public');
+                $thesis->files()->create([
+                    'type' => 'teg',
+                    'original_name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                    'size' => $file->getSize(),
+                ]);
+            }
+        });
+    } catch (\Exception $e) {
+        // En caso de un error inesperado, se revierte todo y se notifica.
+        return back()->with('error', 'Ocurrió un error al actualizar la tesis: ' . $e->getMessage());
     }
+    
+    // 3. REDIRECCIÓN EN CASO DE ÉXITO
+    return to_route('Thesis.index')->with('flash', [
+        'alert' => [
+            'id' => $thesis->id,
+            'message' => 'Proyecto de tesis actualizado correctamente.',
+            'severity' => 'success'
+        ]
+    ]);
+}
 
     /**
      * Remove the specified resource from storage.

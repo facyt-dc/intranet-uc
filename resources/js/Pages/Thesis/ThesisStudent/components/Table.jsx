@@ -10,6 +10,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
+import Chip from '@mui/material/Chip';
 
 import DeleteDialog from "./DeleteDialog";
 import { useTranslation } from "react-i18next";
@@ -29,6 +30,29 @@ export default function thesisStudentTable({ thesisStudent }) {
         // navigate(`/thesisStudent/${id}`);
     };
 
+    const getStatusChipColor = (statusName) => {
+        console.log("esto es statusName",statusName)
+        if (!statusName) return 'default';
+        const name = statusName.toLowerCase();
+        
+        switch (name) {
+            case 'inscrito':
+            case 'activo':
+            case 'en proceso':
+                return 'success';
+            case 'pteg inscrito':
+            case 'culminado':
+                return 'primary';
+            case 'retirado':
+            case 'suspendido':
+                return 'error';
+            case 'en espera':
+                return 'warning';
+            default:
+                return 'default';
+        }
+    };
+    
     return (
         <TableContainer
             component={Paper}
@@ -45,6 +69,8 @@ export default function thesisStudentTable({ thesisStudent }) {
                         <TableCell align="left">{t("Name")}</TableCell>
                         <TableCell align="left">{t("Email")}</TableCell>
                         <TableCell align="left">{t("Tesis")}</TableCell>
+                        <TableCell align="left">{t("Status")}</TableCell>
+
                         <TableCell align="left"></TableCell>
                     </TableRow>
                 </TableHead>
@@ -68,6 +94,16 @@ export default function thesisStudentTable({ thesisStudent }) {
                                 {student.theses && student.theses.length > 0
                                     ? student.theses.map(t => t.title).join(', ')
                                     : <span style={{ color: '#aaa' }}>Sin tesis</span>
+                                }
+                                
+                            </TableCell>
+                             <TableCell align="left">
+                                {                                    
+                                    <Chip 
+                                        label={student.status.name} 
+                                        color={getStatusChipColor(student.status.name)}
+                                    />
+                    
                                 }
                             </TableCell>
                             <TableCell align="right">

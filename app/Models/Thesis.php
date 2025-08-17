@@ -27,4 +27,14 @@ class Thesis extends Model
     {
         return $this->belongsToMany(ThesisStudent::class, 'student_thesis_pivot', 'thesis_id', 'student_id');
     }
+
+    /**
+     * 
+     * Una tesis puede tener muchos archivos asociados.
+     */
+    public function files()
+    {
+        // El nombre de la clase del modelo de archivos
+        return $this->hasMany(ThesisFile::class); 
+    }
 }

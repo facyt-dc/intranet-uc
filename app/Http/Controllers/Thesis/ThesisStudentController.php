@@ -26,6 +26,13 @@ class ThesisStudentController extends Controller
         ]);
     }
 
+    public function show(ThesisStudent $thesisStudent)
+    {
+        return Inertia::render('Thesis/ThesisStudent/show', [
+            'thesisStudent' => $thesisStudent->load('theses', 'status'),
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -124,7 +131,7 @@ class ThesisStudentController extends Controller
     public function edit(ThesisStudent $thesisStudent)
     {
         return Inertia::render('Thesis/ThesisStudent/edit', [
-            'thesisStudent' => $thesisStudent
+            'thesisStudent' => $thesisStudent->load('status', 'theses'),
         ]);
     }
 
@@ -134,23 +141,23 @@ class ThesisStudentController extends Controller
      */
     public function update(Request $request, ThesisStudent $thesisStudent)
     {
+                        
         $request->validate([
             "name"  => "required",
-            "email" => "required|email"
+            "email" => "required|email",
+            "ci"    => "required",
+            "id_uc" => "required"
         ]);
+
 
         $thesisStudent->name = $request->name;
         $thesisStudent->email = $request->email;
-
-        // comprueba si elpassword a cambiado
-        if( $request->password != '' ){
-            $thesisStudent->password = $request->password;
-        }
+        $thesisStudent->ci = $request->ci;
+        $thesisStudent->id_uc = $request->id_uc;
 
         $thesisStudent->save();
 
-        // actualizando los roles del ususario
-        $thesisStudent->assignRole($request->roles);
+
 
         return to_route('thesisStudent.index')->with('flash',[
             'alert' => [

@@ -13,11 +13,18 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import DeleteDialog from "./DeleteDialog";
 import { useTranslation } from "react-i18next";
+import Chip from '@mui/material/Chip';
 
 export default function ThesisTable({ thesis }) {
     const paperElevation = 5;
     console.log(thesis);
     const { t } = useTranslation(["translation"]);
+
+        const handleRowClick = (id) => {
+        window.location.href = route("Thesis.show", id);
+
+    };
+
 
     return (
         <TableContainer
@@ -30,17 +37,27 @@ export default function ThesisTable({ thesis }) {
                 aria-label="simple table"
             >
                <TableHead>
-    <TableRow>
+        <TableRow>
         <TableCell fontWeight="700">{t("ID")}</TableCell>
         <TableCell align="left">{t("Title")}</TableCell>
         <TableCell align="left">{t("Date")}</TableCell>
         <TableCell align="left">{t("Estudiantes")}</TableCell>
+        <TableCell align="left">{t("Status")}</TableCell>
+
         <TableCell align="left"></TableCell>
     </TableRow>
 </TableHead>
 <TableBody>
     {thesis.map((thesisItem) => (
-        <TableRow key={thesisItem.id}>
+    <TableRow
+                    key={thesisItem.id}
+                    hover
+                    sx={{
+                        cursor: "pointer",
+                        "&:last-child td, &:last-child th": { border: 0 },
+                    }}
+                    onClick={() => handleRowClick(thesisItem.id)}
+                >
             <TableCell component="th" scope="row">
                 {thesisItem.id}
             </TableCell>
@@ -52,8 +69,18 @@ export default function ThesisTable({ thesis }) {
                     : <span style={{ color: '#aaa' }}>Sin estudiantes</span>
                 }
             </TableCell>
+
+            <TableCell align="left">
+                <Chip 
+                    label={thesisItem.is_active ? 'Activo' : 'Inactivo'}
+                    color={thesisItem.is_active ? 'success' : 'default'}
+                    size="small"
+                />
+            </TableCell>
             <TableCell align="right">
-                <div className="flex justify-end flex-col sm:flex-row gap-2">
+                <div className="flex justify-end flex-col sm:flex-row gap-2"
+                onClick={e => e.stopPropagation()} // Evita que el click en los botones dispare el click de la fila
+                >   
                     <Link href={route("Thesis.edit", thesisItem)}>
                         <Button
                             variant="contained"

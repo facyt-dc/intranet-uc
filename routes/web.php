@@ -13,6 +13,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Thesis\ThesisStudentController;
 use App\Http\Controllers\Thesis\StudentStatusesController;
 use App\Http\Controllers\Thesis\ThesisController;
+use App\Http\Controllers\Thesis\ThesisFileController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -53,19 +54,22 @@ Route::middleware(['auth','verified'])->group(function(){
         ->names('document');
 
     Route::resource('/thesis/thesisStudent', ThesisStudentController::class )
-        ->only(['index','create','store','edit','update','destroy'])
+        ->only(['index','create','store','edit','update','destroy','show'])
         ->names('thesisStudent');
 
     Route::post('/thesis/thesisStudent/import-excel', [ThesisStudentController::class, 'importExcel'])
     ->name('thesisStudent.importExcel');
 
     Route::resource('/thesis/studentStatuses', StudentStatusesController::class )
-        ->only(['index','create','store','edit','update','destroy'])
+        ->only(['index','create','store','edit','update','destroy','show'])
         ->names('studentStatuses');
 
     Route::resource('/thesis/Thesis', ThesisController::class )
-        ->only(['index','create','store','edit','update','destroy'])
+    ->parameters(['Thesis' => 'thesis'])
+        ->only(['index','create','store','edit','update','destroy','show'])
         ->names('Thesis');
+
+    Route::get('/thesis-files/{thesisFile}/download', [ThesisFileController::class, 'download'])->name('thesis-files.download');
 });
 
 require __DIR__.'/auth.php';

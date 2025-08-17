@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
 import Alert from "@/Components/Alert";
-import Table from "@/Pages/Thesis/thesisStudent/components/Table";
+import Table from "@/Pages/Thesis/ThesisStudent/components/Table";
 
 // import Table from "@/Pages/Admin/User/componets/Table";
 import { useTranslation } from "react-i18next";

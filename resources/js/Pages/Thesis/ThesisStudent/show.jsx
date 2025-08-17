@@ -3,14 +3,10 @@ import { Head, Link } from "@inertiajs/react";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-// --- TUS IMPORTS ORIGINALES ---
-import ArrowCircleLeftRoundedIcon from "@mui/icons-material/ArrowCircleLeftRounded";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import Form from "./components/Form"; // Asumiendo que tu Form está en ./components/
-
-// --- NUEVOS IMPORTS PARA LOS ELEMENTOS VISUALES (de show.jsx) ---
+import Button from "@mui/material/Button";
+import EditIcon from "@mui/icons-material/Edit";
 import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Grid";
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -21,14 +17,33 @@ import TableRow from '@mui/material/TableRow';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { green } from '@mui/material/colors';
 import Chip from '@mui/material/Chip';
-import Button from "@mui/material/Button";
-// --- FIN DE NUEVOS IMPORTS ---
 
-
-export default function ThesisStudentEdit({ auth, thesisStudent }) {
+export default function ThesisStudentShow({ auth, thesisStudent }) {
     const { t } = useTranslation(["translation", "common"]);
-    
-     const sortedTheses = useMemo(() => {
+
+    const getStatusChipColor = (statusName) => {
+        if (!statusName) return 'default';
+        const name = statusName.toLowerCase();
+        
+        switch (name) {
+            case 'inscrito':
+            case 'activo':
+            case 'en proceso':
+                return 'success';
+            case 'pteg inscrito':
+            case 'culminado':
+                return 'primary';
+            case 'retirado':
+            case 'suspendido':
+                return 'error';
+            case 'en espera':
+                return 'warning';
+            default:
+                return 'default';
+        }
+    };
+
+    const sortedTheses = useMemo(() => {
         // Si no hay tesis, devuelve un array vacío para evitar errores.
         if (!thesisStudent.theses || thesisStudent.theses.length === 0) {
             return [];
@@ -47,45 +62,18 @@ export default function ThesisStudentEdit({ auth, thesisStudent }) {
         });
     }, [thesisStudent.theses]);
 
-
-    const getStatusChipColor = (statusName) => {
-        if (!statusName) return 'default';
-        const name = statusName.toLowerCase();
-        
-        switch (name) {
-            case 'inscrito': return 'success';
-            case 'pteg inscrito': return 'primary';
-            case 'retirado': return 'error';
-            case 'en espera': return 'warning';
-            default: return 'default';
-        }
-    };
-    // --- FIN DE LÓGICA COPIADA ---
-
     return (
         <AdminLayout auth={auth}>
-            <Head
-                title={t("Edit resource", {
-                    resource: t("thesis student", {
-                        count: 1,
-                        ns: "common",
-                    }),
-                })}
-            />
+            <Head title={t("Detalle Tesista", "Detalle Tesista")} />
             
-            {/* CABECERA ADAPTADA */}
+            {/* SECCIÓN DE CABECERA MODIFICADA */}
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl text-gray-500">
-                    {t("Edit resource", {
-                        resource: t("thesis student", {
-                            count: 1,
-                            ns: "common",
-                        }),
-                    })}: {thesisStudent.name}
+                    {t("Detalle del Tesista", "Detalle del Tesista")}
                 </h2>
                 
-                <div className="flex items-center gap-2"> {/* Reducido el gap para que se vea bien con el IconButton */}
-                    {/* Chip de estatus (solo visual) */}
+                <div className="flex items-center gap-4">
+                    {/* Chip del estatus */}
                     {thesisStudent.status && (
                         <Chip 
                             label={thesisStudent.status.name} 
@@ -93,36 +81,63 @@ export default function ThesisStudentEdit({ auth, thesisStudent }) {
                         />
                     )}
                     
-                    {/* Tu botón original de "volver" */}
+                    {/* Botones de acción */}
+                    <Link href={route("thesisStudent.edit", thesisStudent.id)}>
+                        <Button variant="contained" startIcon={<EditIcon />}>
+                            {t("Editar", "Editar")}
+                        </Button>
+                    </Link>
                     <Link href={route("thesisStudent.index")}>
-                        <Tooltip title={t("button.go back", { ns: "common" })}>
-                            <IconButton size="large">
-                                <ArrowCircleLeftRoundedIcon fontSize="inherit" />
-                            </IconButton>
-                        </Tooltip>
+                        <Button variant="outlined">
+                            {t("Volver", "Volver")}
+                        </Button>
                     </Link>
                 </div>
             </div>
 
-            {/* FORMULARIO ENVUELTO EN UN PAPER PARA MEJOR UI */}
-            <Paper sx={{ p: 3, mb: 4 }}>
-                <Typography variant="h6" gutterBottom>
-                    {t("Datos del Tesista", "Datos del Tesista")}
-                </Typography>
-                <Form
-                    thesisStudent={thesisStudent}
-                    method="patch"
-                    routeName="thesisStudent.update"
-                />
-            </Paper>
+            {/* SECCIÓN DE GRID CON DETALLES DEL ESTUDIANTE */}
+            <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        {t("Nombre", "Nombre")}
+                    </Typography>
+                    <Typography variant="body1" className="font-medium">
+                        {thesisStudent.name}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        {t("Email", "Email")}
+                    </Typography>
+                    <Typography variant="body1" className="font-medium">
+                        {thesisStudent.email}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        {t("ID UC", "ID UC")}
+                    </Typography>
+                    <Typography variant="body1" className="font-medium">
+                        {thesisStudent.id_uc}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        {t("Cédula", "Cédula")}
+                    </Typography>
+                    <Typography variant="body1" className="font-medium">
+                        {thesisStudent.ci}
+                    </Typography>
+                </Grid>
+            </Grid>
 
-            {/* SECCIÓN DE TABLA DE TESIS (INFORMATIVA) */}
+            {/* --- INICIO DE LA SECCIÓN DE TABLA DE TESIS (RESTAURADA) --- */}
             <div className="mt-8">
                 <Typography variant="h6" gutterBottom>
                     {t("Proyectos de Tesis Asociados", "Proyectos de Tesis Asociados")}
                 </Typography>
                 
-                 {sortedTheses.length > 0 ? (
+                {sortedTheses.length > 0 ? (
                     <TableContainer component={Paper}>
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
