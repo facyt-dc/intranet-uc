@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
         $director       = Role::create(['name' => 'director']);
         $teacher        = Role::create(['name' => 'teacher']);
         $administrative = Role::create(['name' => 'administrative']);
-
+        $technician     = Role::create(['name' => 'technician']);
         // Permissions
 
         $isAdmin = Permission::create([
@@ -55,6 +55,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'isAdministrative',
             'description' => 'Permiso Administrativo'
         ]);
+        $isTechnician = Permission::create([
+            'name' => 'isTechnician',
+            'description' => 'Permiso Tecnico'
+        ]);
 
         // Assing permissions to roles
 
@@ -62,9 +66,14 @@ class DatabaseSeeder extends Seeder
         $isDirector->syncRoles([$admin, $director]);
         $isTeacher->syncRoles([$admin, $teacher]);
         $isAdministrative->syncRoles([$admin, $administrative]);
+        $isTechnician->syncRoles([$admin, $technician]);
 
         // assing roles to users
 
         $adminUser->assignRole(['admin','teacher']);
+        $this->call(maintenanceStageSeeder::class);
+        $this->call([
+            MaintenanceRequestSeeder::class,
+        ]);
     }
 }

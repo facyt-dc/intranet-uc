@@ -65,6 +65,24 @@ const drawerRoutesList = [
             },
         ],
     },
+    {
+        permissionNeeded: "isTechnician",
+        subHeaderText: "Mantenimiento",
+        routes: [
+            {
+                linkText: "Solicitudes de mantenimiento",
+                routeName: "mantenimiento.index",
+            },
+            {
+                linkText: "Gestionar Etapas",
+                routeName: "mantenimiento.stages.index",
+            },
+            {
+                linkText: "Gestionar Equipos",
+                routeName: "mantenimiento.equipment.index",
+            },
+        ],
+    },
 ];
 
 export default drawerRoutesList;

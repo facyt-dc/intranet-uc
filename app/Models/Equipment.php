@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Equipment extends Model
+{
+     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'brand',
+        'model',
+        'serial_number',
+        'description',
+        'category',
+        'last_maintained_at',
+        'next_maintenance_at',
+        'last_failure_at',
+        'mtbf',
+        'mttr',
+    ];
+
+    protected $casts = [
+        'last_maintained_at' => 'date',
+        'next_maintenance_at' => 'date',
+        'last_failure_at' => 'date',
+    ];
+
+    /**
+     * Un equipo puede tener muchas solicitudes de mantenimiento.
+     */
+    public function maintenanceRequests()
+    {
+        return $this->hasMany(MaintenanceRequest::class);
+    }
+}

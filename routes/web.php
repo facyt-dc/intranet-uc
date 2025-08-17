@@ -9,7 +9,9 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DocumentController;
-
+use App\Http\Controllers\MaintenanceRequestController;
+use App\Http\Controllers\MaintenanceStageController;
+use App\Http\Controllers\EquipmentController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -49,6 +51,43 @@ Route::middleware(['auth','verified'])->group(function(){
         ->only(['index','create','show','edit','update','destroy'])
         ->names('document');
 
+    Route::prefix('mantenimiento')->name('mantenimiento.')->middleware('auth', 'verified')->group(function () {
+
+        // Rutas para las solicitudes de mantenimiento
+        Route::get('/', [MaintenanceRequestController::class, 'index'])
+            ->name('index');
+
+        Route::get('/stages/manager', [MaintenanceStageController::class, 'index'])
+            ->name('stages.index');
+        Route::post('/stages/manager', [MaintenanceStageController::class, 'store'])
+            ->name('stages.store');
+        Route::resource('equipment', EquipmentController::class)
+            ->names('equipment');
+
+        Route::get('/create', [MaintenanceRequestController::class, 'create'])
+            ->name('create');
+
+        Route::post('/', [MaintenanceRequestController::class, 'store'])
+            ->name('store');
+
+        Route::get('/{maintenanceRequest}', [MaintenanceRequestController::class, 'show'])
+            ->name('show');
+
+        Route::get('/{maintenanceRequest}/edit', [MaintenanceRequestController::class, 'edit'])
+            ->name('edit');
+
+        Route::post('/{maintenanceRequest}', [MaintenanceRequestController::class, 'update']) // Se usa PUT para actualizaciones completas
+            ->name('update');
+
+        Route::delete('/{maintenanceRequest}', [MaintenanceRequestController::class, 'destroy'])
+            ->name('destroy');
+
+        Route::post('/{maintenanceRequest}/stage', [MaintenanceRequestController::class, 'updateStage'])
+            ->name('updateStage');
+
+    });
+
+    
 });
 
 require __DIR__.'/auth.php';
