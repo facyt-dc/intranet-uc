@@ -13,6 +13,6 @@ class MaintenanceStage extends Model
 
     function maintenanceRequests()
     {
-        return $this->hasMany(MaintenanceRequest::class, 'maintenanceStage_id');
+        return $this->hasMany(MaintenanceRequest::class, 'stage_id');
     }
 }

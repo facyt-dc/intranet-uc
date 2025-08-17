@@ -57,10 +57,9 @@ Route::middleware(['auth','verified'])->group(function(){
         Route::get('/', [MaintenanceRequestController::class, 'index'])
             ->name('index');
 
-        Route::get('/stages/manager', [MaintenanceStageController::class, 'index'])
-            ->name('stages.index');
-        Route::post('/stages/manager', [MaintenanceStageController::class, 'store'])
-            ->name('stages.store');
+        Route::resource('/stages/manager', MaintenanceStageController::class)
+            ->parameter('manager', 'stage')
+            ->names('stages');
         Route::resource('equipment', EquipmentController::class)
             ->names('equipment');
 
@@ -76,7 +75,7 @@ Route::middleware(['auth','verified'])->group(function(){
         Route::get('/{maintenanceRequest}/edit', [MaintenanceRequestController::class, 'edit'])
             ->name('edit');
 
-        Route::post('/{maintenanceRequest}', [MaintenanceRequestController::class, 'update']) // Se usa PUT para actualizaciones completas
+        Route::post('/{maintenanceRequest}', [MaintenanceRequestController::class, 'update']) 
             ->name('update');
 
         Route::delete('/{maintenanceRequest}', [MaintenanceRequestController::class, 'destroy'])
