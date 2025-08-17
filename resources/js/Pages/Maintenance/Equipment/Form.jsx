@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, useForm } from '@inertiajs/react';
-
+import { format, parseISO } from 'date-fns';
 // Componente para una Pestaña de Navegación
 const TabButton = ({ isActive, onClick, children }) => (
     <button
@@ -131,9 +131,9 @@ export default function Form({ auth, equipment, isEditingDefault = false }) {
                              <div className={`${activeTab !== 'maintenance' && 'hidden'} grid grid-cols-1 md:grid-cols-2 gap-6`}>
                                  <div>
                                     <label className="block text-sm font-medium text-gray-700">Último Mantenimiento</label>
-                                    <p className="mt-1 text-base text-gray-900 h-10 flex items-center">{data.last_maintained_at || <span className="text-gray-400">No definido</span>}</p>
+                                    <p className="mt-1 text-base text-gray-900 h-10 flex items-center">{data.last_maintained_at ? format(parseISO(data.last_maintained_at), 'dd/MM/yyyy') : <span className="text-gray-400">No definido</span>}</p>
                                 </div>
-                                 <FormField label="Próximo Mantenimiento" isEditing={isEditing} viewValue={data.next_maintenance_at}>
+                                 <FormField label="Próximo Mantenimiento" isEditing={isEditing} viewValue={data.next_maintenance_at ? format(parseISO(data.next_maintenance_at), 'dd/MM/yyyy') : undefined}>
                                     <input type="date" value={data.next_maintenance_at} onChange={e => setData('next_maintenance_at', e.target.value)} className="form-input w-full" />
                                  </FormField>
                              </div>

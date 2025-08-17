@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\MaintenanceStage;
 use App\Models\MaintenanceRequest;
+use Illuminate\Support\Facades\DB;
 use App\Models\Equipment;
 use App\Models\User;
 use Illuminate\Support\Facades\Redirect;

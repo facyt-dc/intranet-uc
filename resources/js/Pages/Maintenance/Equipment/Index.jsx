@@ -1,6 +1,19 @@
 import React from 'react';
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from '@inertiajs/react';
+import { format, parseISO } from 'date-fns';
+
+const formatDate = (dateString) => {
+    if (!dateString) {
+        return <span className="text-gray-400">No definido</span>;
+    }
+    try {
+        const date = parseISO(dateString);
+        return format(date, 'dd/MM/yyyy');
+    } catch (error) {
+        return dateString;
+    }
+};
 
 export default function Index({ auth, equipments }) {
 
@@ -44,7 +57,7 @@ export default function Index({ auth, equipments }) {
                                         <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{item.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-gray-600">{item.brand || 'N/A'} / {item.model || 'N/A'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-gray-600">{item.category}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-gray-600">{item.next_maintenance_at}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-gray-600">{formatDate(item.next_maintenance_at)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             {/* El botón de editar ahora lleva a la misma vista, pero activando el modo edición */}
                                             <Link href={route('mantenimiento.equipment.edit', item.id)} className="text-indigo-600 hover:text-indigo-900" onClick={(e) => e.stopPropagation()}>
