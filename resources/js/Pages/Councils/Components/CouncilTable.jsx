@@ -94,17 +94,17 @@ export default function CouncilTable({ councils }) {
                                         </Button>
                                     </Link>
 
-                                    {/* Los botones "Editar" y "Eliminar" solo se muestran si es Director */}
+                                    {/* Los botones "Editar" solo se muestran si es Director y el consejo no ha sido cerrado */}
                                     {isDirector && council.status !== 'Cerrado' && (
-                                        <>
-                                            <Link href={route("councils.edit", council.code)}>
-                                                <Button variant="contained" size="small" startIcon={<EditIcon />}>
-                                                    {t("Edit")}
-                                                </Button>
-                                            </Link>
-                                            <DeleteDialog council={council} />
-                                        </>
+                                        <Link href={route("councils.edit", council.code)}>
+                                            <Button variant="contained" size="small" startIcon={<EditIcon />}>
+                                                {t("Edit")}
+                                            </Button>
+                                        </Link>
                                     )}
+
+                                    {/* El botón "Eliminar" solo se muestra si es Director */}
+                                    {isDirector && <DeleteDialog council={council} />}
                                 </div>
                             </TableCell>
                         </TableRow>
