@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
@@ -33,6 +33,21 @@ export default function PointForm({ council, point, counselors, votingOptions, o
         votable_users: point?.votable_users?.map(u => u.id) ?? [],
         available_options: point?.available_options?.map(o => o.id) ?? [],
     });
+
+    // --- LÓGICA DE VALIDACIÓN EN TIEMPO REAL ---
+    const [votesError, setVotesError] = useState('');
+
+    useEffect(() => {
+        const minVotes = parseInt(data.min_votes_to_close, 10);
+        const numVoters = data.votable_users.length;
+
+        // Comparamos solo si hay votantes seleccionados
+        if (numVoters > 0 && minVotes > numVoters) {
+            setVotesError('No puede ser mayor que el número de votantes.');
+        } else {
+            setVotesError(''); // Limpiamos el error si la condición es válida
+        }
+    }, [data.min_votes_to_close, data.votable_users]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -87,8 +102,8 @@ export default function PointForm({ council, point, counselors, votingOptions, o
                     type="number"
                     value={data.min_votes_to_close}
                     onChange={(e) => setData('min_votes_to_close', e.target.value)}
-                    error={!!errors.min_votes_to_close}
-                    helperText={errors.min_votes_to_close}
+                    error={!!errors.min_votes_to_close || !!votesError}
+                    helperText={errors.min_votes_to_close || votesError}
                     fullWidth
                     required
                     InputProps={{ inputProps: { min: 1 } }}

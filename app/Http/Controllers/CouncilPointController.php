@@ -19,29 +19,40 @@ class CouncilPointController extends Controller
      */
     public function store(Request $request, Council $council): RedirectResponse
     {
-        // 1. Validación de los datos de entrada
+        // Contamos cuántos usuarios votantes se seleccionaron en el request.
+        $numberOfVotableUsers = count($request->input('votable_users', []));
+
+        // Validación de los datos de entrada
         $validated = $request->validate([
             'description' => 'required|string',
             'requested_by_user_id' => [
                 'required',
                 'integer',
-                // Regla avanzada: asegura que el usuario solicitante sea un participante del consejo.
+                // Regla: asegura que el usuario solicitante sea un participante del consejo.
                 Rule::exists('council_user', 'user_id')->where('council_id', $council->id),
             ],
-            'min_votes_to_close' => 'required|integer|min:1',
+            'min_votes_to_close' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:' . $numberOfVotableUsers // El máximo es el número de votantes.
+            ],
             'order' => 'nullable|integer',
             'votable_users' => 'required|array|min:1',
             'votable_users.*' => [
                 'required',
                 'integer',
-                // Regla avanzada: asegura que todos los votantes asignados sean participantes del consejo.
+                // Regla: asegura que todos los votantes asignados sean participantes del consejo.
                 Rule::exists('council_user', 'user_id')->where('council_id', $council->id),
             ],
             'available_options' => 'required|array|min:1',
             'available_options.*' => 'required|integer|exists:voting_options,id',
+        ], [
+            // Mensaje de error personalizado para esta regla
+            'min_votes_to_close.max' => 'El mínimo de votos no puede ser mayor que el número de votantes seleccionados.'
         ]);
 
-        // 2. Creación del punto del consejo, asociándolo directamente al consejo padre
+        // Creación del punto del consejo, asociándolo directamente al consejo padre
         $point = $council->points()->create([
             'description' => $validated['description'],
             'requested_by_user_id' => $validated['requested_by_user_id'],
@@ -50,11 +61,11 @@ class CouncilPointController extends Controller
             'status' => 'Abierto para Votación', // Estado por defecto
         ]);
 
-        // 3. Sincronización de las relaciones "muchos a muchos"
+        // Sincronización de las relaciones "muchos a muchos"
         $point->votableUsers()->sync($validated['votable_users']);
         $point->votingOptions()->sync($validated['available_options']);
 
-        // 4. Redirección a la vista del consejo con un mensaje de éxito
+        // Redirección a la vista del consejo con un mensaje de éxito
         return to_route('councils.show', $council)->with('success', 'Punto del consejo añadido correctamente.');
     }
 
@@ -76,6 +87,8 @@ class CouncilPointController extends Controller
             return back()->with('error', 'No se pueden editar puntos de un consejo que ya ha sido cerrado.');
         }
 
+        $numberOfVotableUsers = count($request->input('votable_users', []));
+
         // 1. Validación (idéntica a la de 'store')
         $validated = $request->validate([
             'description' => 'required|string',
@@ -84,12 +97,19 @@ class CouncilPointController extends Controller
                 'integer',
                 Rule::exists('council_user', 'user_id')->where('council_id', $council->id),
             ],
-            'min_votes_to_close' => 'required|integer|min:1',
+            'min_votes_to_close' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:' . $numberOfVotableUsers
+            ],
             'order' => 'nullable|integer',
             'votable_users' => 'required|array|min:1',
             'votable_users.*' => ['required', 'integer', Rule::exists('council_user', 'user_id')->where('council_id', $council->id)],
             'available_options' => 'required|array|min:1',
             'available_options.*' => 'required|integer|exists:voting_options,id',
+        ], [
+            'min_votes_to_close.max' => 'El mínimo de votos no puede ser mayor que el número de votantes seleccionados.'
         ]);
 
         // 2. Actualización de los datos principales del punto
