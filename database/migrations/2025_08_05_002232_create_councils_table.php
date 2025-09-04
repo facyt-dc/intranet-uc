@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->id();
             $table->string('code')->unique();
             $table->string('name');
-            $table->dateTime('date');
+            $table->date('date');
             $table->string('status')->default('Programado');
             $table->foreignId('director_id')
                   ->constrained('users')

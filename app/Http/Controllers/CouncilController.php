@@ -68,7 +68,7 @@ class CouncilController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'date' => 'required|date|after_or_equal:today',
+            'date' => 'required|date_format:Y-m-d|after_or_equal:today',
             'participants' => 'required|array|min:1',
             'participants.*' => [
                 'required',
@@ -143,7 +143,7 @@ class CouncilController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'date' => 'required|date',
+            'date' => 'required|date_format:Y-m-d',
             'participants' => 'required|array|min:1',
             'participants.*' => 'required|integer|exists:users,id',
         ]);

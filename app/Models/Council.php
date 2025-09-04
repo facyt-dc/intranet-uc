@@ -23,7 +23,7 @@ class Council extends Model
     ];
 
     protected $casts = [
-        'date' => 'datetime',
+        'date' => 'date',
         'closed_at' => 'datetime',
     ];
 

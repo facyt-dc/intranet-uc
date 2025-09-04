@@ -27,7 +27,7 @@ export default function Form({ council, counselors, routeName, method }) {
     // Hook useForm de Inertia adaptado para los campos del consejo
     const { data, setData, post, patch, processing, errors } = useForm({
         name: council?.name ?? '',
-        date: council?.date ? new Date(council.date).toISOString().slice(0, 16) : '', // Formato para datetime-local
+        date: council?.date ? new Date(council.date).toISOString().slice(0, 10) : '',
         participants: council?.participants?.map(p => p.id) ?? [], // IDs de los participantes
     });
 
@@ -89,7 +89,7 @@ export default function Form({ council, counselors, routeName, method }) {
                 <TextField
                     required
                     variant="outlined"
-                    type="datetime-local"
+                    type="date"
                     id="date"
                     label={t("Date")}
                     value={data.date}
