@@ -28,7 +28,22 @@ const FormField = ({ label, children, isEditing, viewValue }) => (
     </div>
 );
 
-export default function Form({ auth, equipment, isEditingDefault = false }) {
+const formatDateForInput = (dateString) => {
+    if (!dateString) {
+        return '';
+    }
+    try {
+        // parseISO convierte el string a un objeto Date de JavaScript
+        // format le da el formato que el input necesita
+        return format(parseISO(dateString), 'yyyy-MM-dd');
+    } catch (error) {
+        // Si hay un error, devuelve el string original para no romper el formulario
+        return dateString;
+    }
+};
+
+
+export default function Form({ auth, equipment, categories, isEditingDefault = false }) {
     const isCreateMode = !equipment;
     const [isEditing, setIsEditing] = useState(isCreateMode || isEditingDefault);
     const [activeTab, setActiveTab] = useState('general');
@@ -39,10 +54,10 @@ export default function Form({ auth, equipment, isEditingDefault = false }) {
         model: equipment?.model || '',
         serial_number: equipment?.serial_number || '',
         description: equipment?.description || '',
-        category: equipment?.category || '',
-        last_maintained_at: equipment?.last_maintained_at || '',
-        next_maintenance_at: equipment?.next_maintenance_at || '',
-        last_failure_at: equipment?.last_failure_at || '',
+        equipment_category_id: equipment?.equipment_category_id || '',
+        last_maintained_at: formatDateForInput(equipment?.last_maintained_at),
+        next_maintenance_at: formatDateForInput(equipment?.next_maintenance_at),
+        last_failure_at: formatDateForInput(equipment?.last_failure_at),
         mtbf: equipment?.mtbf || '',
         mttr: equipment?.mttr || '',
     });
@@ -108,8 +123,17 @@ export default function Form({ auth, equipment, isEditingDefault = false }) {
                                 <FormField label="Nombre del Equipo" isEditing={isEditing} viewValue={data.name}>
                                     <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="form-input w-full" />
                                 </FormField>
-                                <FormField label="Categoría" isEditing={isEditing} viewValue={data.category}>
-                                    <input type="text" value={data.category} onChange={e => setData('category', e.target.value)} className="form-input w-full" />
+                                <FormField label="Categoría" isEditing={isEditing} viewValue={equipment?.category?.name}>
+                                    <select
+                                        value={data.equipment_category_id}
+                                        onChange={e => setData('equipment_category_id', e.target.value)}
+                                        className="form-select w-full"
+                                    >
+                                        <option value="">Sin categoría</option>
+                                        {categories.map(cat => (
+                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        ))}
+                                    </select>
                                 </FormField>
                                 <FormField label="Marca" isEditing={isEditing} viewValue={data.brand}>
                                     <input type="text" value={data.brand} onChange={e => setData('brand', e.target.value)} className="form-input w-full" />

@@ -33,34 +33,31 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
     // Determina si estamos en modo de edición (si existe maintenanceRequest) o de creación.
     const isEditMode = !!maintenanceRequest;
 
-    // Para una nueva solicitud, el formulario está activo por defecto.
-    // Para una existente, empezamos en modo de visualización.
     const [isEditing, setIsEditing] = useState(!isEditMode);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         title: maintenanceRequest?.title || '',
         description: maintenanceRequest?.description || '',
-        type: maintenanceRequest?.type || 'corrective', // Valor por defecto
-        user_id: maintenanceRequest?.user_id || auth.user.id, // Por defecto el usuario actual
+        type: maintenanceRequest?.type || 'corrective',
+        user_id: maintenanceRequest?.user_id || auth.user.id,
         technician_id: maintenanceRequest?.technician_id || '',
-        // Asigna el primer estado como inicial si no hay uno definido
         stage_id: maintenanceRequest?.stage_id || (stages.length > 0 ? stages[0].id : ''),
         attachments: null,
         equipment_id: maintenanceRequest?.equipment_id || '',
+        duration: maintenanceRequest?.duration || 0,
     });
+    const currentStage = stages.find(stage => stage.id === data.stage_id);
+    const isCurrentStageFinal = currentStage?.is_final_stage || false;
 
-    // Maneja el envío del formulario
     const handleSubmit = (e) => {
         e.preventDefault();
         if (isEditMode) {
-            // Para actualizar, usamos 'post' con '_method: put' para el soporte de archivos.
             post(route('mantenimiento.update', maintenanceRequest.id), {
                 _method: 'put',
                 preserveScroll: true,
-                onSuccess: () => setIsEditing(false), // Al éxito, salimos del modo edición
+                onSuccess: () => setIsEditing(false),
             });
         } else {
-            // Para crear, hacemos un 'post' normal a la ruta 'store'.
             post(route('mantenimiento.store'));
         }
     };
@@ -157,7 +154,27 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                                         <p className="mt-1">{maintenanceRequest.stage?.name || 'N/A'}</p>
                                     )}
                                 </div>
-
+                                 {isCurrentStageFinal && (
+                                     <div>
+                                        <label htmlFor="duration" className="block text-sm font-bold text-gray-700">Duración (horas)</label>
+                                        {isEditing ? (
+                                            <>
+                                                <input
+                                                    id="duration"
+                                                    type="number"
+                                                    step="0.1"
+                                                    value={data.duration}
+                                                    onChange={e => setData('duration', e.target.value)}
+                                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                                    placeholder="Ej: 2.5"
+                                                />
+                                                {errors.duration && <p className="text-sm text-red-600 mt-1">{errors.duration}</p>}
+                                            </>
+                                        ) : (
+                                            <p className="mt-1">{maintenanceRequest.duration ? `${maintenanceRequest.duration} horas` : 'No definida'}</p>
+                                        )}
+                                    </div>
+                                )}
                                 {/* Reportado Por */}
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700">Reportado por</label>

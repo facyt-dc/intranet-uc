@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Equipment;
+use App\Models\EquipmentCategory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
@@ -10,17 +11,43 @@ use Illuminate\Validation\Rule;
 
 class EquipmentController extends Controller
 {
-    public function index()
+     public function index(Request $request) // <-- Inyectar Request
     {
+        // Iniciar la consulta
+        $query = Equipment::query();
+
+        // Aplicar filtro de búsqueda si existe
+        $query->when($request->input('search'), function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('brand', 'like', "%{$search}%")
+                  ->orWhere('model', 'like', "%{$search}%")
+                  ->orWhere('serial_number', 'like', "%{$search}%");
+            });
+        });
+
+        // Aplicar filtro de categoría si existe
+        $query->when($request->input('category'), function ($query, $category) {
+            $query->where('equipment_category_id', $category);
+        });
+
+        // Eager load la relación y obtener los resultados
+        $equipments = $query->with('category')->orderBy('name')->get();
+
         return Inertia::render('Maintenance/Equipment/Index', [
-            'equipments' => Equipment::orderBy('name')->get(),
+            'equipments' => $equipments,
+            // Pasar las categorías para el dropdown del filtro
+            'categories' => EquipmentCategory::orderBy('name')->get(['id', 'name']),
+            // Pasar los filtros actuales para que los inputs los recuerden
+            'filters' => $request->only(['search', 'category']),
         ]);
     }
 
     public function create()
     {
         return Inertia::render('Maintenance/Equipment/Form', [
-            'equipment' => null
+            'equipment' => null,
+            'categories' => EquipmentCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -38,7 +65,7 @@ class EquipmentController extends Controller
                 Rule::unique('equipment')->ignore($equipment?->id),
             ],
             'description' => 'nullable|string',
-            'category' => 'nullable|string|max:255',
+            'equipment_category_id' => 'nullable|exists:equipment_categories,id',
             'last_maintained_at' => 'nullable|date',
             'next_maintenance_at' => 'nullable|date',
             'last_failure_at' => 'nullable|date',
@@ -56,9 +83,10 @@ class EquipmentController extends Controller
     // Muestra el formulario en modo VISTA
     public function show(Equipment $equipment)
     {
-        $equipment->load('maintenanceRequests.user', 'maintenanceRequests.stage');
+        $equipment->load('maintenanceRequests.user', 'maintenanceRequests.stage', 'category');
         return Inertia::render('Maintenance/Equipment/Form', [
-            'equipment' => $equipment
+            'equipment' => $equipment,
+            'categories' => EquipmentCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -68,7 +96,8 @@ class EquipmentController extends Controller
         $equipment->load('maintenanceRequests.user', 'maintenanceRequests.stage');
         return Inertia::render('Maintenance/Equipment/Form', [
             'equipment' => $equipment,
-            'isEditingDefault' => true // Propiedad clave para iniciar en modo edición
+            'categories' => EquipmentCategory::orderBy('name')->get(['id', 'name']),
+            'isEditingDefault' => true
         ]);
     }
 

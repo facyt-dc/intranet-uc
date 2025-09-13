@@ -14,7 +14,7 @@ class Equipment extends Model
         'model',
         'serial_number',
         'description',
-        'category',
+        'equipment_category_id',
         'last_maintained_at',
         'next_maintenance_at',
         'last_failure_at',
@@ -34,5 +34,9 @@ class Equipment extends Model
     public function maintenanceRequests()
     {
         return $this->hasMany(MaintenanceRequest::class);
+    }
+    public function category()
+    {
+        return $this->belongsTo(EquipmentCategory::class, 'equipment_category_id');
     }
 }

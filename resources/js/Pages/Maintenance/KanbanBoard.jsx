@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { router } from '@inertiajs/react';
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Link } from "@inertiajs/react";
+import AdvancedFilterMenu from "@/Components/AdvancedFilterMenu";
 
 function RequestCard({ request, index }) {
     return (
@@ -18,6 +19,12 @@ function RequestCard({ request, index }) {
                     }`}
                 >
                     <h4 className="font-bold text-gray-800">{request.title}</h4>
+                     {request.equipment?.name && (
+                        <p className="flex items-center gap-2 text-sm text-gray-700 mt-2">
+                            <svg fill="#000000" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M16.417 9.579A7.917 7.917 0 1 1 8.5 1.662a7.917 7.917 0 0 1 7.917 7.917zm-3.831-2.295a.396.396 0 0 0 .182-.53 4.697 4.697 0 0 0-4.225-2.642.4.4 0 0 0-.077.008 1.526 1.526 0 0 0-1.16.55h-.001l-.005.007a1.532 1.532 0 0 0-.096.131.846.846 0 0 1-1.327-.084.396.396 0 0 0-.772.123v1.605a.396.396 0 0 0 .768.137.846.846 0 0 1 1.35-.07q.028.042.06.08a.845.845 0 0 1 .137.464v.284h2.416v-.764a.846.846 0 0 1 .846-.846.838.838 0 0 1 .388.094 3.915 3.915 0 0 1 .987 1.27.396.396 0 0 0 .356.223.389.389 0 0 0 .173-.04zm-3.088.945a.318.318 0 0 0-.317-.316H7.938a.318.318 0 0 0-.317.316v6.687a.318.318 0 0 0 .317.317h1.243a.318.318 0 0 0 .317-.317z"></path></g></svg>
+                           <span>{request.equipment.name}</span>
+                        </p>
+                    )}
                     <p className="text-sm text-gray-600 mt-1">
                         {request.description.substring(0, 80)}...
                     </p>
@@ -32,13 +39,41 @@ function RequestCard({ request, index }) {
     );
 }
 
-export default function KanbanBoard({ auth, initialStages, initialRequests }) {
+export default function KanbanBoard({ auth, initialStages, initialRequests, technicians, equipments, equipmentCategories, filters }) {
     const [columns, setColumns] = useState({});
 
-    // Organiza las solicitudes en columnas al iniciar
+    const [filterValues, setFilterValues] = useState({
+        search: filters.search || '',
+        technician: filters.technician || '',
+        equipment: filters.equipment || '',
+        category: filters.category || '',
+    });
+
+    // --- Lógica de filtrado (sin cambios) ---
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            router.get(route('mantenimiento.index'), filterValues, {
+                preserveState: true,
+                replace: true,
+            });
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [filterValues]);
+
+    const handleSearchChange = (e) => {
+        setFilterValues(prev => ({ ...prev, search: e.target.value }));
+    };
+    
+    const handleFilterChange = (name, value) => {
+        setFilterValues(prev => ({ ...prev, [name]: value }));
+    };
+    
+    const resetFilters = () => {
+        setFilterValues({ search: '', technician: '', equipment: '', category: '' });
+    };
+
     useEffect(() => {
         const organizedColumns = initialStages.reduce((acc, stage) => {
-            // Se asegura de que cada columna sea un array, incluso si no hay solicitudes
             acc[stage.id] = initialRequests.filter(
                 (req) => req.stage_id === stage.id
             ) || [];
@@ -47,30 +82,17 @@ export default function KanbanBoard({ auth, initialStages, initialRequests }) {
         setColumns(organizedColumns);
     }, [initialStages, initialRequests]);
 
-    /**
-     * Maneja el final del arrastre de un elemento.
-     * Actualiza el estado local de forma optimista y envía la actualización al servidor.
-     */
-    const onDragEnd = ({ source, destination, draggableId }) => {
-        // Si se suelta fuera de una columna, no hacer nada
-        if (!destination) return;
+    const { search, ...dropdownFilters } = filterValues;
+    const activeFilterCount = Object.values(dropdownFilters).filter(Boolean).length;
 
-        // Si se suelta en la misma posición, no hacer nada
-        if (
-            source.droppableId === destination.droppableId &&
-            source.index === destination.index
-        ) {
+    const onDragEnd = ({ source, destination, draggableId }) => {
+        if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
             return;
         }
 
-        // --- Actualización Optimista de la UI ---
-        // Guardamos el estado original para poder revertirlo en caso de error
         const originalColumns = { ...columns };
-
-        // Mover el elemento en el estado local
         const sourceCol = Array.from(columns[source.droppableId]);
         const [movedItem] = sourceCol.splice(source.index, 1);
-
         const destCol = Array.from(columns[destination.droppableId] || []);
         destCol.splice(destination.index, 0, movedItem);
 
@@ -80,25 +102,14 @@ export default function KanbanBoard({ auth, initialStages, initialRequests }) {
             [destination.droppableId]: destCol,
         });
 
-        // --- Petición al Servidor con Inertia ---
-        // Usamos router.post para actualizar el estado en el backend.
-        router.post(
-            route('mantenimiento.updateStage', {
-                maintenanceRequest: draggableId,
-                stage: destination.droppableId
-            }),
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    // La UI ya se actualizó. Opcionalmente puedes mostrar una notificación de éxito.
-                    console.log("Etapa actualizada correctamente.");
-                },
-                onError: (errors) => {
-                    console.error("Error al actualizar la etapa:", errors);
-                    setColumns(originalColumns);
-                },
-            }
-        );
+        router.post(route('mantenimiento.updateStage', {
+            maintenanceRequest: draggableId
+        }), {
+            stage: destination.droppableId
+        }, {
+            preserveScroll: true,
+            onError: () => setColumns(originalColumns),
+        });
     };
 
     return (
@@ -107,23 +118,51 @@ export default function KanbanBoard({ auth, initialStages, initialRequests }) {
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800">
-                        Mantenimiento
+                        Tablero de Mantenimiento
                     </h2>
                 </div>
             }
         >
-            <div className="py-6">
+            <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mb-5">
-                     <Link
-                        href={route("mantenimiento.create")}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-500 transition"
-                    >
-                        + Nueva Solicitud
-                    </Link>
+                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mb-5">
+                        <div className="flex items-center gap-4">
+                            <Link
+                                href={route("mantenimiento.create")}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-500 transition whitespace-nowrap"
+                            >
+                                + Nueva Solicitud
+                            </Link>
+                            
+                            {/* Input de Búsqueda (se mantiene fuera del menú) */}
+                            <div className="relative flex-grow">
+                                <input
+                                    type="text"
+                                    name="search"
+                                    value={filterValues.search}
+                                    onChange={handleSearchChange}
+                                    placeholder="Buscar por título o descripción..."
+                                    className="form-input rounded-md shadow-sm text-sm w-full md:w-80"
+                                />
+                            </div>
+
+                            <div className="ml-auto">
+                                <AdvancedFilterMenu
+                                    filterValues={filterValues}
+                                    onFilterChange={handleFilterChange}
+                                    onResetFilters={resetFilters}
+                                    technicians={technicians}
+                                    equipments={equipments}
+                                    equipmentCategories={equipmentCategories}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="sm:px-6 lg:px-8">
                     <DragDropContext onDragEnd={onDragEnd}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+                        <div className="flex overflow-x-auto gap-5 pb-4">
                             {initialStages.map((stage) => (
                                 <Droppable
                                     key={stage.id}
@@ -133,7 +172,7 @@ export default function KanbanBoard({ auth, initialStages, initialRequests }) {
                                         <div
                                             ref={provided.innerRef}
                                             {...provided.droppableProps}
-                                            className={`p-4 rounded-lg transition-colors ${
+                                            className={`w-80 flex-shrink-0 p-4 rounded-lg transition-colors ${
                                                 snapshot.isDraggingOver
                                                     ? "bg-blue-100"
                                                     : "bg-gray-100"

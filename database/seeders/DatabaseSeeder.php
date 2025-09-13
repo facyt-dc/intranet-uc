@@ -69,11 +69,12 @@ class DatabaseSeeder extends Seeder
         $isTechnician->syncRoles([$admin, $technician]);
 
         // assing roles to users
-
+        $this->call(EquipmentSeeder::class);
         $adminUser->assignRole(['admin','teacher']);
         $this->call(maintenanceStageSeeder::class);
         $this->call([
             MaintenanceRequestSeeder::class,
         ]);
+        $this->call(EquipmentCategorySeeder::class);
     }
 }

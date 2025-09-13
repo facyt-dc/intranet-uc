@@ -12,6 +12,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\MaintenanceStageController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\EquipmentCategoryController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -60,6 +61,11 @@ Route::middleware(['auth','verified'])->group(function(){
         Route::resource('/stages/manager', MaintenanceStageController::class)
             ->parameter('manager', 'stage')
             ->names('stages');
+
+        Route::resource('equipment/categories', EquipmentCategoryController::class)
+            ->parameter('categories', 'category')
+            ->names('equipment.categories');
+
         Route::resource('equipment', EquipmentController::class)
             ->names('equipment');
 

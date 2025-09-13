@@ -16,8 +16,12 @@ class MaintenanceRequest extends Model
         'user_id',
         'technician_id',
         'equipment_id',
+        'completion_date',
+        'duration',  
     ];
-
+    protected $casts = [
+        'completion_date' => 'datetime',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);

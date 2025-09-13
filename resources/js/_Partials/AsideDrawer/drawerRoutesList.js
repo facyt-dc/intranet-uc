@@ -81,6 +81,10 @@ const drawerRoutesList = [
                 linkText: "Gestionar Equipos",
                 routeName: "mantenimiento.equipment.index",
             },
+            {
+                linkText: "Gestionar Categorías",
+                routeName: "mantenimiento.equipment.categories.index",
+            },
         ],
     },
 ];
