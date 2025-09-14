@@ -4,6 +4,7 @@ import { router } from '@inertiajs/react';
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Link } from "@inertiajs/react";
 import AdvancedFilterMenu from "@/Components/AdvancedFilterMenu";
+import { useTranslation } from 'react-i18next';
 
 const ArchiveBoxIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -12,6 +13,7 @@ const ArchiveBoxIcon = () => (
 );
 
 function RequestCard({ request, index }) {
+    const { t } = useTranslation();
     return (
         <Draggable draggableId={String(request.id)} index={index}>
             {(provided, snapshot) => (
@@ -36,7 +38,7 @@ function RequestCard({ request, index }) {
                     </p>
                     {request.user && (
                         <p className="text-xs text-gray-500 mt-2">
-                            Reportado por: {request.user.name}
+                            {t('Reported by:')} {request.user.name}
                         </p>
                     )}
                 </Link>
@@ -47,7 +49,7 @@ function RequestCard({ request, index }) {
 
 export default function KanbanBoard({ auth, initialStages, initialRequests, technicians, equipments, equipmentCategories, filters }) {
     const [columns, setColumns] = useState({});
-
+    const { t } = useTranslation();
     const [filterValues, setFilterValues] = useState({
         search: filters.search || '',
         technician: filters.technician || '',
@@ -55,7 +57,6 @@ export default function KanbanBoard({ auth, initialStages, initialRequests, tech
         category: filters.category || '',
     });
 
-    // --- Lógica de filtrado (sin cambios) ---
     useEffect(() => {
         const handler = setTimeout(() => {
             router.get(route('mantenimiento.index'), filterValues, {
@@ -124,85 +125,66 @@ export default function KanbanBoard({ auth, initialStages, initialRequests, tech
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800">
-                        Tablero de Mantenimiento
+                        {t('Maintenance Kanban')}
                     </h2>
                 </div>
             }
         >
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mb-5">
-                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <Link
                                 href={route("mantenimiento.create")}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-500 transition whitespace-nowrap"
                             >
-                                + Nueva Solicitud
+                                {t('+ New Request')}
                             </Link>
-                            
-                            {/* Input de Búsqueda (se mantiene fuera del menú) */}
-                            <div className="relative flex-grow">
-                                <input
-                                    type="text"
-                                    name="search"
-                                    value={filterValues.search}
-                                    onChange={handleSearchChange}
-                                    placeholder="Buscar por título o descripción..."
-                                    className="form-input rounded-md shadow-sm text-sm w-full md:w-80"
-                                />
-                            </div>
-
-                            <div className="ml-auto">
-                                <AdvancedFilterMenu
-                                    filterValues={filterValues}
-                                    onFilterChange={handleFilterChange}
-                                    onResetFilters={resetFilters}
-                                    technicians={technicians}
-                                    equipments={equipments}
-                                    equipmentCategories={equipmentCategories}
-                                />
-                            </div>
                             <Link
                                 href={route('mantenimiento.archived.index')}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 ring-1 ring-gray-300 rounded-md text-sm font-semibold hover:bg-gray-50 transition whitespace-nowrap"
                             >
                                 <ArchiveBoxIcon />
-                                Ver Archivados
+                                {t('View Archived')}
                             </Link>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <input
+                                type="text"
+                                name="search"
+                                value={filterValues.search}
+                                onChange={(e) => handleFilterChange('search', e.target.value)}
+                                placeholder={t('Search by title or description...')}
+                                className="form-input rounded-md shadow-sm text-sm w-full sm:w-64"
+                            />
+                            <AdvancedFilterMenu
+                                filterValues={filterValues}
+                                onFilterChange={handleFilterChange}
+                                onResetFilters={resetFilters}
+                                technicians={technicians}
+                                equipments={equipments}
+                                equipmentCategories={equipmentCategories}
+                            />
                         </div>
                     </div>
                 </div>
                 <div className="sm:px-6 lg:px-8">
                     <DragDropContext onDragEnd={onDragEnd}>
-
                         <div className="flex overflow-x-auto gap-5 pb-4">
                             {initialStages.map((stage) => (
-                                <Droppable
-                                    key={stage.id}
-                                    droppableId={String(stage.id)}
-                                >
+                                <Droppable key={stage.id} droppableId={String(stage.id)}>
                                     {(provided, snapshot) => (
                                         <div
                                             ref={provided.innerRef}
                                             {...provided.droppableProps}
                                             className={`w-80 flex-shrink-0 p-4 rounded-lg transition-colors ${
-                                                snapshot.isDraggingOver
-                                                    ? "bg-blue-100"
-                                                    : "bg-gray-100"
+                                                snapshot.isDraggingOver ? "bg-blue-100" : "bg-gray-100"
                                             }`}
                                         >
-                                            <h3 className="font-bold text-lg mb-4">
-                                                {stage.name}
-                                            </h3>
-                                            {(columns[stage.id] || []).map(
-                                                (request, index) => (
-                                                    <RequestCard
-                                                        key={request.id}
-                                                        request={request}
-                                                        index={index}
-                                                    />
-                                                )
-                                            )}
+                                            <h3 className="font-bold text-lg mb-4">{stage.name}</h3>
+                                            {(columns[stage.id] || []).map((request, index) => (
+                                                <RequestCard key={request.id} request={request} index={index} />
+                                            ))}
                                             {provided.placeholder}
                                         </div>
                                     )}

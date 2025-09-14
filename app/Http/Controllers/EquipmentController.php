@@ -8,28 +8,10 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class EquipmentController extends Controller
 {   
-    private function scheduleNextPreventiveMaintenance(MaintenanceRequest $request): void
-    {
-        $equipment = $request->equipment;
-
-        if (!$equipment || !$equipment->maintenance_frequency || !$equipment->maintenance_interval) {
-            return;
-        }
-
-        $nextDate = now();
-        switch ($equipment->maintenance_interval) {
-            case 'days': $nextDate->addDays($equipment->maintenance_frequency); break;
-            case 'months': $nextDate->addMonths($equipment->maintenance_frequency); break;
-            case 'years': $nextDate->addYears($equipment->maintenance_frequency); break;
-        }
-
-        $equipment->update(['next_maintenance_at' => $nextDate]);
-    }
-
-
      public function index(Request $request) // <-- Inyectar Request
     {
         // Iniciar la consulta
@@ -131,6 +113,12 @@ class EquipmentController extends Controller
 
     public function destroy(Equipment $equipment)
     {
+        if ($equipment->maintenanceRequests()->count() > 0) {
+            throw ValidationException::withMessages([
+                'error' => 'No se puede eliminar el equipo porque tiene solicitudes de mantenimiento asignadas.',
+            ]);
+        }
+
         $equipment->delete();
         return Redirect::route('mantenimiento.equipment.index')->with('success', 'Equipo eliminado con éxito.');
     }

@@ -352,4 +352,21 @@ class MaintenanceRequestController extends Controller
         return Redirect::route('mantenimiento.index')
             ->with('success', 'Solicitud eliminada con éxito.');
     }
+    public function forceDestroy(MaintenanceRequest $maintenanceRequest)
+    {
+        $maintenanceRequest->delete();
+        return Redirect::back()->with('success', 'Solicitud eliminada permanentemente.');
+    }
+    protected static function booted()
+    {
+        static::deleting(function ($request) {
+            // Iterar sobre cada archivo adjunto y eliminarlo del disco.
+            $request->attachments()->each(function ($attachment) {
+                Storage::disk('public')->delete($attachment->path);
+                // La fila de la base de datos se eliminará por cascada si está configurada,
+                // o podemos eliminarla aquí si es necesario.
+                $attachment->delete(); 
+            });
+        });
+    }
 }

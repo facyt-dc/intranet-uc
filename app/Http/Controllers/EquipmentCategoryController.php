@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Response;
+use Illuminate\Validation\ValidationException;
 
 class EquipmentCategoryController extends Controller
 {
@@ -55,7 +56,9 @@ class EquipmentCategoryController extends Controller
     {
         // Importante: Prevenir la eliminación si la categoría está en uso
         if ($category->equipments()->count() > 0) {
-            return back()->with('error', 'No se puede eliminar la categoría porque está asignada a uno o más equipos.');
+            throw ValidationException::withMessages([
+                'error' => 'No se puede eliminar la categoría porque está asignada a uno o más equipos.',
+            ]);
         }
 
         $category->delete();

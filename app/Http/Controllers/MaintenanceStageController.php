@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Response;
+use Illuminate\Validation\ValidationException;
 
 class MaintenanceStageController extends Controller
 {
@@ -53,7 +54,9 @@ class MaintenanceStageController extends Controller
     {
         
         if ($stage->maintenanceRequests()->count() > 0) {
-            return back()->with('error', 'No se puede eliminar la etapa porque tiene solicitudes asignadas.');
+            throw ValidationException::withMessages([
+                'error' => 'No se puede eliminar la etapa porque está asignada a uno o más equipos.',
+            ]);
         }
 
         $stage->delete();
