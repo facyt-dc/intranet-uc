@@ -29,6 +29,11 @@ const AttachmentList = ({ attachments }) => {
     );
 };
 
+const maintenanceTypeMap = {
+    corrective: 'Correctivo',
+    preventive: 'Preventivo',
+};
+
 // Componente principal del formulario
 export default function RequestForm({ auth, maintenanceRequest, users, technician, stages, equipments, came_from  }) {
     // Determina si estamos en modo de edición (si existe maintenanceRequest) o de creación.
@@ -148,6 +153,7 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                                 <label className="block text-sm font-bold text-gray-700">Equipo Afectado</label>
                                 {isEditing ? (
                                     <select id="equipment_id" value={data.equipment_id} onChange={e => setData('equipment_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                         <option value="" disabled>Seleccionar un equipo</option>
                                         {equipments.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
                                     </select>
                                 ) : (
@@ -173,7 +179,7 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                                             <option value="preventive">Preventivo</option>
                                         </select>
                                     ) : (
-                                        <p className="mt-1 capitalize">{maintenanceRequest.type}</p>
+                                        <p className="mt-1 capitalize">{maintenanceTypeMap[maintenanceRequest.type] || maintenanceRequest.type}</p>
                                     )}
                                 </div>
 

@@ -15,6 +15,23 @@ use Illuminate\Database\Eloquent\Builder;
 
 class MaintenanceRequestController extends Controller
 {
+    private function scheduleNextPreventiveMaintenance(MaintenanceRequest $request): void
+    {
+        $equipment = $request->equipment;
+
+        if (!$equipment || !$equipment->maintenance_frequency || !$equipment->maintenance_interval) {
+            return;
+        }
+
+        $nextDate = now();
+        switch ($equipment->maintenance_interval) {
+            case 'days': $nextDate->addDays($equipment->maintenance_frequency); break;
+            case 'months': $nextDate->addMonths($equipment->maintenance_frequency); break;
+            case 'years': $nextDate->addYears($equipment->maintenance_frequency); break;
+        }
+
+        $equipment->update(['next_maintenance_at' => $nextDate]);
+    }
     /**
      * Lógica centralizada para manejar la finalización de un mantenimiento.
      *
@@ -274,7 +291,9 @@ class MaintenanceRequestController extends Controller
                         ]);
                     }
                 }
-                
+                if ($maintenanceRequest->type === 'preventive') {
+                    $this->scheduleNextPreventiveMaintenance($maintenanceRequest);
+                }
                 // 3. Comprobar si la solicitud se movió a una etapa final
                 $newStage = MaintenanceStage::find($validated['stage_id']);
                 if ($newStage && $newStage->is_final_stage && !$oldStageIsFinal) {

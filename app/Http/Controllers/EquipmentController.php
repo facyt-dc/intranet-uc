@@ -10,7 +10,26 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 
 class EquipmentController extends Controller
-{
+{   
+    private function scheduleNextPreventiveMaintenance(MaintenanceRequest $request): void
+    {
+        $equipment = $request->equipment;
+
+        if (!$equipment || !$equipment->maintenance_frequency || !$equipment->maintenance_interval) {
+            return;
+        }
+
+        $nextDate = now();
+        switch ($equipment->maintenance_interval) {
+            case 'days': $nextDate->addDays($equipment->maintenance_frequency); break;
+            case 'months': $nextDate->addMonths($equipment->maintenance_frequency); break;
+            case 'years': $nextDate->addYears($equipment->maintenance_frequency); break;
+        }
+
+        $equipment->update(['next_maintenance_at' => $nextDate]);
+    }
+
+
      public function index(Request $request) // <-- Inyectar Request
     {
         // Iniciar la consulta
@@ -68,6 +87,8 @@ class EquipmentController extends Controller
             'equipment_category_id' => 'nullable|exists:equipment_categories,id',
             'last_maintained_at' => 'nullable|date',
             'next_maintenance_at' => 'nullable|date',
+            'maintenance_frequency' => 'nullable|integer|min:1',
+            'maintenance_interval' => 'nullable|string|in:days,months,years',
             'last_failure_at' => 'nullable|date',
             'mtbf' => 'nullable|integer|min:0',
             'mttr' => 'nullable|integer|min:0',

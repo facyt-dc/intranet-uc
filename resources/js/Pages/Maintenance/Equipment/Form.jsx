@@ -16,6 +16,12 @@ const TabButton = ({ isActive, onClick, children }) => (
     </button>
 );
 
+const intervalMap = {
+    days: 'Días',
+    months: 'Meses',
+    years: 'Años',
+};
+
 // Componente para un campo del formulario (vista/edición)
 const FormField = ({ label, children, isEditing, viewValue }) => (
     <div>
@@ -57,6 +63,8 @@ export default function Form({ auth, equipment, categories, isEditingDefault = f
         equipment_category_id: equipment?.equipment_category_id || '',
         last_maintained_at: formatDateForInput(equipment?.last_maintained_at),
         next_maintenance_at: formatDateForInput(equipment?.next_maintenance_at),
+        maintenance_frequency: equipment?.maintenance_frequency || '',
+        maintenance_interval: equipment?.maintenance_interval || '',
         last_failure_at: formatDateForInput(equipment?.last_failure_at),
         mtbf: equipment?.mtbf || '',
         mttr: equipment?.mttr || '',
@@ -160,6 +168,29 @@ export default function Form({ auth, equipment, categories, isEditingDefault = f
                                  <FormField label="Próximo Mantenimiento" isEditing={isEditing} viewValue={data.next_maintenance_at ? format(parseISO(data.next_maintenance_at), 'dd/MM/yyyy') : undefined}>
                                     <input type="date" value={data.next_maintenance_at} onChange={e => setData('next_maintenance_at', e.target.value)} className="form-input w-full" />
                                  </FormField>
+                                 <div className="md:col-span-2 grid grid-cols-2 gap-4 border-t pt-4">
+                                    <FormField label="Mantenimiento cada" isEditing={isEditing} viewValue={data.maintenance_frequency}>
+                                        <input
+                                            type="number"
+                                            value={data.maintenance_frequency}
+                                            onChange={e => setData('maintenance_frequency', e.target.value)}
+                                            placeholder="Ej: 30"
+                                            className="form-input w-full"
+                                        />
+                                    </FormField>
+                                    <FormField label="Intervalo" isEditing={isEditing} viewValue={intervalMap[data.maintenance_interval] || data.maintenance_interval}>
+                                        <select
+                                            value={data.maintenance_interval}
+                                            onChange={e => setData('maintenance_interval', e.target.value)}
+                                            className="form-select w-full"
+                                        >
+                                            <option value="">Seleccionar...</option>
+                                            <option value="days">Días</option>
+                                            <option value="months">Meses</option>
+                                            <option value="years">Años</option>
+                                        </select>
+                                    </FormField>
+                                </div>
                              </div>
 
                              {/* Contenido de la Pestaña Seguimiento */}

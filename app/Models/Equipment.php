@@ -17,6 +17,8 @@ class Equipment extends Model
         'equipment_category_id',
         'last_maintained_at',
         'next_maintenance_at',
+        'maintenance_frequency',
+        'maintenance_interval',
         'last_failure_at',
         'mtbf',
         'mttr',
