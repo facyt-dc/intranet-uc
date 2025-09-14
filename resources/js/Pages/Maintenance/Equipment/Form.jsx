@@ -167,7 +167,7 @@ export default function Form({ auth, equipment, categories, isEditingDefault = f
                                  <FormField label="Último Fallo Registrado" isEditing={isEditing} viewValue={data.last_failure_at}>
                                      <input type="date" value={data.last_failure_at} onChange={e => setData('last_failure_at', e.target.value)} className="form-input w-full" />
                                  </FormField>
-                                 <FormField label="Tiempo Medio Entre Fallos (MTBF en horas)" isEditing={isEditing} viewValue={data.mtbf}>
+                                 <FormField label="Tiempo Medio Entre Fallos (MTBF en días)" isEditing={isEditing} viewValue={data.mtbf}>
                                      <input type="number" value={data.mtbf} onChange={e => setData('mtbf', e.target.value)} className="form-input w-full" />
                                  </FormField>
                                  <FormField label="Tiempo Medio de Mantenimiento (MTTR en horas)" isEditing={isEditing} viewValue={data.mttr}>

@@ -46,7 +46,7 @@ class MaintenanceRequestController extends Controller
             for ($i = 1; $i < $completedCorrective->count(); $i++) {
                 $previousCompletion = $completedCorrective[$i - 1]->completion_date;
                 $currentCompletion = $completedCorrective[$i]->completion_date;
-                $totalTimeBetweenFailures += $previousCompletion->diffInHours($currentCompletion);
+                $totalTimeBetweenFailures += $previousCompletion->diffInDays($currentCompletion);
             }
             $equipment->mtbf = $totalTimeBetweenFailures / ($completedCorrective->count() - 1);
         }
