@@ -57,7 +57,9 @@ Route::middleware(['auth','verified'])->group(function(){
         // Rutas para las solicitudes de mantenimiento
         Route::get('/', [MaintenanceRequestController::class, 'index'])
             ->name('index');
-
+        Route::get('/archived', [MaintenanceRequestController::class, 'archivedIndex'])
+            ->name('archived.index');
+            
         Route::resource('/stages/manager', MaintenanceStageController::class)
             ->parameter('manager', 'stage')
             ->names('stages');
@@ -89,6 +91,11 @@ Route::middleware(['auth','verified'])->group(function(){
 
         Route::post('/{maintenanceRequest}/stage', [MaintenanceRequestController::class, 'updateStage'])
             ->name('updateStage');
+
+        
+
+        Route::post('/{maintenanceRequest}/archive', [MaintenanceRequestController::class, 'toggleArchive'])
+            ->name('toggleArchive');
 
     });
 

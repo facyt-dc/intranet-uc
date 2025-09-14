@@ -17,10 +17,12 @@ class MaintenanceRequest extends Model
         'technician_id',
         'equipment_id',
         'completion_date',
-        'duration',  
+        'duration',
+        'is_archived',  
     ];
     protected $casts = [
         'completion_date' => 'datetime',
+        'is_archived' => 'boolean',
     ];
     public function user()
     {

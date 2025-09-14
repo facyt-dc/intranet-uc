@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, Fragment } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, useForm, router } from '@inertiajs/react';
+import { format, parseISO } from 'date-fns';
 
 // Componente para listar los archivos adjuntos existentes
 const AttachmentList = ({ attachments }) => {
@@ -29,12 +30,26 @@ const AttachmentList = ({ attachments }) => {
 };
 
 // Componente principal del formulario
-export default function RequestForm({ auth, maintenanceRequest, users, technician, stages, equipments  }) {
+export default function RequestForm({ auth, maintenanceRequest, users, technician, stages, equipments, came_from  }) {
     // Determina si estamos en modo de edición (si existe maintenanceRequest) o de creación.
     const isEditMode = !!maintenanceRequest;
-
+    const backUrl = came_from === 'archived' 
+        ? route('mantenimiento.archived.index') 
+        : route('mantenimiento.index');
+    
+    const backLinkText = came_from === 'archived'
+        ? '← Volver a Archivados'
+        : '← Volver al Tablero';
     const [isEditing, setIsEditing] = useState(!isEditMode);
-
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        try {
+            // Formato requerido: YYYY-MM-DDTHH:mm
+            return format(parseISO(dateString), "yyyy-MM-dd'T'HH:mm");
+        } catch (e) {
+            return '';
+        }
+    };
     const { data, setData, post, processing, errors, reset } = useForm({
         title: maintenanceRequest?.title || '',
         description: maintenanceRequest?.description || '',
@@ -45,9 +60,19 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
         attachments: null,
         equipment_id: maintenanceRequest?.equipment_id || '',
         duration: maintenanceRequest?.duration || 0,
+        completion_date: formatDateForInput(maintenanceRequest?.completion_date),
     });
-    const currentStage = stages.find(stage => stage.id === data.stage_id);
+    const currentStage = stages.find(stage => stage.id == data.stage_id);
     const isCurrentStageFinal = currentStage?.is_final_stage || false;
+
+    useEffect(() => {
+        const newStage = stages.find(stage => stage.id == data.stage_id);
+        // Si se mueve a una etapa final Y la fecha de finalización está vacía
+        if (newStage?.is_final_stage && !data.completion_date) {
+            // Ponemos la fecha y hora actual en el formato correcto
+            setData('completion_date', format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+        }
+    }, [data.stage_id]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -61,7 +86,11 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
             post(route('mantenimiento.store'));
         }
     };
-
+    const handleToggleArchive = () => {
+        router.post(route('mantenimiento.toggleArchive', maintenanceRequest.id), {}, {
+            preserveScroll: true,
+        });
+    };
     // Títulos y cabeceras dinámicas
     const pageTitle = isEditMode ? `Solicitud: ${maintenanceRequest.title}` : 'Nueva Solicitud';
     const headerTitle = isEditMode ? 'Detalle de la Solicitud' : 'Crear Nueva Solicitud';
@@ -82,7 +111,7 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                         {isEditing ? (
                             // Botones cuando el formulario está activo (creando o editando)
                             <>
-                                <Link href={route('mantenimiento.index')} className="text-sm font-semibold text-gray-600 hover:underline">
+                                <Link href={backUrl} className="text-sm font-semibold text-gray-600 hover:underline">
                                     Cancelar
                                 </Link>
                                 <button onClick={handleSubmit} disabled={processing} className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-500 disabled:bg-blue-300">
@@ -92,8 +121,14 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                         ) : (
                             // Botones en modo de solo lectura (solo para solicitudes existentes)
                             <>
-                                <Link href={route('mantenimiento.index')} className="text-sm font-semibold text-gray-600 hover:underline">&larr; Volver al Tablero</Link>
+                                <Link href={backUrl} className="text-sm font-semibold text-gray-600 hover:underline">{backLinkText}</Link>
                                 <button onClick={() => setIsEditing(true)} className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-semibold hover:bg-green-500 transition">Editar</button>
+                                <button 
+                                    onClick={handleToggleArchive}
+                                    className={`px-4 py-2 rounded-md text-sm font-semibold text-white transition ${maintenanceRequest.is_archived ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 hover:bg-yellow-600'}`}
+                                >
+                                    {maintenanceRequest.is_archived ? 'Restaurar del Archivo' : 'Archivar Solicitud'}
+                                </button>
                             </>
                         )}
                     </div>
@@ -154,26 +189,48 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                                         <p className="mt-1">{maintenanceRequest.stage?.name || 'N/A'}</p>
                                     )}
                                 </div>
-                                 {isCurrentStageFinal && (
-                                     <div>
-                                        <label htmlFor="duration" className="block text-sm font-bold text-gray-700">Duración (horas)</label>
-                                        {isEditing ? (
-                                            <>
-                                                <input
-                                                    id="duration"
-                                                    type="number"
-                                                    step="0.1"
-                                                    value={data.duration}
-                                                    onChange={e => setData('duration', e.target.value)}
-                                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                                    placeholder="Ej: 2.5"
-                                                />
-                                                {errors.duration && <p className="text-sm text-red-600 mt-1">{errors.duration}</p>}
-                                            </>
-                                        ) : (
-                                            <p className="mt-1">{maintenanceRequest.duration ? `${maintenanceRequest.duration} horas` : 'No definida'}</p>
-                                        )}
-                                    </div>
+                                {isCurrentStageFinal && (
+                                    <>
+                                        {/* Campo de Fecha de Finalización */}
+                                        <div>
+                                            <label htmlFor="completion_date" className="block text-sm font-bold text-gray-700">Fecha de Finalización</label>
+                                            {isEditing ? (
+                                                <>
+                                                    <input
+                                                        id="completion_date"
+                                                        type="datetime-local"
+                                                        value={data.completion_date}
+                                                        onChange={e => setData('completion_date', e.target.value)}
+                                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                                    />
+                                                    {errors.completion_date && <p className="text-sm text-red-600 mt-1">{errors.completion_date}</p>}
+                                                </>
+                                            ) : (
+                                                <p className="mt-1">{maintenanceRequest.completion_date ? format(parseISO(maintenanceRequest.completion_date), 'dd/MM/yyyy HH:mm') : 'No definida'}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Campo de Duración */}
+                                        <div>
+                                            <label htmlFor="duration" className="block text-sm font-bold text-gray-700">Duración (horas)</label>
+                                            {isEditing ? (
+                                                <>
+                                                    <input
+                                                        id="duration"
+                                                        type="number"
+                                                        step="0.1"
+                                                        value={data.duration}
+                                                        onChange={e => setData('duration', e.target.value)}
+                                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                                        placeholder="Ej: 2.5"
+                                                    />
+                                                    {errors.duration && <p className="text-sm text-red-600 mt-1">{errors.duration}</p>}
+                                                </>
+                                            ) : (
+                                                <p className="mt-1">{maintenanceRequest.duration ? `${maintenanceRequest.duration} horas` : 'No definida'}</p>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
                                 {/* Reportado Por */}
                                 <div>

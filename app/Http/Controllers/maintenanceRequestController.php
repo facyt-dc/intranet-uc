@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Equipment;
 use App\Models\User;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Database\Eloquent\Builder;
 
 class MaintenanceRequestController extends Controller
 {
@@ -21,97 +22,84 @@ class MaintenanceRequestController extends Controller
      * @param MaintenanceStage $stage La etapa a la que se está moviendo la solicitud.
      * @return void
      */
-    private function handleCompletionLogic(MaintenanceRequest $maintenanceRequest, MaintenanceStage $stage): void
-    {   
-        
-        // Salir si no es una etapa final o si ya tiene fecha de finalización
-        if (!$stage->is_final_stage || $maintenanceRequest->completion_date) {
-            return;
+    private function recalculateEquipmentMetrics(Equipment $equipment): void
+    {
+        // Obtener todas las solicitudes correctivas completadas y ordenarlas
+        $completedCorrective = MaintenanceRequest::where('equipment_id', $equipment->id)
+            ->where('type', 'corrective')
+            ->whereNotNull('completion_date')
+            ->orderBy('completion_date', 'asc')
+            ->get();
+
+        // --- Cálculo de MTTR (Tiempo Medio de Reparación) ---
+        // Se basa en el promedio de duración de TODAS las reparaciones completadas.
+        if ($completedCorrective->count() > 0) {
+            $averageDuration = $completedCorrective->avg('duration');
+            $equipment->mttr = $averageDuration > 0 ? $averageDuration : null;
         }
 
-        $maintenanceRequest->completion_date = now();
-        $maintenanceRequest->save();
-
-        if (!$maintenanceRequest->equipment_id) {
-            return;
-        }
-        
-        $equipment = Equipment::find($maintenanceRequest->equipment_id);
-        if (!$equipment) {
-            return;
-        }
-        $equipment->last_maintained_at = $maintenanceRequest->completion_date;
-
-        if ($maintenanceRequest->type === 'corrective') {
-            
-            $completedCorrectiveRequests = MaintenanceRequest::where('equipment_id', $equipment->id)
-                ->where('type', 'corrective')
-                ->whereNotNull('completion_date')
-                ->orderBy('completion_date', 'asc')
-                ->get();
-                
-            if ($completedCorrectiveRequests->count() > 0) {
-                $averageDurationInHours = $completedCorrectiveRequests->avg('duration');
-                $equipment->mttr = $averageDurationInHours;
+        // --- Cálculo de MTBF (Tiempo Medio Entre Fallos) ---
+        // Necesita al menos dos fallos para calcular el tiempo *entre* ellos.
+        if ($completedCorrective->count() >= 2) {
+            $totalTimeBetweenFailures = 0;
+            // Iteramos desde el segundo elemento para compararlo con el anterior
+            for ($i = 1; $i < $completedCorrective->count(); $i++) {
+                $previousCompletion = $completedCorrective[$i - 1]->completion_date;
+                $currentCompletion = $completedCorrective[$i]->completion_date;
+                $totalTimeBetweenFailures += $previousCompletion->diffInHours($currentCompletion);
             }
-
-            if ($completedCorrectiveRequests->count() >= 2) {
-                $totalTimeBetweenFailures = 0;
-                $intervals = 0;
-
-                for ($i = 1; $i < $completedCorrectiveRequests->count(); $i++) {
-                    $previousCompletion = $completedCorrectiveRequests[$i - 1]->completion_date;
-                    $currentCompletion = $completedCorrectiveRequests[$i]->completion_date;
-                    
-                    $totalTimeBetweenFailures += $previousCompletion->diffInHours($currentCompletion);
-                    $intervals++;
-                }
-                
-                if ($intervals > 0) {
-                    $equipment->mtbf = $totalTimeBetweenFailures / $intervals;
-                }
-            }
+            $equipment->mtbf = $totalTimeBetweenFailures / ($completedCorrective->count() - 1);
         }
-        
+
         $equipment->save();
     }
-
-    public function index(Request $request)
+    /**
+     * Aplica los filtros comunes de la request a una consulta de solicitudes de mantenimiento.
+     *
+     * @param Builder $query La consulta de Eloquent a modificar.
+     * @param Request $request La request HTTP actual.
+     * @return Builder La consulta con los filtros aplicados.
+     */
+    private function applyRequestFilters(Builder $query, Request $request): Builder
     {
-        $stages = MaintenanceStage::orderBy('sequence')->get();
-
-        // Iniciar la consulta
-        $query = MaintenanceRequest::query();
-
-        // --- FILTROS EXISTENTES ---
+        // Filtro de búsqueda por título o descripción
         $query->when($request->input('search'), function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                ->orWhere('description', 'like', "%{$search}%");
             });
         });
 
+        // Filtro por técnico asignado
         $query->when($request->input('technician'), function ($query, $technicianId) {
             $query->where('technician_id', $technicianId);
         });
 
-        // --- NUEVOS FILTROS ---
-        // 1. Filtro por equipo específico
+        // Filtro por equipo específico
         $query->when($request->input('equipment'), function ($query, $equipmentId) {
             $query->where('equipment_id', $equipmentId);
         });
 
-        // 2. Filtro por categoría de equipo (usando una subconsulta en la relación)
+        // Filtro por categoría de equipo
         $query->when($request->input('category'), function ($query, $categoryId) {
             $query->whereHas('equipment', function ($equipmentQuery) use ($categoryId) {
                 $equipmentQuery->where('equipment_category_id', $categoryId);
             });
         });
 
-        // Cargar relaciones y obtener resultados
+        return $query;
+    }
+    public function index(Request $request)
+    {
+        $stages = MaintenanceStage::orderBy('sequence')->get();
+
+        // Iniciar la consulta
+        $query = MaintenanceRequest::query();
+        $query->where('is_archived', false);
+        $query = $this->applyRequestFilters($query, $request);
+
         $requests = $query->with('user', 'equipment')->get();
         
-        // Obtener datos para los dropdowns de los filtros
         $technicians = User::role('technician')->get(['id', 'name']);
         $equipments = Equipment::orderBy('name')->get(['id', 'name']);
         $equipmentCategories = EquipmentCategory::orderBy('name')->get(['id', 'name']);
@@ -122,11 +110,42 @@ class MaintenanceRequestController extends Controller
             'technicians' => $technicians,
             'equipments' => $equipments, // <-- Pasar lista de equipos
             'equipmentCategories' => $equipmentCategories, // <-- Pasar lista de categorías
-            // Asegurarse de que los nuevos filtros se devuelven a la vista
             'filters' => $request->only(['search', 'technician', 'equipment', 'category']),
         ]);
     }
-    
+
+    public function toggleArchive(MaintenanceRequest $maintenanceRequest)
+    {
+        $maintenanceRequest->is_archived = !$maintenanceRequest->is_archived;
+        $maintenanceRequest->save();
+
+        $message = $maintenanceRequest->is_archived ? 'Solicitud archivada con éxito.' : 'Solicitud desarchivada con éxito.';
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    public function archivedIndex(Request $request)
+    {
+        $query = MaintenanceRequest::where('is_archived', true);
+
+        $query = $this->applyRequestFilters($query, $request);
+
+        $requests = $query->with(['user', 'equipment', 'stage'])->orderBy('updated_at', 'desc')->get();
+
+        // Obtener datos para los filtros
+        $technicians = User::role('technician')->get(['id', 'name']);
+        $equipments = Equipment::orderBy('name')->get(['id', 'name']);
+        $equipmentCategories = EquipmentCategory::orderBy('name')->get(['id', 'name']);
+
+        return Inertia::render('Maintenance/ArchivedIndex', [
+            'requests' => $requests,
+            'technicians' => $technicians,
+            'equipments' => $equipments,
+            'equipmentCategories' => $equipmentCategories,
+            'filters' => $request->only(['search', 'technician', 'equipment', 'category']),
+        ]);
+    }
+
      public function create()
     {
         return Inertia::render('Maintenance/RequestShow', [
@@ -151,6 +170,7 @@ class MaintenanceRequestController extends Controller
             'equipment_id' => 'nullable|exists:equipment,id', // Puede ser opcional
             'attachments.*' => 'nullable|file|max:10240',
             'duration' => 'nullable|numeric|min:0',
+            'completion_date' => 'nullable|date',
         ]);
         
         try {
@@ -179,8 +199,17 @@ class MaintenanceRequestController extends Controller
 
                 // 4. Comprobar si la solicitud se creó directamente en una etapa final
                 $initialStage = MaintenanceStage::find($validated['stage_id']);
-                if ($initialStage) {
-                    $this->handleCompletionLogic($maintenanceRequest, $initialStage);
+                if ($initialStage && $initialStage->is_final_stage) {
+                    // Si no se proveyó una fecha, se usa la actual
+                    if (!$maintenanceRequest->completion_date) {
+                        $maintenanceRequest->completion_date = now();
+                        $maintenanceRequest->save();
+                    }
+
+                    // Si hay un equipo, recalculamos sus métricas
+                    if ($maintenanceRequest->equipment_id) {
+                        $this->recalculateEquipmentMetrics($maintenanceRequest->equipment);
+                    }
                 }
             });
         } catch (\Exception $e) {
@@ -190,7 +219,7 @@ class MaintenanceRequestController extends Controller
         return Redirect::route('mantenimiento.index')->with('success', 'Solicitud creada con éxito.');
     }
 
-    public function show(MaintenanceRequest $maintenanceRequest)
+    public function show(Request $request, MaintenanceRequest $maintenanceRequest)
     {
         $maintenanceRequest->load(['stage', 'user', 'technician', 'attachments', 'equipment']);
         
@@ -200,6 +229,7 @@ class MaintenanceRequestController extends Controller
             'technician' => User::role('technician')->get(['id', 'name']),
             'stages' => MaintenanceStage::orderBy('sequence')->get(['id', 'name','is_final_stage']),
             'equipments' => Equipment::all(['id', 'name']),
+            'came_from' => $request->query('from', 'kanban'),
         ]);
     }
 
@@ -222,22 +252,40 @@ class MaintenanceRequestController extends Controller
             'equipment_id' => 'nullable|exists:equipment,id',
             'attachments.*' => 'nullable|file|max:10240',
             'duration' => 'nullable|numeric|min:0',
+            'completion_date' => 'nullable|date',
         ]);
         
         try {
             DB::transaction(function () use ($request, $validated, $maintenanceRequest) {
                 // 1. Actualizar los datos de la solicitud
+                $oldStageIsFinal = $maintenanceRequest->stage?->is_final_stage ?? false;
                 $maintenanceRequest->update($validated);
 
                 // 2. Manejar archivos adjuntos
                 if ($request->hasFile('attachments')) {
-                    // (Lógica de adjuntos aquí, como en tu código original)
+                    foreach ($request->file('attachments') as $file) {
+                        // Guarda el archivo en 'storage/app/public/attachments'
+                        $path = $file->store('attachments', 'public');
+                        
+                        // Crea el registro en la base de datos
+                        $maintenanceRequest->attachments()->create([
+                            'path' => $path,
+                            'original_name' => $file->getClientOriginalName(),
+                        ]);
+                    }
                 }
                 
                 // 3. Comprobar si la solicitud se movió a una etapa final
                 $newStage = MaintenanceStage::find($validated['stage_id']);
-                if ($newStage) {
-                    $this->handleCompletionLogic($maintenanceRequest, $newStage);
+                if ($newStage && $newStage->is_final_stage && !$oldStageIsFinal) {
+                    // Si no se proveyó una fecha, se usa la actual. Solo se setea la primera vez.
+                    if (!$maintenanceRequest->completion_date) {
+                        $maintenanceRequest->completion_date = now();
+                        $maintenanceRequest->save();
+                    }
+                }
+                if ($newStage && $newStage->is_final_stage && $maintenanceRequest->equipment_id) {
+                    $this->recalculateEquipmentMetrics($maintenanceRequest->equipment);
                 }
             });
 

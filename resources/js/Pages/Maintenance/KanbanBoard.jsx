@@ -5,6 +5,12 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Link } from "@inertiajs/react";
 import AdvancedFilterMenu from "@/Components/AdvancedFilterMenu";
 
+const ArchiveBoxIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+      <path d="M2 3.5A1.5 1.5 0 0 1 3.5 2h13A1.5 1.5 0 0 1 18 3.5v2.753a1.5 1.5 0 0 1-.812 1.342l-1.558.623 1.558.623A1.5 1.5 0 0 1 18 10.247V13.5A1.5 1.5 0 0 1 16.5 15h-13A1.5 1.5 0 0 1 2 13.5v-3.253a1.5 1.5 0 0 1 .812-1.342l1.558-.623-1.558-.623A1.5 1.5 0 0 1 2 6.253V3.5ZM3.5 3.5h13V6a.75.75 0 0 1-.406.67l-6.594 2.637a.75.75 0 0 1-.599 0L3.906 6.67A.75.75 0 0 1 3.5 6V3.5ZM16.5 11h-13v2.5h13V11Z" />
+    </svg>
+);
+
 function RequestCard({ request, index }) {
     return (
         <Draggable draggableId={String(request.id)} index={index}>
@@ -156,6 +162,13 @@ export default function KanbanBoard({ auth, initialStages, initialRequests, tech
                                     equipmentCategories={equipmentCategories}
                                 />
                             </div>
+                            <Link
+                                href={route('mantenimiento.archived.index')}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 ring-1 ring-gray-300 rounded-md text-sm font-semibold hover:bg-gray-50 transition whitespace-nowrap"
+                            >
+                                <ArchiveBoxIcon />
+                                Ver Archivados
+                            </Link>
                         </div>
                     </div>
                 </div>
