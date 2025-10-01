@@ -65,6 +65,41 @@ const drawerRoutesList = [
             },
         ],
     },
+    {
+        // El menú solo aparecerá si el usuario tiene este permiso.
+        permissionNeeded: "inventory.access",
+
+        // Título de la sección en el menú lateral.
+        subHeaderText: "Inventario",
+
+        // Lista de enlaces para el módulo.
+        routes: [
+            {
+                linkText: "Ítems",
+                routeName: "admin.item.index",
+            },
+            {
+                linkText: "Categorías",
+                routeName: "admin.item-category.index",
+            },
+            {
+                linkText: "Ubicaciones",
+                routeName: "admin.item-location.index",
+            },
+            {
+                linkText: "Estados",
+                routeName: "admin.item-status.index",
+            },
+            {
+                linkText: "Movimientos",
+                routeName: "admin.item-inventory-movement.index",
+            },
+            {
+                linkText: "Tipos de Movimiento",
+                routeName: "admin.item-movement-type.index",
+            },
+        ],
+    },
 ];
 
 export default drawerRoutesList;
