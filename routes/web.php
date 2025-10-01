@@ -10,6 +10,13 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DocumentController;
 
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemCategoryController;
+use App\Http\Controllers\ItemStatusController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MovementTypeController;
+use App\Http\Controllers\InventoryMovementController;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -50,5 +57,17 @@ Route::middleware(['auth','verified'])->group(function(){
         ->names('document');
 
 });
+
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('/item', ItemController::class)->only(['index','create','store','edit','update','destroy'])->names('item');
+    Route::resource('/item-category', ItemCategoryController::class)->only(['index','create','store','edit','update','destroy'])->names('item-category');
+    Route::resource('/location', LocationController::class)->only(['index','create','store','edit','update','destroy'])->names('item-location');
+    Route::resource('/item-status', ItemStatusController::class)->only(['index','create','store','edit','update','destroy'])->names('item-status');
+    Route::resource('/inventory-movement', InventoryMovementController::class)->only(['index', 'show'])->names('item-inventory-movement');
+    Route::resource('/movement-type', MovementTypeController::class)->only(['index','create','store','edit','update','destroy'])->names('item-movement-type');
+});
+
+
+
 
 require __DIR__.'/auth.php';
