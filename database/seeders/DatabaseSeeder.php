@@ -56,15 +56,30 @@ class DatabaseSeeder extends Seeder
             'description' => 'Permiso Administrativo'
         ]);
 
+        $inventoryAccess = Permission::create([
+            'name' => 'inventory.access',
+            'description' => 'Acceso al módulo de inventario'
+        ]);
+    
+
         // Assing permissions to roles
 
         $isAdmin->syncRoles($admin);
         $isDirector->syncRoles([$admin, $director]);
         $isTeacher->syncRoles([$admin, $teacher]);
         $isAdministrative->syncRoles([$admin, $administrative]);
+        $inventoryAccess->syncRoles($admin);
 
         // assing roles to users
 
         $adminUser->assignRole(['admin','teacher']);
+
+        // 🚀 Agregamos los seeders del módulo Inventario
+        $this->call([
+            ItemCategorySeeder::class,
+            ItemStatusSeeder::class,
+            LocationSeeder::class,
+            MovementTypeSeeder::class,
+        ]);
     }
 }
