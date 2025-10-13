@@ -178,40 +178,77 @@ public function edit(Thesis $thesis)
 
 public function update(Request $request, Thesis $thesis)
 {
-    // 1. VALIDACIÓN ALINEADA CON EL FRONTEND Y EL MÉTODO 'store'
-    // Se valida explícitamente por 'pteg_document' y 'teg_document'.
+    // 1. VALIDACIÓN
     $validatedData = $request->validate([
         'title' => 'required|string|max:255|unique:thesis,title,' . $thesis->id,
         'date'  => 'required|date',
         'student_ids'   => 'required|array|min:1|max:2',
-        'student_ids.*' => 'exists:thesis_student,id', // Verifica el nombre de la tabla
-
-        'teacher_ids'   => 'nullable|array', // <-- NUEVA VALIDACIÓN
+        'student_ids.*' => 'exists:thesis_student,id',
+        'teacher_ids'   => 'nullable|array',
         'teacher_ids.*' => 'exists:thesis_teachers,id',
-        
-        // Reglas para los archivos con sus nombres correctos
         'pteg_document' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
         'teg_document'  => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
-
-        // La validación para los archivos a borrar se mantiene
         'deleted_files' => 'nullable|array',
         'deleted_files.*' => 'nullable|integer|exists:thesis_files,id',
     ]);
 
-    // 2. USAR UNA TRANSACCIÓN PARA GARANTIZAR LA INTEGRIDAD DE LOS DATOS
+    // 2. USAR UNA TRANSACCIÓN PARA GARANTIZAR LA INTEGRIDAD
     try {
         DB::transaction(function () use ($validatedData, $request, $thesis) {
             
-            // A. ACTUALIZAR DATOS DE LA TESIS Y ESTUDIANTES
+            // --- CÁLCULO DE DIFERENCIAS DE ESTUDIANTES ---
+            $originalStudentIds = $thesis->students()->pluck('thesis_student.id');
+            $newStudentIds = collect($validatedData['student_ids']);
+            $removedStudentIds = $originalStudentIds->diff($newStudentIds);
+            $addedStudentIds = $newStudentIds->diff($originalStudentIds);
+
+            // A. ACTUALIZAR DATOS DE LA TESIS Y SINCRONIZAR RELACIONES
             $thesis->update([
                 'title' => $validatedData['title'],
                 'date'  => $validatedData['date'],
             ]);
-            $thesis->students()->sync($validatedData['student_ids']);
-
+            $thesis->students()->sync($newStudentIds);
             $thesis->teachers()->sync($validatedData['teacher_ids'] ?? []);
 
-            // B. BORRAR ARCHIVOS MARCADOS PARA ELIMINACIÓN
+            // B. MANEJAR ESTADOS DE ESTUDIANTES SI LA TESIS ESTÁ ACTIVA
+            if ($thesis->is_active) {
+                // 1. Revertir estado de estudiantes ELIMINADOS
+                if ($removedStudentIds->isNotEmpty()) {
+                    $inscritoStatus = StudentStatus::where('name', 'inscrito')->firstOrFail();
+                    foreach ($removedStudentIds as $studentId) {
+                        StudentStatusHistory::create([
+                            'thesis_student_id' => $studentId,
+                            'student_status_id' => $inscritoStatus->id,
+                            'start_date'        => now(),
+                        ]);
+                    }
+                    ThesisStudent::whereIn('id', $removedStudentIds)->update(['status_id' => $inscritoStatus->id]);
+                }
+
+                // 2. Actualizar estado de estudiantes NUEVOS y desactivar sus tesis antiguas
+                if ($addedStudentIds->isNotEmpty()) {
+                    Thesis::where('is_active', true)
+                            ->where('id', '!=', $thesis->id)
+                            ->whereHas('students', function ($query) use ($addedStudentIds) {
+                                $query->whereIn('thesis_student.id', $addedStudentIds);
+                            })
+                            ->update(['is_active' => false]);
+                    
+                    $targetStatusName = $request->hasFile('teg_document') ? 'TEG inscrito' : 'PTEG inscrito';
+                    $targetStatus = StudentStatus::where('name', $targetStatusName)->firstOrFail();
+
+                    foreach ($addedStudentIds as $studentId) {
+                        StudentStatusHistory::create([
+                            'thesis_student_id' => $studentId,
+                            'student_status_id' => $targetStatus->id,
+                            'start_date'        => now(),
+                        ]);
+                    }
+                    ThesisStudent::whereIn('id', $addedStudentIds)->update(['status_id' => $targetStatus->id]);
+                }
+            }
+            
+            // C. BORRAR ARCHIVOS MARCADOS
             if (!empty($validatedData['deleted_files'])) {
                 $filesToDelete = ThesisFile::whereIn('id', $validatedData['deleted_files'])
                     ->where('thesis_id', $thesis->id)->get();
@@ -222,16 +259,13 @@ public function update(Request $request, Thesis $thesis)
                 }
             }
 
-            // C. PROCESAR Y REEMPLAZAR EL DOCUMENTO PTEG (si se subió uno nuevo)
+            // D. PROCESAR ARCHIVO PTEG
             if ($request->hasFile('pteg_document')) {
-                // Borramos el archivo antiguo de tipo 'pteg' si existía
                 $oldFile = $thesis->files()->where('type', 'pteg')->first();
                 if ($oldFile) {
                     Storage::disk('public')->delete($oldFile->path);
                     $oldFile->delete();
                 }
-
-                // Guardamos el nuevo archivo
                 $file = $request->file('pteg_document');
                 $path = $file->store('thesis_files', 'public');
                 $thesis->files()->create([
@@ -242,48 +276,40 @@ public function update(Request $request, Thesis $thesis)
                 ]);
             }
 
-
+            // E. PROCESAR ARCHIVO TEG Y ACTUALIZAR ESTADO DE TODOS LOS ESTUDIANTES ASOCIADOS
             if ($request->hasFile('teg_document')) {
-                    // Borramos el archivo TEG antiguo si existía
-                    $oldFile = $thesis->files()->where('type', 'teg')->first();
-                    if ($oldFile) {
-                        Storage::disk('public')->delete($oldFile->path);
-                        $oldFile->delete();
-                    }
-                    
-                    // Guardamos el nuevo archivo
-                    $file = $request->file('teg_document');
-                    $path = $file->store('thesis_files', 'public');
-                    $thesis->files()->create([
-                        'type' => 'teg',
-                        'original_name' => $file->getClientOriginalName(),
-                        'path' => $path,
-                        'size' => $file->getSize(),
-                    ]);
-
-                    // AHORA, ACTUALIZAMOS EL ESTADO DE LOS ESTUDIANTES
-                    $studentIds = $validatedData['student_ids'];
-                    
-                    // Buscamos el estado "TEG inscrito". Si no existe, la transacción fallará.
-                    $tegStatus = StudentStatus::where('name', 'TEG inscrito')->firstOrFail();
-
-                    // Para cada estudiante, creamos un registro en el historial.
-                    foreach ($studentIds as $studentId) {
-                        StudentStatusHistory::create([
-                            'thesis_student_id' => $studentId,
-                            'student_status_id' => $tegStatus->id,
-                            'start_date'        => now(),
-                        ]);
-                    }
-                    
-                    // Finalmente, actualizamos el estado actual en la tabla principal.
-                    ThesisStudent::whereIn('id', $studentIds)
-                        ->update(['status_id' => $tegStatus->id]);
+                $oldFile = $thesis->files()->where('type', 'teg')->first();
+                if ($oldFile) {
+                    Storage::disk('public')->delete($oldFile->path);
+                    $oldFile->delete();
                 }
+                $file = $request->file('teg_document');
+                $path = $file->store('thesis_files', 'public');
+                $thesis->files()->create([
+                    'type' => 'teg',
+                    'original_name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                    'size' => $file->getSize(),
+                ]);
+
+                // Actualizamos el estado de TODOS los estudiantes actualmente en la tesis a "TEG inscrito"
+                $tegStatus = StudentStatus::where('name', 'TEG inscrito')->firstOrFail();
+                foreach ($newStudentIds as $studentId) {
+                    StudentStatusHistory::updateOrCreate(
+                        ['thesis_student_id' => $studentId, 'student_status_id' => $tegStatus->id],
+                        ['start_date' => now()]
+                    );
+                }
+                ThesisStudent::whereIn('id', $newStudentIds)->update(['status_id' => $tegStatus->id]);
+            }
         });
     } catch (\Exception $e) {
-        // En caso de un error inesperado, se revierte todo y se notifica.
-        return back()->with('error', 'Ocurrió un error al actualizar la tesis: ' . $e->getMessage());
+        return back()->with('flash', [
+            'alert' => [
+                'message' => 'Ocurrió un error al actualizar la tesis: ' . $e->getMessage(),
+                'severity' => 'error'
+            ]
+        ]);
     }
     
     // 3. REDIRECCIÓN EN CASO DE ÉXITO
@@ -299,10 +325,37 @@ public function update(Request $request, Thesis $thesis)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Thesis $thesis)
+       public function destroy(Thesis $thesis)
     {
         $id = $thesis->id;
 
+        // Si la tesis que se va a eliminar está activa...
+        if ($thesis->is_active) {
+            // ...obtenemos los IDs de los estudiantes asociados.
+            $studentIds = $thesis->students()->pluck('thesis_student.id');
+            
+            if ($studentIds->isNotEmpty()) {
+                // Buscamos el estado "inscrito".
+                $inscritoStatus = StudentStatus::where('name', 'inscrito')->first();
+
+                if ($inscritoStatus) {
+                    // Actualizamos el historial y el estado de los estudiantes.
+                    foreach ($studentIds as $studentId) {
+                        StudentStatusHistory::create([
+                            'thesis_student_id' => $studentId,
+                            'student_status_id' => $inscritoStatus->id,
+                            'start_date'        => now(),
+                            // 'notes' => 'Proyecto de tesis activo eliminado: ' . $thesis->title,
+                        ]);
+                    }
+                    
+                    ThesisStudent::whereIn('id', $studentIds)
+                        ->update(['status_id' => $inscritoStatus->id]);
+                }
+            }
+        }
+
+        // El borrado de la tesis ocurre después de haber actualizado a los estudiantes.
         $thesis->delete();
 
         return to_route('Thesis.index')->with('flash',[
@@ -313,4 +366,5 @@ public function update(Request $request, Thesis $thesis)
             ]
         ]);
     }
+
 }
