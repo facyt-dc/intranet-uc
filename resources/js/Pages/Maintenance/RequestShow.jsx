@@ -234,6 +234,7 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                                         ) : (
                                         <p className="mt-1">{maintenanceRequest.stage?.name || 'N/A'}</p>
                                     )}
+                                    {errors.stage_id && <p className="text-sm text-red-600 mt-1">{errors.stage_id}</p>}
                                 </div>
                                 {isCurrentStageFinal && (
                                     <>

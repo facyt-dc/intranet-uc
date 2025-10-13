@@ -12,6 +12,7 @@ use App\Models\Equipment;
 use App\Models\User;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\ValidationException;
 
 class MaintenanceRequestController extends Controller
 {
@@ -47,11 +48,15 @@ class MaintenanceRequestController extends Controller
             ->whereNotNull('completion_date')
             ->orderBy('completion_date', 'asc')
             ->get();
+        $allMaintenance = MaintenanceRequest::where('equipment_id', $equipment->id)
+            ->whereNotNull('completion_date')
+            ->orderBy('completion_date', 'asc')
+            ->get();
 
         // --- Cálculo de MTTR (Tiempo Medio de Reparación) ---
         // Se basa en el promedio de duración de TODAS las reparaciones completadas.
-        if ($completedCorrective->count() > 0) {
-            $averageDuration = $completedCorrective->avg('duration');
+        if ($allMaintenance->count() > 0) {
+            $averageDuration = $allMaintenance->avg('duration');
             $equipment->mttr = $averageDuration > 0 ? $averageDuration : null;
         }
 
@@ -67,7 +72,8 @@ class MaintenanceRequestController extends Controller
             }
             $equipment->mtbf = $totalTimeBetweenFailures / ($completedCorrective->count() - 1);
         }
-
+        $equipment->last_failure_at = $completedCorrective->last()->completion_date ?? null;
+        $equipment->last_maintained_at = $allMaintenance->last()->completion_date ?? null;
         $equipment->save();
     }
     /**
@@ -183,16 +189,25 @@ class MaintenanceRequestController extends Controller
             'type' => 'required|in:preventive,corrective',
             'user_id' => 'required|exists:users,id',
             'technician_id' => 'nullable|exists:users,id',
-            'stage_id' => 'required|exists:maintenance_stages,id',
+            'stage_id' => [
+                'required',
+                'exists:maintenance_stages,id',
+                // Aquí está la magia: una regla personalizada con un Closure.
+                function ($attribute, $value, $fail) {
+                    $stage = MaintenanceStage::find($value);
+                    if ($stage && $stage->is_final_stage) {
+                        // Si la etapa es final, la validación falla con este mensaje.
+                        $fail('No se pueden crear solicitudes directamente en una etapa de finalización.');
+                    }
+                },
+            ],
             'equipment_id' => 'nullable|exists:equipment,id', // Puede ser opcional
             'attachments.*' => 'nullable|file|max:10240',
             'duration' => 'nullable|numeric|min:0',
             'completion_date' => 'nullable|date',
         ]);
-        
         try {
             DB::transaction(function () use ($request, $validated) {
-
                 $maintenanceRequest = MaintenanceRequest::create($validated);
                 
                 // 2. Lógica específica al crear una solicitud CORRECTIVA
@@ -215,7 +230,7 @@ class MaintenanceRequestController extends Controller
                 }
 
                 // 4. Comprobar si la solicitud se creó directamente en una etapa final
-                $initialStage = MaintenanceStage::find($validated['stage_id']);
+                
                 if ($initialStage && $initialStage->is_final_stage) {
                     // Si no se proveyó una fecha, se usa la actual
                     if (!$maintenanceRequest->completion_date) {
@@ -271,9 +286,9 @@ class MaintenanceRequestController extends Controller
             'duration' => 'nullable|numeric|min:0',
             'completion_date' => 'nullable|date',
         ]);
-        
         try {
             DB::transaction(function () use ($request, $validated, $maintenanceRequest) {
+
                 // 1. Actualizar los datos de la solicitud
                 $oldStageIsFinal = $maintenanceRequest->stage?->is_final_stage ?? false;
                 $maintenanceRequest->update($validated);
@@ -296,7 +311,7 @@ class MaintenanceRequestController extends Controller
                 }
                 // 3. Comprobar si la solicitud se movió a una etapa final
                 $newStage = MaintenanceStage::find($validated['stage_id']);
-                if ($newStage && $newStage->is_final_stage && !$oldStageIsFinal) {
+                if ($newStage && $newStage->is_final_stage) {
                     // Si no se proveyó una fecha, se usa la actual. Solo se setea la primera vez.
                     if (!$maintenanceRequest->completion_date) {
                         $maintenanceRequest->completion_date = now();
