@@ -20,10 +20,10 @@ class StudentStatus extends Model
     ];
 
     /**
-     * Un estado puede estar asociado a muchos estudiantes de tesis.
+     * El historial de estudiantes que han tenido este estado.
      */
-    // public function thesisStudents(): HasMany
-    // {
-    //     return $this->hasMany(ThesisStudent::class);
-    // }
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(StudentStatusHistory::class, 'student_status_id');
+    }
 }

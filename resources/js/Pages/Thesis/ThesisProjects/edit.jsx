@@ -11,7 +11,7 @@ import Form from "@/Pages/Thesis/ThesisProjects/components/Form";
 
 import { useTranslation } from "react-i18next";
 
-export default function thesisEdit({ auth, thesis,students }) {
+export default function thesisEdit({ auth, thesis, students, teachers  }) {
     console.log("thesis", thesis);
     console.log("students", students);
     const { t } = useTranslation(["translation", "common"]);
@@ -46,7 +46,7 @@ export default function thesisEdit({ auth, thesis,students }) {
             <Form
                 thesis={thesis}
                 students={students}
-
+                teachers={teachers}
                 method="patch"
                 routeName="Thesis.update"
             />

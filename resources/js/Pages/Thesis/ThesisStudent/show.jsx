@@ -36,7 +36,7 @@ export default function ThesisStudentShow({ auth, thesisStudent }) {
             case 'retirado':
             case 'suspendido':
                 return 'error';
-            case 'en espera':
+            case 'teg inscrito':
                 return 'warning';
             default:
                 return 'default';

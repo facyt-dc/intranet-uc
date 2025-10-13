@@ -8,7 +8,8 @@ use App\Models\ThesisStudent;
 use App\Models\StudentStatus;
 use App\Models\Thesis;
 use App\Models\ThesisFile;
-
+use App\Models\StudentStatusHistory;
+use App\Models\ThesisTeacher;
 use Spatie\Permission\Models\Role;
 
 use Inertia\Inertia;
@@ -24,7 +25,7 @@ class ThesisController extends Controller
     public function index()
     {
         return Inertia::render("Thesis/ThesisProjects/index",[
-            'thesis' => Thesis::with('students')->get(),
+            'thesis' => Thesis::with(['students', 'teachers'])->latest()->get(),
 
         ]);
     }
@@ -36,6 +37,7 @@ class ThesisController extends Controller
     {
         return Inertia::render("Thesis/ThesisProjects/create",[
                 'students' => ThesisStudent::all(), 
+                'teachers' => ThesisTeacher::all(),
         ]);
     }
 
@@ -43,7 +45,7 @@ class ThesisController extends Controller
     {
 
         return Inertia::render('Thesis/ThesisProjects/show', [
-           'thesis' => $thesis->load('students', 'files'), 
+           'thesis' => $thesis->load(['students', 'teachers', 'files']), 
         ]);
     }
 
@@ -58,6 +60,8 @@ class ThesisController extends Controller
             'date'  => 'required|date',
             'student_ids'   => 'required|array|min:1|max:2',
             'student_ids.*' => 'exists:thesis_student,id', 
+            'teacher_ids'   => 'nullable|array',
+            'teacher_ids.*' => 'exists:thesis_teachers,id',
             'pteg_document' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
             'teg_document'  => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
         ]);
@@ -100,6 +104,10 @@ class ThesisController extends Controller
             $studentIds = $request->student_ids;
             $newThesis->students()->sync($studentIds);
 
+             if ($request->has('teacher_ids')) {
+                    $newThesis->teachers()->sync($request->teacher_ids);
+                }
+
              // Desactivar todas las tesis anteriores de los estudiantes involucrados.
             Thesis::where('is_active', true) // Solo nos interesan las que están activas
                     ->where('id', '!=', $newThesis->id) // Excluimos la tesis que acabamos de crear
@@ -115,12 +123,23 @@ class ThesisController extends Controller
             
             // Primero, encontramos el ID del estatus que queremos asignar.
             // Usamos firstOrFail() para que, si el estatus no existe, la transacción falle y se revierta todo.
-            $ptegStatus = StudentStatus::where('name', 'PTEG inscrito')->firstOrFail();
-
-            // Luego, actualizamos todos los estudiantes seleccionados con el nuevo status_id.
-            // Esta es una consulta de actualización masiva, muy eficiente.
-            ThesisStudent::whereIn('id', $studentIds)
-                            ->update(['status_id' => $ptegStatus->id]);
+             $targetStatusName = $request->hasFile('teg_document') ? 'TEG inscrito' : 'PTEG inscrito';
+                
+                // Buscar el estado correspondiente. Si no existe, la transacción fallará.
+                $targetStatus = StudentStatus::where('name', $targetStatusName)->firstOrFail();
+                
+                // Actualizar el historial para cada estudiante
+                foreach ($studentIds as $studentId) {
+                    StudentStatusHistory::create([
+                        'thesis_student_id' => $studentId,
+                        'student_status_id' => $targetStatus->id,
+                        'start_date'        => now(),
+                    ]);
+                }
+                
+                // Actualizar el estado actual en la tabla principal
+                ThesisStudent::whereIn('id', $studentIds)
+                    ->update(['status_id' => $targetStatus->id]);
                               });
         }
 
@@ -146,8 +165,9 @@ class ThesisController extends Controller
 public function edit(Thesis $thesis)
 {
     return Inertia::render('Thesis/ThesisProjects/edit', [
-        'thesis' => $thesis->load(['students', 'files']),
+        'thesis' => $thesis->load(['students', 'teachers', 'files']),
         'students' => ThesisStudent::all(),
+        'teachers' => ThesisTeacher::all(),
         'statuses' => StudentStatus::all(),
     ]);
 }
@@ -165,6 +185,9 @@ public function update(Request $request, Thesis $thesis)
         'date'  => 'required|date',
         'student_ids'   => 'required|array|min:1|max:2',
         'student_ids.*' => 'exists:thesis_student,id', // Verifica el nombre de la tabla
+
+        'teacher_ids'   => 'nullable|array', // <-- NUEVA VALIDACIÓN
+        'teacher_ids.*' => 'exists:thesis_teachers,id',
         
         // Reglas para los archivos con sus nombres correctos
         'pteg_document' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
@@ -185,6 +208,8 @@ public function update(Request $request, Thesis $thesis)
                 'date'  => $validatedData['date'],
             ]);
             $thesis->students()->sync($validatedData['student_ids']);
+
+            $thesis->teachers()->sync($validatedData['teacher_ids'] ?? []);
 
             // B. BORRAR ARCHIVOS MARCADOS PARA ELIMINACIÓN
             if (!empty($validatedData['deleted_files'])) {
@@ -217,25 +242,44 @@ public function update(Request $request, Thesis $thesis)
                 ]);
             }
 
-            // D. PROCESAR Y REEMPLAZAR EL DOCUMENTO TEG (si se subió uno nuevo)
+
             if ($request->hasFile('teg_document')) {
-                // Borramos el archivo antiguo de tipo 'teg' si existía
-                $oldFile = $thesis->files()->where('type', 'teg')->first();
-                if ($oldFile) {
-                    Storage::disk('public')->delete($oldFile->path);
-                    $oldFile->delete();
+                    // Borramos el archivo TEG antiguo si existía
+                    $oldFile = $thesis->files()->where('type', 'teg')->first();
+                    if ($oldFile) {
+                        Storage::disk('public')->delete($oldFile->path);
+                        $oldFile->delete();
+                    }
+                    
+                    // Guardamos el nuevo archivo
+                    $file = $request->file('teg_document');
+                    $path = $file->store('thesis_files', 'public');
+                    $thesis->files()->create([
+                        'type' => 'teg',
+                        'original_name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                    ]);
+
+                    // AHORA, ACTUALIZAMOS EL ESTADO DE LOS ESTUDIANTES
+                    $studentIds = $validatedData['student_ids'];
+                    
+                    // Buscamos el estado "TEG inscrito". Si no existe, la transacción fallará.
+                    $tegStatus = StudentStatus::where('name', 'TEG inscrito')->firstOrFail();
+
+                    // Para cada estudiante, creamos un registro en el historial.
+                    foreach ($studentIds as $studentId) {
+                        StudentStatusHistory::create([
+                            'thesis_student_id' => $studentId,
+                            'student_status_id' => $tegStatus->id,
+                            'start_date'        => now(),
+                        ]);
+                    }
+                    
+                    // Finalmente, actualizamos el estado actual en la tabla principal.
+                    ThesisStudent::whereIn('id', $studentIds)
+                        ->update(['status_id' => $tegStatus->id]);
                 }
-                
-                // Guardamos el nuevo archivo
-                $file = $request->file('teg_document');
-                $path = $file->store('thesis_files', 'public');
-                $thesis->files()->create([
-                    'type' => 'teg',
-                    'original_name' => $file->getClientOriginalName(),
-                    'path' => $path,
-                    'size' => $file->getSize(),
-                ]);
-            }
         });
     } catch (\Exception $e) {
         // En caso de un error inesperado, se revierte todo y se notifica.

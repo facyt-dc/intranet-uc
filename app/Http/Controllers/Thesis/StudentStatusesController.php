@@ -37,7 +37,7 @@ class StudentStatusesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            "name"  => "required",
+            "name"  => "required|string|max:255|unique:student_statuses,name",
             "description" => "nullable|string",
         ]);
 
@@ -76,7 +76,7 @@ class StudentStatusesController extends Controller
     public function update(Request $request, StudentStatus $studentStatus)
     {
         $request->validate([
-            "name"  => "required",
+            "name"  => "required|string|max:255|unique:student_statuses,name," . $studentStatus->id,
             "description" => "nullable|string",
         ]);
 

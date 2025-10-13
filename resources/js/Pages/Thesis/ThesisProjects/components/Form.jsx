@@ -1,10 +1,15 @@
 // En tu componente Form.jsx
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from '@inertiajs/react';
 
 // --- IMPORTS COMPLETOS DE MATERIAL-UI ---
 // Este bloque ahora incluye TODOS los componentes y iconos necesarios.
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -19,7 +24,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import ClearIcon from '@mui/icons-material/Clear';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 
-export default function Form({ thesis, routeName, students, method = 'post', onCancel }) {
+export default function Form({ thesis, routeName, students, teachers, method = 'post', onCancel }) {
     const isEdit = !!thesis;
 
     // Helper para encontrar archivos existentes por tipo
@@ -32,6 +37,7 @@ export default function Form({ thesis, routeName, students, method = 'post', onC
         title: thesis?.title ?? '',
         date: thesis?.date ?? '',
         student_ids: thesis?.students?.map(s => s.id) ?? [],
+        teacher_ids: thesis?.teachers?.map(t => t.id) ?? [],
         
         // Inputs para NUEVOS archivos
         pteg_document: null,
@@ -60,12 +66,41 @@ export default function Form({ thesis, routeName, students, method = 'post', onC
     const ptegRef = useRef();
     const tegRef = useRef();
 
+    const [confirmationOpen, setConfirmationOpen] = useState(false);
+    const [pendingTegFile, setPendingTegFile] = useState(null);
+
+    const handleTegFileSelect = (e) => {
+        if (e.target.files.length > 0) {
+            // No establecemos el archivo en el formulario todavía.
+            // Lo guardamos en un estado temporal y abrimos el diálogo.
+            setPendingTegFile(e.target.files[0]);
+            setConfirmationOpen(true);
+        }
+        // Limpiamos el valor del input para que el evento 'onChange' se dispare de nuevo si se selecciona el mismo archivo
+        e.target.value = null; 
+    };
+
+    const handleConfirmUpload = () => {
+        // Si el usuario confirma, ahora sí establecemos el archivo en el formulario.
+        if (pendingTegFile) {
+            setData('teg_document', pendingTegFile);
+        }
+        handleCloseConfirmation();
+    };
+
+    const handleCloseConfirmation = () => {
+        setConfirmationOpen(false);
+        setPendingTegFile(null);
+    };
+
     const handleChange = (e) => setData(e.target.name, e.target.value);
     const handleStudentsChange = (event, value) => setData('student_ids', value.map(s => s.id));
+    const handleTeachersChange = (event, value) => setData('teacher_ids', value.map(t => t.id));
 
-    const handleFileChange = (e) => {
+
+     const handlePtegFileChange = (e) => {
         if (e.target.files.length > 0) {
-            setData(e.target.name, e.target.files[0]);
+            setData('pteg_document', e.target.files[0]);
         }
     };
 
@@ -124,18 +159,19 @@ const handleDeleteExistingFile = (fileId, fieldName) => {
     };
 
     return (
+         <> 
         <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmit} id="thesisForm" encType="multipart/form-data">
             <Grid container spacing={3}>
                 {/* --- SECCIÓN DE CAMPOS DE TEXTO Y AUTOCOMPLETE --- */}
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>Título</Typography>
                     <TextField required fullWidth size="small" name="title" value={data.title} onChange={handleChange} error={!!errors.title} helperText={errors.title} />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>Fecha</Typography>
                     <TextField required fullWidth size="small" type="date" name="date" value={data.date} onChange={handleChange} error={!!errors.date} helperText={errors.date} InputLabelProps={{ shrink: true }} />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>Tesistas</Typography>
                     <Autocomplete 
                         multiple 
@@ -149,6 +185,20 @@ const handleDeleteExistingFile = (fileId, fieldName) => {
                     />
                 </Grid>
 
+                <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>Tutor(es)</Typography>
+                    <Autocomplete 
+                        multiple 
+                        options={teachers} 
+                        getOptionLabel={(option) => option.name} 
+                        value={teachers.filter(t => data.teacher_ids.includes(t.id))} 
+                        onChange={handleTeachersChange} 
+                        isOptionEqualToValue={(option, value) => option.id === value.id} 
+                        limitTags={2} 
+                        renderInput={(params) => (<TextField {...params} size="small" error={!!errors.teacher_ids} helperText={errors.teacher_ids} />)} 
+                    />
+                </Grid>
+
                 {/* --- SECCIÓN DE ARCHIVOS --- */}
                 <Grid item xs={12} md={6}>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>Documento PTEG</Typography>
@@ -156,7 +206,7 @@ const handleDeleteExistingFile = (fileId, fieldName) => {
                         ? renderNewFileInfo(data.pteg_document, 'pteg_document') 
                         : existingPteg && renderExistingFileInfo(existingPteg, 'pteg_document')
                     }
-                    <input type="file" name="pteg_document" ref={ptegRef} onChange={handleFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.zip" />
+                    <input type="file" name="pteg_document" ref={ptegRef} onChange={handlePtegFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.zip" />
                     <Button sx={{mt: 1}} variant="outlined" startIcon={<CloudUploadIcon />} onClick={() => ptegRef.current.click()}>
                         {existingPteg && !data.deleted_files.includes(existingPteg.id) && !data.pteg_document ? 'Reemplazar' : 'Seleccionar archivo'}
                     </Button>
@@ -169,7 +219,7 @@ const handleDeleteExistingFile = (fileId, fieldName) => {
                         ? renderNewFileInfo(data.teg_document, 'teg_document')
                         : existingTeg && renderExistingFileInfo(existingTeg, 'teg_document')
                     }
-                    <input type="file" name="teg_document" ref={tegRef} onChange={handleFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.zip" />
+                    <input type="file" name="teg_document" ref={tegRef} onChange={handleTegFileSelect} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.zip" />
                     <Button sx={{mt: 1}} variant="outlined" startIcon={<CloudUploadIcon />} onClick={() => tegRef.current.click()}>
                         {existingTeg && !data.deleted_files.includes(existingTeg.id) && !data.teg_document ? 'Reemplazar' : 'Seleccionar archivo'}
                     </Button>
@@ -183,5 +233,22 @@ const handleDeleteExistingFile = (fileId, fieldName) => {
                 {onCancel && <Button variant="outlined" color="inherit" onClick={onCancel}>Cancelar</Button>}
             </Box>
         </Box>
+         <Dialog open={confirmationOpen} onClose={handleCloseConfirmation}>
+                <DialogTitle>Confirmación de Cambio de Estado</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Al subir un documento TEG, el estado de los estudiantes asociados a este proyecto cambiará a "TEG inscrito".
+                        <br /><br />
+                        ¿Está seguro de que desea continuar?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseConfirmation} color="inherit">Cancelar</Button>
+                    <Button onClick={handleConfirmUpload} variant="contained" autoFocus>
+                        Sí, subir y cambiar estado
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 }

@@ -78,7 +78,6 @@ export default function ThesisShow({ auth, thesis }) {
                 </div>
             </div>
 
-            {/* ... (El resto del componente sigue igual) ... */}
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6} md={4}>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -92,7 +91,7 @@ export default function ThesisShow({ auth, thesis }) {
                     </Typography>
                     <Typography variant="body1" className="font-medium">{new Date(thesis.date).toLocaleDateString()}</Typography>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t("Tesistas Asignados", "Tesistas Asignados")}</Typography>
                     {thesis.students && thesis.students.length > 0 ? (
                         thesis.students.map((student) => (
@@ -103,6 +102,19 @@ export default function ThesisShow({ auth, thesis }) {
                         ))
                     ) : (
                         <Typography variant="body1" className="italic">{t("No hay tesistas asignados.", "No hay tesistas asignados.")}</Typography>
+                    )}
+                </Grid>
+                 <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t("Tutor(es) Asignado(s)", "Tutor(es) Asignado(s)")}</Typography>
+                    {thesis.teachers && thesis.teachers.length > 0 ? (
+                        thesis.teachers.map((teacher) => (
+                            <Box key={teacher.id} sx={{ mb: 1.5, p: 1.5 }}>
+                                <Typography variant="body1" className="font-medium">{teacher.name}</Typography>
+                                <Typography variant="body2" color="text.secondary">C.I: {teacher.ci || 'N/A'} | ID UC: {teacher.id_uc || 'N/A'}</Typography>
+                            </Box>
+                        ))
+                    ) : (
+                        <Typography variant="body1" className="italic">{t("No hay tutores asignados.", "No hay tutores asignados.")}</Typography>
                     )}
                 </Grid>
             </Grid>

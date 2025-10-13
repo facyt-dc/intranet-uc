@@ -1,6 +1,7 @@
 import React from "react";
-import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
+
+import Box from "@mui/material/Box";
 
 import AsideDrawer from "@/_Partials/AsideDrawer/AsideDrawer";
 import Toolbar from "@mui/material/Toolbar";

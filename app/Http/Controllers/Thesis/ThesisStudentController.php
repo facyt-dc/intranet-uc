@@ -12,6 +12,8 @@ use Spatie\Permission\Models\Role;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
+use App\Models\StudentStatusHistory; 
+
 
 class ThesisStudentController extends Controller
 {
@@ -132,6 +134,7 @@ class ThesisStudentController extends Controller
     {
         return Inertia::render('Thesis/ThesisStudent/edit', [
             'thesisStudent' => $thesisStudent->load('status', 'theses'),
+            'statuses' => StudentStatus::all(),
         ]);
     }
 
@@ -144,18 +147,43 @@ class ThesisStudentController extends Controller
                         
         $request->validate([
             "name"  => "required",
-            "email" => "required|email",
-            "ci"    => "required",
-            "id_uc" => "required"
+             "email" => "required|email|unique:thesis_student,email," . $thesisStudent->id,
+            "ci"    => "required|string|unique:thesis_student,ci," . $thesisStudent->id,
+            "id_uc" => "required|string|unique:thesis_student,id_uc," . $thesisStudent->id,
+            "status_id" => "required|exists:student_statuses,id",
         ]);
 
 
-        $thesisStudent->name = $request->name;
-        $thesisStudent->email = $request->email;
-        $thesisStudent->ci = $request->ci;
-        $thesisStudent->id_uc = $request->id_uc;
+        try {
+            DB::transaction(function () use ($request, $thesisStudent) {
+                $newStatusId = $request->status_id;
+                
+                // Comprobar si el estado ha cambiado
+                if ($thesisStudent->status_id != $newStatusId) {
+                    // Crear un nuevo registro en el historial de estados
+                    StudentStatusHistory::create([
+                        'thesis_student_id' => $thesisStudent->id,
+                        'student_status_id' => $newStatusId,
+                        'start_date'        => now(),
+                    ]);
+                }
 
-        $thesisStudent->save();
+                $thesisStudent->update([
+                    'name'      => $request->name,
+                    'email'     => $request->email,
+                    'ci'        => $request->ci,
+                    'id_uc'     => $request->id_uc,
+                    'status_id' => $newStatusId,
+                ]);
+            });
+        } catch (\Exception $e) {
+            return back()->with('flash', [
+                'alert' => [
+                    'message' => 'Ocurrió un error al actualizar al tesista: ' . $e->getMessage(),
+                    'severity' => 'error'
+                ]
+            ]);
+        }
 
 
 

@@ -42,6 +42,7 @@ export default function ThesisTable({ thesis }) {
         <TableCell align="left">{t("Title")}</TableCell>
         <TableCell align="left">{t("Date")}</TableCell>
         <TableCell align="left">{t("Estudiantes")}</TableCell>
+        <TableCell align="left">{t("Tutor(es)")}</TableCell>
         <TableCell align="left">{t("Status")}</TableCell>
 
         <TableCell align="left"></TableCell>
@@ -67,6 +68,12 @@ export default function ThesisTable({ thesis }) {
                 {thesisItem.students && thesisItem.students.length > 0
                     ? thesisItem.students.map(s => `${s.name} (${s.id_uc})`).join(', ')
                     : <span style={{ color: '#aaa' }}>Sin estudiantes</span>
+                }
+            </TableCell>
+             <TableCell align="left"> {/* <-- Nueva celda */}
+                {thesisItem.teachers && thesisItem.teachers.length > 0
+                    ? thesisItem.teachers.map(t => t.name).join(', ')
+                    : <span style={{ color: '#aaa' }}>Sin tutor</span>
                 }
             </TableCell>
 

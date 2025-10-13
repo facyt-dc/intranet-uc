@@ -74,6 +74,11 @@ const drawerRoutesList = [
                 routeName: "thesisStudent.index",
             },
             {
+                linkText:"Docentes",
+                routeName:"thesisTeacher.index"
+                
+            },
+            {
                 linkText: "Estatus de estudiantes",
                 routeName: "studentStatuses.index",
             },
@@ -81,6 +86,11 @@ const drawerRoutesList = [
                 linkText: "Proyectos PTEG/TEG",
                 routeName: "Thesis.index",
             },
+            {
+                linkText: "Diagrama General de Tesistas",
+                routeName: "thesis.ganttChart", 
+            },
+            
         ],
     },
 ];

@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo; // Importar BelongsTo
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\StudentStatus;
 class ThesisStudent extends Model
 {
@@ -41,6 +42,12 @@ class ThesisStudent extends Model
     public function pastTheses()
     {
         return $this->hasMany(Thesis::class)->where('is_active', false);
+    }
+
+    public function statusHistory(): HasMany
+    {
+        // Ordenamos por fecha para que el más reciente esté al final
+        return $this->hasMany(StudentStatusHistory::class, 'thesis_student_id')->orderBy('start_date', 'asc');
     }
     // public function thesis(): BelongsTo
     // {

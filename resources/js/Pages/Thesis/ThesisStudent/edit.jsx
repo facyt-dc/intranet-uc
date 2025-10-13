@@ -25,7 +25,7 @@ import Button from "@mui/material/Button";
 // --- FIN DE NUEVOS IMPORTS ---
 
 
-export default function ThesisStudentEdit({ auth, thesisStudent }) {
+export default function ThesisStudentEdit({ auth, thesisStudent, statuses  }) {
     const { t } = useTranslation(["translation", "common"]);
     
      const sortedTheses = useMemo(() => {
@@ -56,7 +56,7 @@ export default function ThesisStudentEdit({ auth, thesisStudent }) {
             case 'inscrito': return 'success';
             case 'pteg inscrito': return 'primary';
             case 'retirado': return 'error';
-            case 'en espera': return 'warning';
+            case 'teg inscrito': return 'warning';
             default: return 'default';
         }
     };
@@ -111,9 +111,11 @@ export default function ThesisStudentEdit({ auth, thesisStudent }) {
                 </Typography>
                 <Form
                     thesisStudent={thesisStudent}
+                    statuses={statuses} 
                     method="patch"
                     routeName="thesisStudent.update"
                 />
+                
             </Paper>
 
             {/* SECCIÓN DE TABLA DE TESIS (INFORMATIVA) */}

@@ -6,8 +6,12 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import FormControl from "@mui/material/FormControl";
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
-export default function Form({ thesisStudent, routeName, method = 'post', onCancel }) {
+export default function Form({ thesisStudent, statuses, routeName, method = 'post', onCancel }) {
     const isEdit = !!thesisStudent;
 
     const { data, setData, post, patch, processing, errors } = useForm({
@@ -15,7 +19,7 @@ export default function Form({ thesisStudent, routeName, method = 'post', onCanc
         email: thesisStudent?.email ?? '',
         id_uc: thesisStudent?.id_uc ?? '',
         ci: thesisStudent?.ci ?? '',
-        // ... otros campos si hay
+        status_id: thesisStudent?.status_id ?? '',
     });
 
     const handleChange = (e) => {
@@ -41,7 +45,7 @@ export default function Form({ thesisStudent, routeName, method = 'post', onCanc
             autoComplete="off"
         >
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                         Nombre
                     </Typography>
@@ -57,7 +61,7 @@ export default function Form({ thesisStudent, routeName, method = 'post', onCanc
                         variant="outlined"
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} >
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                         Correo electrónico
                     </Typography>
@@ -73,7 +77,7 @@ export default function Form({ thesisStudent, routeName, method = 'post', onCanc
                         variant="outlined"
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} >
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                         ID UC
                     </Typography>
@@ -88,7 +92,7 @@ export default function Form({ thesisStudent, routeName, method = 'post', onCanc
                         variant="outlined"
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} >
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                         Cédula
                     </Typography>
@@ -103,6 +107,27 @@ export default function Form({ thesisStudent, routeName, method = 'post', onCanc
                         variant="outlined"
                     />
                 </Grid>
+
+                 {isEdit && (
+                    <Grid item xs={12}>
+                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>Estado del Estudiante</Typography>
+                        <FormControl fullWidth size="small">
+                            <InputLabel>Estado</InputLabel>
+                            <Select
+                                label="Estado"
+                                name="status_id"
+                                value={data.status_id}
+                                onChange={handleChange}
+                                error={!!errors.status_id}
+                            >
+                                {statuses?.map((status) => (
+                                    <MenuItem key={status.id} value={status.id}>{status.name}</MenuItem>
+                                ))}
+                            </Select>
+                            {errors.status_id && <Typography color="error" variant="caption">{errors.status_id}</Typography>}
+                        </FormControl>
+                    </Grid>
+                )}
             </Grid>
 
             <Box display="flex" gap={2} mt={5}>

@@ -11,7 +11,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Form from "./components/Form";
 import { useTranslation } from "react-i18next";
 
-export default function ThesisCreate({ auth, students }) {
+export default function ThesisCreate({ auth, students, teachers  }) {
     const { t } = useTranslation(["common"]);
     return (
         <AdminLayout auth={auth}>
@@ -33,6 +33,7 @@ export default function ThesisCreate({ auth, students }) {
 
             <Form
                 students={students}
+                teachers={teachers} 
                 passwordRequired={true}
                 method="post"
                 routeName="Thesis.store"

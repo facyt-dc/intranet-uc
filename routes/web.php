@@ -14,6 +14,9 @@ use App\Http\Controllers\Thesis\ThesisStudentController;
 use App\Http\Controllers\Thesis\StudentStatusesController;
 use App\Http\Controllers\Thesis\ThesisController;
 use App\Http\Controllers\Thesis\ThesisFileController;
+use App\Http\Controllers\Thesis\GanttChartController;
+use App\Http\Controllers\Thesis\ThesisTeacherController;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -70,6 +73,8 @@ Route::middleware(['auth','verified'])->group(function(){
         ->names('Thesis');
 
     Route::get('/thesis-files/{thesisFile}/download', [ThesisFileController::class, 'download'])->name('thesis-files.download');
+    Route::get('/thesis/gantt-chart', [GanttChartController::class, 'index'])->name('thesis.ganttChart');
+    Route::resource('/thesis/thesisTeachers', ThesisTeacherController::class)->names('thesisTeacher');
 });
 
 require __DIR__.'/auth.php';

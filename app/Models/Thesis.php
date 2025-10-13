@@ -29,6 +29,14 @@ class Thesis extends Model
     }
 
     /**
+     * Un proyecto de tesis puede tener muchos docentes (tutores).
+     */
+    public function teachers()
+    {
+        return $this->belongsToMany(ThesisTeacher::class, 'teacher_thesis_pivot', 'thesis_id', 'teacher_id');
+    }
+    
+    /**
      * 
      * Una tesis puede tener muchos archivos asociados.
      */
