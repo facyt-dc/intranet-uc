@@ -66,5 +66,10 @@ class DatabaseSeeder extends Seeder
         // assing roles to users
 
         $adminUser->assignRole(['admin','teacher']);
+
+        $this->call([
+            StudentStatusSeeder::class,
+            
+        ]);
     }
 }

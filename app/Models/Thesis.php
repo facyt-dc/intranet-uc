@@ -11,10 +11,10 @@ class Thesis extends Model
 
     protected $table = 'thesis';
 
-    // ... fillable, etc.
     protected $fillable = [
             'title',
             'date',
+            'is_active'
 
         ];
  

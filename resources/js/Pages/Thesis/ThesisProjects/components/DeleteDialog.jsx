@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
-import DeleteIcon from "@mui/icons-material/Delete";
+import AllInboxIcon from '@mui/icons-material/AllInbox';
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -23,17 +23,17 @@ export default function DeleteThesisDialog({ thesis }) {
 
     return (
         <>
-            <Button variant="outlined" startIcon={<DeleteIcon />} size="small" color="error" onClick={handleClickOpen}>
-                {t("Delete")}
+            <Button variant="outlined" startIcon={<AllInboxIcon />} size="small"  onClick={handleClickOpen}>
+                {t("Archivar")}
             </Button>
 
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle id="alert-dialog-title">
-                    {t("¿Desea eliminar el proyecto de tesis?", { statusName: thesis.title })}
+                    {t("¿Desea archivar el proyecto de tesis?", { statusName: thesis.title })}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {t("Esta acción es irreversible. ¿Esta seguro que desea eliminar?")}
+                        {t("Esta acción es irreversible. ¿Esta seguro que desea archivar?")}
                     </DialogContentText>
                     
                     {isThesisActive && (
@@ -41,7 +41,7 @@ export default function DeleteThesisDialog({ thesis }) {
                             sx={{ 
                                 mt: 2, 
                                 p: 1.5, 
-                                backgroundColor: 'warning.light', 
+                                backgroundColor: '#E4E4E5', 
                                 color: 'warning.dark',
                                 borderRadius: 1,
                                 display: 'flex',
@@ -51,7 +51,7 @@ export default function DeleteThesisDialog({ thesis }) {
                         >
                             <WarningAmberIcon fontSize="small" />
                             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                ¡Atención! Esta tesis está activa. Al eliminarla, el estado de los estudiantes asociados será revertido a "inscrito".
+                                ¡Atención! Esta tesis está activa. Al archivarla, el estado de los estudiantes asociados será revertido a "inscrito".
                             </Typography>
                         </Box>
                     )}
@@ -62,8 +62,8 @@ export default function DeleteThesisDialog({ thesis }) {
                         {t("Cancel")}
                     </Button>
                     <Link href={route("Thesis.destroy", thesis)} method="delete" as="button">
-                        <Button component="div" variant="text" color="error" onClick={handleClose}>
-                            {t("Delete")}
+                        <Button component="div" variant="text"  onClick={handleClose}>
+                            {t("Archivar")}
                         </Button>
                     </Link>
                 </DialogActions>
