@@ -191,11 +191,16 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700">{t('Affected Equipment')}</label>
-                                {isEditing ? (
-                                    <select id="equipment_id" value={data.equipment_id} onChange={e => setData('equipment_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                         <option value="" disabled>{t('Select an equipment')}</option>
+                                {isEditing ? (<>
+                                    <select id="equipment_id" value={data.equipment_id} onChange={e => setData('equipment_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm ${errors.equipment_id ? 'border-red-500' : ''}" required>
+                                         <option value="">{t('Select an equipment')}</option>
                                         {equipments.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
                                     </select>
+                                    {errors.equipment_id && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.equipment_id}
+                                        </p>
+                                    )} </>
                                 ) : (
                                     <p className="mt-1">{maintenanceRequest.equipment?.name || 'Ninguno'}</p>
                                 )}
@@ -296,7 +301,7 @@ export default function RequestForm({ auth, maintenanceRequest, users, technicia
                                     <label className="block text-sm font-bold text-gray-700">{t('Assigned Technician')}</label>
                                     {isEditing ? (
                                         <select id="technician_id" value={data.technician_id} onChange={e => setData('technician_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                            <option value="">{t('Attachments')}</option>
+                                            <option value="">{t('Unassigned')}</option>
                                             {technician.map(tech => <option key={tech.id} value={tech.id}>{tech.name}</option>)}
                                         </select>
                                     ) : (

@@ -201,7 +201,7 @@ class MaintenanceRequestController extends Controller
                     }
                 },
             ],
-            'equipment_id' => 'nullable|exists:equipment,id', // Puede ser opcional
+            'equipment_id' => 'required|exists:equipment,id',
             'attachments.*' => 'nullable|file|max:10240',
             'duration' => 'nullable|numeric|min:0',
             'completion_date' => 'nullable|date',
@@ -228,21 +228,7 @@ class MaintenanceRequestController extends Controller
                         ]);
                     }
                 }
-
-                // 4. Comprobar si la solicitud se creó directamente en una etapa final
-                
-                if ($initialStage && $initialStage->is_final_stage) {
-                    // Si no se proveyó una fecha, se usa la actual
-                    if (!$maintenanceRequest->completion_date) {
-                        $maintenanceRequest->completion_date = now();
-                        $maintenanceRequest->save();
-                    }
-
-                    // Si hay un equipo, recalculamos sus métricas
-                    if ($maintenanceRequest->equipment_id) {
-                        $this->recalculateEquipmentMetrics($maintenanceRequest->equipment);
-                    }
-                }
+                $maintenanceRequest->save();
             });
         } catch (\Exception $e) {
             return Redirect::back()->with('error', 'Ocurrió un error al crear la solicitud: ' . $e->getMessage());
@@ -281,7 +267,7 @@ class MaintenanceRequestController extends Controller
             'user_id' => 'required|exists:users,id',
             'technician_id' => 'nullable|exists:users,id',
             'stage_id' => 'required|exists:maintenance_stages,id',
-            'equipment_id' => 'nullable|exists:equipment,id',
+            'equipment_id' => 'required|exists:equipment,id',
             'attachments.*' => 'nullable|file|max:10240',
             'duration' => 'nullable|numeric|min:0',
             'completion_date' => 'nullable|date',
