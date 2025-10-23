@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->string("name")->nullable(false)->unique(false);
+            $table->string("cedula")->nullable(false)->unique(false);
             $table->string("lastname")->nullable(false)->unique(false);
             $table->string("address")->nullable(false);
             $table->string("phone")->nullable(false)->unique(true);
@@ -22,6 +23,9 @@ return new class extends Migration
 
             $table->unsignedBigInteger("staff")->nullable(false);
             $table->foreign("staff")->references("id")->on("staffs")->onDelete("cascade");
+
+            $table->unsignedBigInteger("teaching_level")->nullable(true);
+            $table->foreign("teaching_level")->references("id")->on("teaching_levels")->onDelete("cascade");
 
             $table->timestamps();
         });

@@ -69,6 +69,7 @@ Route::middleware(['auth','verified'])->group(function(){
         ->names('employee.teaching.level');
 
     Route::resource('/employee',EmployeeController::class)
+        ->only(['index','create','store','edit','update','destroy','show'])
         ->names('employee');
 
 });

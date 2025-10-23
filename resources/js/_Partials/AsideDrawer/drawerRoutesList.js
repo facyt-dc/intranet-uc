@@ -73,6 +73,10 @@ const drawerRoutesList = [
                 linkText: "Cargos",
                 routeName: "employee.staff.index",
             },
+            {
+                linkText: "Empleados",
+                routeName: "employee.index",
+            },
         ],
     },
 ];

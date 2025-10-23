@@ -6,7 +6,6 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { useTranslation } from "react-i18next";
 import EmployeeDropdownMenu from "../components/Dropdown";
 import EmployeeRecordsTable from "../components/Table";
-import EmployeeRecordForm from "../components/Form";
 
 
 export default function EmployeeIndex({ auth, employees, model, flash }) {
@@ -19,13 +18,12 @@ export default function EmployeeIndex({ auth, employees, model, flash }) {
         {route:'employee.index',title:'Empleados'},
     ]
 
-    const tableHeaders = ['Nombre','Tipo','Nro. puestos']
+    const tableHeaders = ['Nombre','Cargo']
     const tableRows = employees.map( EmployeeRecordForm => {
         return {
             id:EmployeeRecordForm.id,
-            name:EmployeeRecordForm.name,
-            type:EmployeeRecordForm.type.name,
-            places_number: EmployeeRecordForm.places_number
+            name:`${EmployeeRecordForm.name} ${EmployeeRecordForm.lastname}`,
+            staff:EmployeeRecordForm.staff.name,
         }
     } )
 

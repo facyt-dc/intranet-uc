@@ -12,8 +12,27 @@ class Employee extends Model
     use HasFactory;
 
     protected $table = "employees";
+    protected $fillable = [
+        'name',
+        'staff',
+        'teaching_level',
+        'address',
+        'phone',
+        'cedula',
+        'lastname',
+        'email',
+        'birthday'
+    ];
 
     protected function name():Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => ucfirst($value),
+            set: fn(string $value) => ucfirst($value)
+        );
+    }
+
+    protected function cedula():Attribute
     {
         return Attribute::make(
             get: fn(string $value) => ucfirst($value),
@@ -58,7 +77,10 @@ class Employee extends Model
         return $this->belongsTo(Staff::class,"staff");
     }
 
-    
+    public function teaching_level():BelongsTo
+    {
+        return $this->belongsTo(TeachingLevel::class,"teaching_level");
+    }
 
 
 
