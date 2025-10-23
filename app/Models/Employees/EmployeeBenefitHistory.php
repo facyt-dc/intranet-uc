@@ -13,6 +13,15 @@ class EmployeeBenefitHistory extends Model
     use HasFactory;
 
     protected $table = "employee_benefit_histories";
+    protected $fillable = [
+        'employee',
+        'benefit',
+        'request_date',
+        'approvement_date',
+        'start_date',
+        'end_date',
+        'state'
+    ];
 
     public function employee():BelongsTo
     {

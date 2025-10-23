@@ -14,15 +14,17 @@ return new class extends Migration
         Schema::create('employee_benefit_histories', function (Blueprint $table) {
             $table->id();
             $table->date('request_date')->nullable(false);
-            $table->date('approvement_date')->nullable(false);
-            $table->date('start_date')->nullable(false);
-            $table->date('end_date')->nullable(false);
+            $table->date('approvement_date')->nullable(true);
+            $table->date('start_date')->nullable(true);
+            $table->date('end_date')->nullable(true);
+            $table->enum('state',['draft','confirmed','approved','rejected']);
             
             $table->unsignedBigInteger('benefit')->nullable(false);
             $table->foreign('benefit')->references('id')->on('benefits')->onDelete('cascade');
 
             $table->unsignedBigInteger('employee')->nullable(false);
             $table->foreign('employee')->references('id')->on('employees')->onDelete('cascade');
+            
 
             $table->timestamps();
         });

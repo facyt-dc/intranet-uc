@@ -16,6 +16,7 @@ export default function EmployeeIndex({ auth, employees, model, flash }) {
 
     const links = [
         {route:'employee.index',title:'Empleados'},
+        {route:'employee.benefit.history.index',title:'Solicitudes de beneficios'}
     ]
 
     const tableHeaders = ['Nombre','Cargo']

@@ -14,6 +14,7 @@ use App\Http\Controllers\Employees\StaffController;
 use App\Http\Controllers\Employees\BenefitController;
 use App\Http\Controllers\Employees\EmployeeController;
 use App\Http\Controllers\Employees\TeachingLevelController;
+use App\Http\Controllers\Employees\EmployeeBenefitHistoryController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -71,6 +72,10 @@ Route::middleware(['auth','verified'])->group(function(){
     Route::resource('/employee',EmployeeController::class)
         ->only(['index','create','store','edit','update','destroy','show'])
         ->names('employee');
+
+    Route::resource('/employee-benefit-history',EmployeeBenefitHistoryController::class)
+        ->only(['index','create','store','edit','update','destroy','show'])
+        ->names('employee.benefit.history');
 
 });
 
