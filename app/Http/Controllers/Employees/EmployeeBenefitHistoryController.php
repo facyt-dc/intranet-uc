@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Employees\Employee;
 use Inertia\Inertia;
-use App\Models\Employees\Staff;
-use App\Models\Employees\TeachingLevel;
 use App\Models\Employees\Benefit;
 use App\Models\Employees\EmployeeBenefitHistory;
 
@@ -18,6 +16,7 @@ class EmployeeBenefitHistoryController extends Controller
      */
     public function index()
     {
+
         return Inertia::render('Employee/EmployeeBenefitHistory/index',[
             'records' => EmployeeBenefitHistory::with([
                 'employee' => ['staff'],
@@ -35,7 +34,7 @@ class EmployeeBenefitHistoryController extends Controller
         return Inertia::render('Employee/EmployeeBenefitHistory/create',[
             'employees' => Employee::with([
                 'staff' => ["benefits"]
-            ])->get()
+            ])->get(),
         ]);
     }
 
@@ -116,7 +115,6 @@ class EmployeeBenefitHistoryController extends Controller
         ]);
 
         $history = EmployeeBenefitHistory::find($id);
-
         $history->request_date = explode('T',$request->input('request_date'))[0];
         $history->start_date = explode('T',$request->input('start_date'))[0];
         $history->end_date = explode('T',$request->input('end_date'))[0];

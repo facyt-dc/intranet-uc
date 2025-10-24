@@ -16,6 +16,7 @@ class BenefitController extends Controller
     public function index()
     {
         return Inertia::render('Employee/Benefit/index',[
+            // Envíamos los beneficios con sus relaciones
             'benefits' => Benefit::with(['time_between_use_unit','time_lapse_unit'])->get(),
             'model' => 'employee.benefit'
         ]);
@@ -27,6 +28,7 @@ class BenefitController extends Controller
     public function create()
     {
         return Inertia::render('Employee/Benefit/create',[
+            // Al crear beneficios, solo se necesita el maestro de unidades de tiempo
             'time_units' => TimeUnit::all()
         ]);
     }
@@ -36,6 +38,7 @@ class BenefitController extends Controller
      */
     public function store(Request $request)
     {
+        // Requerimos todos los campos del modelo, verificamos que el nombre del beneficio no este registrado
         $request->validate([
             'name' => 'required|max:128|unique:benefits,name',
             'time_between_use' => 'required',
@@ -44,6 +47,7 @@ class BenefitController extends Controller
             'time_lapse' => 'required',
         ]);
 
+        // Al crear el beneficio, solo pasamos el ID a nuestras claves foráneas ya  que ningún campo puede ser nulo
         $benefit = Benefit::create([
             'name' => $request->input('name'),
             'time_between_use' => $request->input('time_between_use'),
@@ -52,6 +56,7 @@ class BenefitController extends Controller
             'time_lapse_unit' => $request->input('time_lapse_unit')
         ]);
 
+        // Aquí si asociamos un objeto de una relación con el beneficio  
         $time_between_use_unit = TimeUnit::find($request->input('time_between_use_unit'));
         $time_lapse_unit = TimeUnit::find($request->input('time_lapse_unit'));
         $benefit->time_between_use_unit()->associate($time_between_use_unit);

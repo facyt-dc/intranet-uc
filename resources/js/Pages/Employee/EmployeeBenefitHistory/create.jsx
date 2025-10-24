@@ -22,6 +22,12 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("America/Caracas"); 
 
 export default function EmployeeBenefitHistoryCreate({ auth, employees }) {
     const { t } = useTranslation(["common"]);
@@ -29,16 +35,16 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees }) {
     const { data, setData, patch, post, processing, errors } = useForm({
         employee:employees[0].id,
         benefit:employees[0].staff.benefits[0].id,
-        request_date:dayjs(),
-        start_date: dayjs(),
-        end_date: dayjs(),
+        request_date:dayjs.tz(new Date()),
+        start_date: dayjs.tz(new Date()),
+        end_date: dayjs.tz(new Date()),
         state:'draft'
     })
     
     const handleDate = (newDate,key) => {
        setData(prevData => ({
         ...prevData,
-        [key]: newDate
+        [key]: dayjs(newDate).subtract(4,'hour')
        }))
     }
 
@@ -46,20 +52,11 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees }) {
         const key   = e.target.name;
         const value = Number(e.target.value);
 
-        if(key == 'staff'){
-            setData(prevData => ({
-                ...prevData,
-                [key]: value,
-                ["teaching_level"]: 0
-            }))
-        }
-        else {
-            setData(prevData => ({
+        setData(prevData => ({
                 ...prevData,
                 [key]: value,
             }))
-        }
-        
+
     }
 
     const handleSubmit = (e) => {

@@ -22,6 +22,12 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("America/Caracas"); 
 
 export default function EmployeeBenefitHistoryCreate({ auth, employees, history }) {
     const { t } = useTranslation(["common"]);
@@ -32,10 +38,10 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees, history 
     const { data, setData, patch, post, processing, errors } = useForm({
         employee:history.employee,
         benefit:history.benefit,
-        request_date:dayjs(history.request_date),
-        approvement_date: dayjs(history.approvement_date),
-        start_date: dayjs(history.start_date),
-        end_date: dayjs(history.end_date),
+        request_date:dayjs.tz(history.request_date),
+        approvement_date: dayjs.tz(history.approvement_date),
+        start_date: dayjs.tz(history.start_date),
+        end_date: dayjs.tz(history.end_date),
         state:history.state,
     })
     
@@ -50,19 +56,10 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees, history 
         const key   = e.target.name;
         const value = Number(e.target.value);
 
-        if(key == 'staff'){
-            setData(prevData => ({
-                ...prevData,
-                [key]: value,
-                ["teaching_level"]: 0
-            }))
-        }
-        else {
-            setData(prevData => ({
+        setData(prevData => ({
                 ...prevData,
                 [key]: value,
             }))
-        }
         
     }
 
@@ -94,7 +91,7 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees, history 
     const approveHistory = () => {
         setData(prevData => ({
             ...prevData,
-            state: 'approved'
+            state: 'approved',
         }))
 
         setHasClickApproveButton(true)
@@ -228,6 +225,17 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees, history 
                             sx={{m:1, maxWidth: 300 }}
                             required
                             disabled={data.state != 'draft'}
+                        />
+                        <DatePicker
+                            label="Fecha de aprobación"
+                            value={data.approvement_date}
+                            id="approvement_date"
+                            name="approvement_date"
+                            format="D/M/YYYY"
+                            onChange={(newDate) => handleDate(newDate, "approvement_date")}
+                            sx={{m:1, maxWidth: 300 }}
+                            required
+                            disabled={data.state != 'confirmed'}
                         />
                         <DatePicker
                             label="Desde"
