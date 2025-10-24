@@ -66,13 +66,23 @@ const drawerRoutesList = [
         ],
     },
     {
-        permissionNeeded: "vote in councils",
+        permissionNeeded: "view councils",
         subHeaderText: "Agenda de consejos",
         routes: [
             {
                 linkText: "Consejos",
                 routeName: "councils.index",
-            },
+            }
+        ],
+    },
+    {
+        permissionNeeded: "isAdmin",
+        subHeaderText: "Opciones de Administrador",
+        routes: [
+            {
+                linkText: "Opciones de votacion",
+                routeName: "settings.voting-options.index",
+            }
         ],
     },
 ];

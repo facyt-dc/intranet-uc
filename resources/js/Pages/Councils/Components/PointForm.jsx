@@ -31,7 +31,7 @@ export default function PointForm({ council, point, counselors, votingOptions, o
         requested_by_user_id: point?.requested_by_user_id ?? '',
         min_votes_to_close: point?.min_votes_to_close ?? 1,
         votable_users: point?.votable_users?.map(u => u.id) ?? [],
-        available_options: point?.available_options?.map(o => o.id) ?? [],
+        available_options: point?.voting_options?.map(o => o.id) ?? [],
     });
 
     // --- LÓGICA DE VALIDACIÓN EN TIEMPO REAL ---
@@ -49,11 +49,20 @@ export default function PointForm({ council, point, counselors, votingOptions, o
         }
     }, [data.min_votes_to_close, data.votable_users]);
 
+    // useEffect(() => {
+    //     console.log('votingOptions (raw):', votingOptions);
+    //     console.log('point (raw):', point);
+    //     console.log('council (raw):', council);
+    //     console.log('point.available_options (raw):', point?.available_options);
+    //     console.log('point.available_options ids:', point?.available_options?.map(o => o.id));
+    //     console.log('initialized available_options (form):', point?.available_options?.map(o => o.id) ?? []);
+    // }, [votingOptions, point]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         // Lógica condicional: si hay un 'point', actualiza (PATCH); si no, crea (POST).
         if (point) {
-            patch(route('councils.points.update', { council: council.code, point: point.id }), {
+            patch(route('points.update', { point: point.id }), {
                 preserveScroll: true,
                 onSuccess: () => onSuccess(),
             });

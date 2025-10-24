@@ -21,7 +21,8 @@ class VotingOptionController extends Controller
     public function index(): Response
     {
         return Inertia::render('Settings/VotingOptions/Index', [
-            'votingOptions' => VotingOption::orderBy('name')->get(),
+            // Usamos withCount para cargar una nueva propiedad 'points_count' en cada opción.
+            'votingOptions' => VotingOption::withCount('points')->orderBy('name')->get(),
         ]);
     }
 
@@ -39,7 +40,7 @@ class VotingOptionController extends Controller
 
         VotingOption::create($validated);
 
-        return to_route('voting-options.index')->with('success', 'Opción de votación creada correctamente.');
+        return to_route('settings.voting-options.index')->with('success', 'Opción de votación creada correctamente.');
     }
 
     /**
@@ -65,7 +66,7 @@ class VotingOptionController extends Controller
 
         $votingOption->update($validated);
 
-        return to_route('voting-options.index')->with('success', 'Opción de votación actualizada correctamente.');
+        return to_route('settings.voting-options.index')->with('success', 'Opción de votación actualizada correctamente.');
     }
 
     /**
@@ -84,12 +85,12 @@ class VotingOptionController extends Controller
         } catch (QueryException $e) {
             // El código de error '23000' indica una violación de integridad referencial.
             if ($e->getCode() === '23000') {
-                return to_route('voting-options.index')->with('error', 'No se puede eliminar esta opción porque ya ha sido utilizada en votaciones pasadas.');
+                return to_route('settings.voting-options.index')->with('error', 'No se puede eliminar esta opción porque ya ha sido utilizada en votaciones pasadas.');
             }
             // Si el error es otro, lo relanzamos para debugging.
             throw $e;
         }
 
-        return to_route('voting-options.index')->with('success', 'Opción de votación eliminada correctamente.');
+        return to_route('settings.voting-options.index')->with('success', 'Opción de votación eliminada correctamente.');
     }
 }

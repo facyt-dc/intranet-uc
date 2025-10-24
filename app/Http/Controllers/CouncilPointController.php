@@ -77,18 +77,19 @@ class CouncilPointController extends Controller
      * @param  CouncilPoint $point   El punto a actualizar
      * @return RedirectResponse
      */
-    public function update(Request $request, Council $council, CouncilPoint $point): RedirectResponse
+    public function update(Request $request, CouncilPoint $point): RedirectResponse
     {
+        $council = $point->council;
+
         if ($point->votes()->exists()) {
             return back()->with('error', 'No se puede editar un punto que ya tiene votos.');
         }
 
-        if ($point->council->status === 'Cerrado') {
+        if ($council->status === 'Cerrado') {
             return back()->with('error', 'No se pueden editar puntos de un consejo que ya ha sido cerrado.');
         }
 
         $numberOfVotableUsers = count($request->input('votable_users', []));
-
         // 1. Validación (idéntica a la de 'store')
         $validated = $request->validate([
             'description' => 'required|string',
@@ -113,12 +114,7 @@ class CouncilPointController extends Controller
         ]);
 
         // 2. Actualización de los datos principales del punto
-        $point->update([
-            'description' => $validated['description'],
-            'requested_by_user_id' => $validated['requested_by_user_id'],
-            'min_votes_to_close' => $validated['min_votes_to_close'],
-            'order' => $validated['order'] ?? $point->order,
-        ]);
+        $point->update($validated);
 
         // 3. Resincronización de las relaciones
         $point->votableUsers()->sync($validated['votable_users']);
