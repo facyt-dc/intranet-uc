@@ -76,8 +76,8 @@ const drawerRoutesList = [
         ],
     },
     {
-        permissionNeeded: "isAdmin",
-        subHeaderText: "Opciones de Administrador",
+        permissionNeeded: "isDirector",
+        subHeaderText: "Opciones del Director",
         routes: [
             {
                 linkText: "Opciones de votacion",
