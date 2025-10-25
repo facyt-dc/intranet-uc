@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import React from 'react';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -14,8 +16,12 @@ import BlockIcon from '@mui/icons-material/Block';
 
 import VoteForm from './VoteForm.jsx'; // Importamos el formulario de votación
 import DeletePointDialog from './DeletePointDialog';
+import ConclusionForm from './ConclusionForm';
 
 export default function PointCard({ point, auth, council, onEdit, isCouncilOpen  }) {
+
+    const { t } = useTranslation(['common']);
+
     const isDirector = auth.user.roles.some(role => role.name === 'director');
     
     // Verificamos si el usuario actual puede votar en este punto
@@ -26,6 +32,8 @@ export default function PointCard({ point, auth, council, onEdit, isCouncilOpen 
 
     const votes = point.votes || []; // Aseguramos que 'votes' sea un array
     const hasVotes = votes.length > 0; // Creamos una variable booleana para mayor claridad
+
+    const votingIsComplete = votes.length >= point.min_votes_to_close;
     
     // Calculamos los resultados para el Director
     const voteCounts = point.votes.reduce((acc, vote) => {
@@ -96,6 +104,29 @@ export default function PointCard({ point, auth, council, onEdit, isCouncilOpen 
                         <Typography variant="body2" color="text.secondary">No tiene permiso para votar en este punto.</Typography>
                     )}
                 </Box>
+            )}
+
+            {/* --- NUEVA SECCIÓN: Conclusión --- */}
+            {/* Se muestra solo si la votación ha alcanzado el mínimo de votos */}
+            {votingIsComplete && (
+                <>
+                    <Divider className="my-3" />
+                    <Box>
+                        <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+                            {t('conclusion')}
+                        </Typography>
+                        
+                        {/* El Director ve un formulario si el consejo está abierto */}
+                        {isDirector && isCouncilOpen ? (
+                            <ConclusionForm point={point} />
+                        ) : (
+                            // El Consejero o el Director (si el consejo está cerrado) ven solo el texto
+                            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                                {point.conclusion || <i>{t('no conclusion has been added yet')}</i>}
+                            </Typography>
+                        )}
+                    </Box>
+                </>
             )}
         </Paper>
     );

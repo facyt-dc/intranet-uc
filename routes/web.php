@@ -75,6 +75,9 @@ Route::middleware(['auth', 'verified', 'role:director'])->group(function () {
         Route::resource('voting-options', VotingOptionController::class)
              ->except(['create', 'edit', 'show']); // El CRUD se maneja en el componente Index.
     });
+
+    // --- Acción de Añadir Conclusión a un Punto de Consejo ---
+    Route::patch('points/{point}/conclusion', [CouncilPointController::class, 'addConclusion'])->name('points.conclusion.add');
 });
 
 Route::middleware(['auth', 'verified', 'role:director|counselor'])->group(function () {

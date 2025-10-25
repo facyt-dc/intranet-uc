@@ -23,6 +23,7 @@ return new class extends Migration {
                   ->onDelete('restrict');
             $table->string('status')->default('Abierto para Votación');
             $table->unsignedInteger('min_votes_to_close')->default(1);
+            $table->text('conclusion')->nullable();
 
             // order: Campo numérico para permitir la ordenación de los puntos dentro de la agenda.
             $table->unsignedInteger('order')->default(0);

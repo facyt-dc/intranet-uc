@@ -137,4 +137,38 @@ class CouncilPointController extends Controller
 
         return to_route('councils.show', $councilCode)->with('success', 'Punto del consejo eliminado correctamente.');
     }
+
+    /**
+     * Añade o actualiza la conclusión de un punto de consejo.
+     * Este es el nuevo método para manejar específicamente la conclusión.
+     *
+     * @param  Request      $request
+     * @param  CouncilPoint $point
+     * @return RedirectResponse
+     */
+    public function addConclusion(Request $request, CouncilPoint $point): RedirectResponse
+    {
+        // 1. Cláusula de guarda: Verificar que el consejo no esté cerrado
+        if ($point->council->status === 'Cerrado') {
+            return back()->with('error', 'No se puede añadir una conclusión a un punto de un consejo cerrado.');
+        }
+
+        // 2. Cláusula de guarda: Verificar que se haya alcanzado el mínimo de votos
+        if ($point->votes()->count() < $point->min_votes_to_close) {
+            return back()->with('error', 'No se puede añadir una conclusión hasta que se alcance el mínimo de votos.');
+        }
+
+        // 3. Validar los datos de entrada
+        $validated = $request->validate([
+            'conclusion' => 'required|string',
+        ]);
+
+        // 4. Actualizar únicamente el campo 'conclusion'
+        $point->update([
+            'conclusion' => $validated['conclusion'],
+        ]);
+
+        // 5. Redirigir de vuelta con un mensaje de éxito
+        return back()->with('success', 'Conclusión guardada correctamente.');
+    }
 }

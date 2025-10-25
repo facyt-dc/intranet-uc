@@ -34,6 +34,7 @@ class CouncilPoint extends Model
         'status',
         'min_votes_to_close',
         'order',
+        'conclusion',
     ];
 
     protected $casts = [
