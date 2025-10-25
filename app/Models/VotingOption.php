@@ -37,12 +37,12 @@ class VotingOption extends Model
      * Obtiene los puntos de consejo que utilizan esta opción de votación.
      *
      * Esta relación permite saber en qué puntos se ha ofrecido esta opción específica,
-     * aunque su uso principal será a la inversa (desde CouncilPoint para ver sus opciones).
+     * aunque su uso principal será a la inversa (desde AgendaPoint para ver sus opciones).
      *
      * @return BelongsToMany
      */
     public function points(): BelongsToMany
     {
-        return $this->belongsToMany(CouncilPoint::class, 'council_point_voting_option');
+        return $this->belongsToMany(AgendaPoint::class, 'agenda_point_voting_option');
     }
 }

@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('votes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('council_point_id')
-                  ->constrained('council_points')
+            $table->foreignId('agenda_point_id')
+                  ->constrained('agenda_points')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
             $table->foreignId('user_id')
@@ -28,7 +28,7 @@ return new class extends Migration {
             // timestamps: Añade las columnas 'created_at' y 'updated_at'.
             // 'created_at' servirá como la marca de tiempo oficial de cuándo se emitió el voto.
             $table->timestamps();
-            $table->unique(['council_point_id', 'user_id']);
+            $table->unique(['agenda_point_id', 'user_id']);
         });
     }
 

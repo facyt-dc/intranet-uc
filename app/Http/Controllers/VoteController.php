@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\VoteCast;
-use App\Models\CouncilPoint;
+use App\Models\AgendaPoint;
 use App\Models\Vote;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -17,15 +17,15 @@ class VoteController extends Controller
      * Almacena un nuevo voto emitido por un consejero para un punto específico.
      *
      * @param  Request      $request
-     * @param  CouncilPoint $point   El punto que se está votando, inyectado vía Route Model Binding.
+     * @param  AgendaPoint $point   El punto que se está votando, inyectado vía Route Model Binding.
      * @return RedirectResponse
      */
-    public function store(Request $request, CouncilPoint $point): RedirectResponse
+    public function store(Request $request, AgendaPoint $point): RedirectResponse
     {
         // --- INICIO DE VALIDACIONES Y AUTORIZACIÓN ---
 
         // 1. Validar que el consejo no esté cerrado
-        if ($point->council->status === 'Cerrado') {
+        if ($point->agenda->status === 'Cerrado') {
             return back()->with('error', 'No se puede votar, este consejo ya ha sido cerrado.');
         }
 
@@ -44,8 +44,8 @@ class VoteController extends Controller
                 'integer',
                 // La opción de voto debe existir y debe ser una de las opciones
                 // disponibles específicamente para este punto.
-                Rule::exists('council_point_voting_option', 'voting_option_id')
-                    ->where('council_point_id', $point->id),
+                Rule::exists('agenda_point_voting_option', 'voting_option_id')
+                    ->where('agenda_point_id', $point->id),
             ],
         ]);
 
@@ -60,7 +60,7 @@ class VoteController extends Controller
         // un mensaje de error amigable.
         try {
             $vote = Vote::create([
-                'council_point_id' => $point->id,
+                'agenda_point_id' => $point->id,
                 'user_id' => Auth::id(),
                 'voting_option_id' => $validated['voting_option_id'],
             ]);
@@ -82,7 +82,7 @@ class VoteController extends Controller
         // --- RESPUESTA ---
 
         // Se redirige de vuelta a la página del consejo con un mensaje de éxito.
-        return to_route('councils.show', $point->council)
+        return to_route('agendas.show', $point->agenda)
                ->with('success', 'Voto emitido correctamente.');
     }
 }

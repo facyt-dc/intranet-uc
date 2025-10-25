@@ -18,8 +18,8 @@ import DeleteDialog from "./DeleteDialog";
 
 import { useTranslation } from "react-i18next";
 
-// Recibe el objeto paginado 'councils'
-export default function CouncilTable({ councils }) {
+// Recibe el objeto paginado 'agendas'
+export default function AgendaTable({ agendas }) {
     const paperElevation = 5;
     const { t } = useTranslation(["translation", "common"]);
     const { auth } = usePage().props; // Obtenemos el usuario autenticado
@@ -28,7 +28,7 @@ export default function CouncilTable({ councils }) {
     // Función para manejar la paginación con Inertia
     const handleChangePage = (event, newPage) => {
         // Calcula la URL de la página a la que Inertia debe navegar
-        const newUrl = councils.links[newPage + 1].url;
+        const newUrl = agendas.links[newPage + 1].url;
         window.location.href = newUrl; // Usar window.location.href para la navegación completa de Inertia
     };
 
@@ -40,7 +40,7 @@ export default function CouncilTable({ councils }) {
         >
             <Table
                 sx={{ minWidth: { xs: 300, sm: 650 } }}
-                aria-label="councils table"
+                aria-label="agendas table"
             >
                 <TableHead>
                     <TableRow>
@@ -53,25 +53,25 @@ export default function CouncilTable({ councils }) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {/* Iteramos sobre los datos paginados (councils.data) */}
-                    {councils.data.map((council) => (
+                    {/* Iteramos sobre los datos paginados (agendas.data) */}
+                    {agendas.data.map((agenda) => (
                         <TableRow
-                            key={council.id}
+                            key={agenda.id}
                             sx={{
                                 "&:last-child td, &:last-child th": { border: 0 },
-                                backgroundColor: council.status === 'Cerrado' ? '#fafafa' : 'inherit',
-                                color: council.status === 'Cerrado' ? '#9e9e9e' : 'inherit',
+                                backgroundColor: agenda.status === 'Cerrado' ? '#fafafa' : 'inherit',
+                                color: agenda.status === 'Cerrado' ? '#9e9e9e' : 'inherit',
                             }}
                         >
                             <TableCell component="th" scope="row">
-                                <Link href={route("councils.show", council.code)}>
-                                    {council.code}
+                                <Link href={route("agendas.show", agenda.code)}>
+                                    {agenda.code}
                                 </Link>
                             </TableCell>
-                            <TableCell align="left">{council.name}</TableCell>
+                            <TableCell align="left">{agenda.name}</TableCell>
                             <TableCell align="left">
                                 {/* Usamos el objeto Carbonjs de Laravel, que ya está parseado por Inertia */}
-                                {new Date(council.date).toLocaleString('es-ES', {
+                                {new Date(agenda.date).toLocaleString('es-ES', {
                                     year: 'numeric',
                                     month: '2-digit',
                                     day: '2-digit',
@@ -79,12 +79,12 @@ export default function CouncilTable({ councils }) {
                                     minute: '2-digit'
                                 })}
                             </TableCell>
-                            <TableCell align="left">{council.director.name}</TableCell>
-                            <TableCell align="center">{council.participants_count}</TableCell>
+                            <TableCell align="left">{agenda.director.name}</TableCell>
+                            <TableCell align="center">{agenda.participants_count}</TableCell>
                             <TableCell align="right">
                                 <div className="flex justify-end flex-col sm:flex-row gap-2">
                                     {/* Link a la página de detalles del consejo */}
-                                    <Link href={route("councils.show", council.code)}>
+                                    <Link href={route("agendas.show", agenda.code)}>
                                         <Button
                                             variant="outlined"
                                             size="small"
@@ -95,8 +95,8 @@ export default function CouncilTable({ councils }) {
                                     </Link>
 
                                     {/* Los botones "Editar" solo se muestran si es Director y el consejo no ha sido cerrado */}
-                                    {isDirector && council.status !== 'Cerrado' && (
-                                        <Link href={route("councils.edit", council.code)}>
+                                    {isDirector && agenda.status !== 'Cerrado' && (
+                                        <Link href={route("agendas.edit", agenda.code)}>
                                             <Button variant="contained" size="small" startIcon={<EditIcon />}>
                                                 {t("Edit")}
                                             </Button>
@@ -104,7 +104,7 @@ export default function CouncilTable({ councils }) {
                                     )}
 
                                     {/* El botón "Eliminar" solo se muestra si es Director */}
-                                    {isDirector && <DeleteDialog council={council} />}
+                                    {isDirector && <DeleteDialog agenda={agenda} />}
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -116,9 +116,9 @@ export default function CouncilTable({ councils }) {
                     <TableRow>
                         <TablePagination
                             rowsPerPageOptions={[]} // Opciones por página, si las hay
-                            count={councils.total}
-                            rowsPerPage={councils.per_page}
-                            page={councils.current_page - 1} // MUI usa índices base 0
+                            count={agendas.total}
+                            rowsPerPage={agendas.per_page}
+                            page={agendas.current_page - 1} // MUI usa índices base 0
                             onPageChange={handleChangePage}
                         />
                     </TableRow>

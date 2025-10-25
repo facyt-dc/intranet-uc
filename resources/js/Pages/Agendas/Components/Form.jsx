@@ -19,16 +19,16 @@ import FormHelperText from '@mui/material/FormHelperText';
 // Traducciones
 import { useTranslation } from "react-i18next";
 
-// Las props necesarias son 'council' (para editar), 'counselors' (la lista de consejeros),
+// Las props necesarias son 'agenda' (para editar), 'counselors' (la lista de consejeros),
 // 'routeName' y 'method'.
-export default function Form({ council, counselors, routeName, method }) {
+export default function Form({ agenda, counselors, routeName, method }) {
     const { t } = useTranslation(["common"]);
 
     // Hook useForm de Inertia adaptado para los campos del consejo
     const { data, setData, post, patch, processing, errors } = useForm({
-        name: council?.name ?? '',
-        date: council?.date ? new Date(council.date).toISOString().slice(0, 10) : '',
-        participants: council?.participants?.map(p => p.id) ?? [], // IDs de los participantes
+        name: agenda?.name ?? '',
+        date: agenda?.date ? new Date(agenda.date).toISOString().slice(0, 10) : '',
+        participants: agenda?.participants?.map(p => p.id) ?? [], // IDs de los participantes
     });
 
     // Manejador genérico para campos de texto y fecha
@@ -59,7 +59,7 @@ export default function Form({ council, counselors, routeName, method }) {
         if (method === 'post') {
             post(route(routeName));
         } else {
-            patch(route(routeName, council.code)); // En la edición, usamos el código del consejo
+            patch(route(routeName, agenda.code)); // En la edición, usamos el código del consejo
         }
     };
 
@@ -68,7 +68,7 @@ export default function Form({ council, counselors, routeName, method }) {
             component="form"
             sx={{ mt: 2 }}
             onSubmit={handleSubmit}
-            id="councilForm"
+            id="agendaForm"
         >
             <FormGroup sx={{ display: "flex", gap: 3 }}>
                 {/* Campo para el Nombre del Consejo */}
@@ -134,7 +134,7 @@ export default function Form({ council, counselors, routeName, method }) {
             </FormGroup>
 
             <Button variant="contained" type="submit" disabled={processing} sx={{ mt: 3 }}>
-                {council ? t('button.update') : t('button.create')}
+                {agenda ? t('button.update') : t('button.create')}
             </Button>
         </Box>
     );

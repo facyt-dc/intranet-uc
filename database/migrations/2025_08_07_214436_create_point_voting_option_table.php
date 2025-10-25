@@ -12,18 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         // Esta es una tabla pivote para la relación muchos-a-muchos entre
-        // 'council_points' y 'voting_options'. Define qué opciones de voto
+        // 'agenda_points' y 'voting_options'. Define qué opciones de voto
         // están disponibles para un punto específico.
-        Schema::create('council_point_voting_option', function (Blueprint $table) {
-            $table->foreignId('council_point_id')
-                  ->constrained('council_points')
+        Schema::create('agenda_point_voting_option', function (Blueprint $table) {
+            $table->foreignId('agenda_point_id')
+                  ->constrained('agenda_points')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
             $table->foreignId('voting_option_id')
                   ->constrained('voting_options')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
-            $table->primary(['council_point_id', 'voting_option_id']);
+            $table->primary(['agenda_point_id', 'voting_option_id']);
         });
     }
 

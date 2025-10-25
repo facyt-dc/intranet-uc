@@ -12,18 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         // Esta es una tabla pivote para la relación muchos-a-muchos entre
-        // 'council_points' y 'users'. Define qué usuarios tienen permiso
+        // 'agenda_points' y 'users'. Define qué usuarios tienen permiso
         // para votar en un punto específico.
-        Schema::create('council_point_votable_user', function (Blueprint $table) {
-            $table->foreignId('council_point_id')
-                  ->constrained('council_points')
+        Schema::create('agenda_point_votable_user', function (Blueprint $table) {
+            $table->foreignId('agenda_point_id')
+                  ->constrained('agenda_points')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
             $table->foreignId('user_id')
                   ->constrained('users')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
-            $table->primary(['council_point_id', 'user_id']);
+            $table->primary(['agenda_point_id', 'user_id']);
         });
     }
 

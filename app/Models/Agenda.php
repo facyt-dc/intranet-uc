@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
-class Council extends Model
+class Agenda extends Model
 {
     use HasFactory;
     
@@ -42,31 +42,31 @@ class Council extends Model
          * antes de que se guarde en la base de datos.
          * El formato del código es 'NNN_YYYY'.
          */
-        static::creating(function ($council) {
+        static::creating(function ($agenda) {
             // Si el código ya está establecido por alguna razón, no hacer nada.
-            if ($council->code) {
+            if ($agenda->code) {
                 return;
             }
 
             $currentYear = Carbon::now()->year;
             
             // Contar cuántos consejos ya existen para el año actual para determinar el siguiente número.
-            $lastCouncilCount = self::whereYear('created_at', $currentYear)->count();
+            $lastAgendaCount = self::whereYear('created_at', $currentYear)->count();
             
             // El nuevo número será el conteo actual + 1.
-            $newCouncilNumber = $lastCouncilCount + 1;
+            $newAgendaNumber = $lastAgendaCount + 1;
             
             // Formatear el número a 3 dígitos con ceros a la izquierda (001, 002, ..., 010, ..., 100).
-            $formattedNumber = str_pad($newCouncilNumber, 3, '0', STR_PAD_LEFT);
+            $formattedNumber = str_pad($newAgendaNumber, 3, '0', STR_PAD_LEFT);
             
-            $council->code = "{$formattedNumber}_{$currentYear}";
+            $agenda->code = "{$formattedNumber}_{$currentYear}";
         });
     }
 
     /**
      * Obtiene la clave de la ruta para el modelo.
      * Esto permite usar el campo 'code' en lugar del 'id' en las URLs (Route Model Binding).
-     * Por ejemplo: /councils/001_2025
+     * Por ejemplo: /agendas/001_2025
      *
      * @return string
      */
@@ -92,7 +92,7 @@ class Council extends Model
      */
     public function participants(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'council_user');
+        return $this->belongsToMany(User::class, 'agenda_user');
     }
 
     /**
@@ -102,6 +102,6 @@ class Council extends Model
      */
     public function points(): HasMany
     {
-        return $this->hasMany(CouncilPoint::class);
+        return $this->hasMany(AgendaPoint::class);
     }
 }

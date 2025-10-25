@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Council;
+use App\Models\Agenda;
 use App\Models\User;
-use App\Notifications\NewCouncilAssigned;
+use App\Notifications\NewAgendaAssigned;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 // ¡Sin constructor de middleware!
-class CouncilController extends Controller
+class AgendaController extends Controller
 {
     /**
      * Muestra una lista paginada de todos los consejos.
@@ -22,10 +22,10 @@ class CouncilController extends Controller
     public function index(): Response
     {
         $user = Auth::user();
-        $query = Council::query();
+        $query = Agenda::query();
 
-        // Si el usuario es Consejero, filtramos los consejos
-        if ($user->hasRole('counselor')) {
+        // Si el usuario es solo Consejero, filtramos los consejos
+        if ($user->hasRole('counselor') && !$user->hasRole('director')) {
             // Obtenemos solo los consejos en los que el usuario es participante.
             $query->whereHas('participants', function ($q) use ($user) {
                 $q->where('users.id', $user->id);
@@ -33,13 +33,13 @@ class CouncilController extends Controller
         }
 
         // Construimos la consulta final con las relaciones y paginación
-        $councils = $query->with('director:id,name')
+        $agendas = $query->with('director:id,name')
             ->withCount('participants')
             ->latest()
             ->paginate(10);
 
-        return Inertia::render('Councils/Index', [
-            'councils' => $councils,
+        return Inertia::render('Agendas/Index', [
+            'agendas' => $agendas,
         ]);
     }
 
@@ -48,7 +48,7 @@ class CouncilController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Councils/Create', [
+        return Inertia::render('Agendas/Create', [
             'counselors' => User::role('counselor')
                 ->select('id', 'name')
                 ->orderBy('name')
@@ -59,9 +59,9 @@ class CouncilController extends Controller
     /**
      * Almacena un nuevo consejo en la base de datos.
      */
-    public function store(Request $request, Council $council): RedirectResponse
+    public function store(Request $request, Agenda $agenda): RedirectResponse
     {
-        if ($council->status === 'Cerrado') {
+        if ($agenda->status === 'Cerrado') {
             // Si está cerrado, redirigimos con un error.
             return back()->with('error', 'No se pueden añadir puntos a un consejo que ya ha sido cerrado.');
         }
@@ -83,27 +83,27 @@ class CouncilController extends Controller
             ],
         ]);
 
-        $council = Council::create([
+        $agenda = Agenda::create([
             'name' => $validated['name'],
             'date' => $validated['date'],
             'director_id' => Auth::id(),
             'status' => 'Programado',
         ]);
 
-        $council->participants()->sync($validated['participants']);
+        $agenda->participants()->sync($validated['participants']);
 
         $participantsToNotify = User::find($validated['participants']);
-        Notification::send($participantsToNotify, new NewCouncilAssigned($council));
+        Notification::send($participantsToNotify, new NewAgendaAssigned($agenda));
 
-        return to_route('councils.show', $council)->with('success', 'Consejo creado y notificaciones enviadas correctamente.');
+        return to_route('agendas.show', $agenda)->with('success', 'Consejo creado y notificaciones enviadas correctamente.');
     }
 
     /**
      * Muestra la vista detallada de un consejo específico.
      */
-    public function show(Council $council): Response
+    public function show(Agenda $agenda): Response
     {
-        $council->load([
+        $agenda->load([
             'director:id,name',
             'participants:id,name,email',
             'points' => fn($query) => $query->orderBy('order'),
@@ -114,8 +114,8 @@ class CouncilController extends Controller
             'points.votes.option:id,name',
         ]);
 
-        return Inertia::render('Councils/Show', [
-            'council' => $council,
+        return Inertia::render('Agendas/Show', [
+            'agenda' => $agenda,
             'counselors' => User::role('counselor')->select('id', 'name')->orderBy('name')->get(),
             'votingOptions' => \App\Models\VotingOption::where('is_active', true)->get(['id', 'name']),
         ]);
@@ -124,10 +124,10 @@ class CouncilController extends Controller
     /**
      * Muestra el formulario para editar un consejo existente.
      */
-    public function edit(Council $council): Response
+    public function edit(Agenda $agenda): Response
     {
-        return Inertia::render('Councils/Edit', [
-            'council' => $council->load('participants:id'),
+        return Inertia::render('Agendas/Edit', [
+            'agenda' => $agenda->load('participants:id'),
             'counselors' => User::role('counselor')->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
@@ -135,9 +135,9 @@ class CouncilController extends Controller
     /**
      * Actualiza un consejo existente en la base de datos.
      */
-    public function update(Request $request, Council $council): RedirectResponse
+    public function update(Request $request, Agenda $agenda): RedirectResponse
     {
-        if ($council->status === 'Cerrado') {
+        if ($agenda->status === 'Cerrado') {
             return back()->with('error', 'No se puede editar un consejo que ya ha sido cerrado.');
         }
 
@@ -148,31 +148,31 @@ class CouncilController extends Controller
             'participants.*' => 'required|integer|exists:users,id',
         ]);
 
-        $council->update($request->only('name', 'date'));
-        $council->participants()->sync($validated['participants']);
+        $agenda->update($request->only('name', 'date'));
+        $agenda->participants()->sync($validated['participants']);
 
-        return to_route('councils.index')->with('success', 'Consejo actualizado correctamente.');
+        return to_route('agendas.index')->with('success', 'Consejo actualizado correctamente.');
     }
 
     /**
      * Elimina un consejo de la base de datos.
      */
-    public function destroy(Council $council): RedirectResponse
+    public function destroy(Agenda $agenda): RedirectResponse
     {
-        $council->delete();
-        return to_route('councils.index')->with('success', 'Consejo eliminado correctamente.');
+        $agenda->delete();
+        return to_route('agendas.index')->with('success', 'Consejo eliminado correctamente.');
     }
 
     /**
      * Método personalizado para cerrar un consejo y sus votaciones.
      */
-    public function close(Council $council): RedirectResponse
+    public function close(Agenda $agenda): RedirectResponse
     {
-        $council->update([
+        $agenda->update([
             'status' => 'Cerrado',
             'closed_at' => now(),
         ]);
 
-        return to_route('councils.show', $council)->with('success', 'El consejo ha sido cerrado exitosamente.');
+        return to_route('agendas.show', $agenda)->with('success', 'El consejo ha sido cerrado exitosamente.');
     }
 }

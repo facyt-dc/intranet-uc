@@ -11,17 +11,17 @@ return new class extends Migration {
     public function up(): void
     {
         // Esta es una tabla pivote para la relación muchos-a-muchos
-        // entre la tabla 'councils' y la tabla 'users'.
-        Schema::create('council_user', function (Blueprint $table) {
-            $table->foreignId('council_id')
-                  ->constrained('councils')
+        // entre la tabla 'agendas' y la tabla 'users'.
+        Schema::create('agenda_user', function (Blueprint $table) {
+            $table->foreignId('agenda_id')
+                  ->constrained('agendas')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
             $table->foreignId('user_id')
                   ->constrained('users')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
-            $table->primary(['council_id', 'user_id']);
+            $table->primary(['agenda_id', 'user_id']);
         });
     }
 
@@ -30,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('council_user');
+        Schema::dropIfExists('agenda_user');
     }
 };

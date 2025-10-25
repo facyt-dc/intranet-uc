@@ -10,24 +10,24 @@ import Tooltip from "@mui/material/Tooltip";
 import Form from "./Components/Form";
 import { useTranslation } from "react-i18next";
 
-// Recibe la prop 'counselors' desde el CouncilController
-export default function CouncilCreate({ auth, counselors }) {
+// Recibe la prop 'counselors' desde el AgendaController
+export default function AgendaCreate({ auth, counselors }) {
     const { t } = useTranslation(["common"]);
     
     return (
         <AdminLayout auth={auth}>
             <Head
                 title={t("button.create field", {
-                    field: t("council", { count: 1 }),
+                    field: t("agenda", { count: 1 }),
                 })}
             />
             <div className="flex justify-between items-center">
                 <h2 className="text-xl text-gray-500">
                     {t("button.create field", {
-                        field: t("council", { count: 1 }),
+                        field: t("agenda", { count: 1 }),
                     })}
                 </h2>
-                <Link href={route("councils.index")}>
+                <Link href={route("agendas.index")}>
                     <Tooltip title={t("button.go back")}>
                         <IconButton size="large">
                             <ArrowCircleLeftRoundedIcon fontSize="inherit" />
@@ -40,7 +40,7 @@ export default function CouncilCreate({ auth, counselors }) {
             <Form
                 counselors={counselors} // Pasamos la lista de consejeros
                 method="post"
-                routeName="councils.store"
+                routeName="agendas.store"
             />
         </AdminLayout>
     );

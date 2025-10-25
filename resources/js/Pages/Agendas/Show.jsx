@@ -25,16 +25,16 @@ import PointCard from "./Components/PointCard";
 import PointForm from "./Components/PointForm";
 import Alert from "@/Components/Alert";
 
-// Props: 'council' viene con todas las relaciones cargadas desde el controlador.
+// Props: 'agenda' viene con todas las relaciones cargadas desde el controlador.
 // 'auth' es crucial para determinar el rol del usuario.
-export default function CouncilShow({ auth, council, counselors, votingOptions }) {
+export default function AgendaShow({ auth, agenda, counselors, votingOptions }) {
     const { t } = useTranslation(["common", "translation"]);
     const { put, processing } = useForm({});
 
     const flash = usePage().props.flash || {};
 
     const isDirector = auth.user.roles.some(role => role.name === 'director');
-    const isCouncilOpen = council.status !== 'Cerrado';
+    const isAgendaOpen = agenda.status !== 'Cerrado';
 
     // Estado para el modal de AÑADIR
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,9 +46,9 @@ export default function CouncilShow({ auth, council, counselors, votingOptions }
     const handleOpenEditModal = (point) => setEditingPoint(point);
     const handleCloseEditModal = () => setEditingPoint(null);
 
-    const handleCloseCouncil = () => {
-        if (confirm(t('are you sure you want to close this council'))) {
-            put(route('councils.close', council.code), {
+    const handleCloseAgenda = () => {
+        if (confirm(t('are you sure you want to close this agenda'))) {
+            put(route('agendas.close', agenda.code), {
                 preserveScroll: true,
             });
         }
@@ -67,16 +67,16 @@ export default function CouncilShow({ auth, council, counselors, votingOptions }
 
     return (
         <AdminLayout auth={auth}>
-            <Head title={`${t("council", { count: 1 })}: ${council.name}`} />
+            <Head title={`${t("agenda", { count: 1 })}: ${agenda.name}`} />
 
             {flash.alert && <Alert message={flash.alert.message} severity={flash.alert.severity} />}
 
             {/* Encabezado de la Página */}
             <Box className="flex justify-between items-center mb-4">
                 <Typography variant="h5" component="h1" className="text-gray-600">
-                    {t("council details")}
+                    {t("agenda details")}
                 </Typography>
-                <Link href={route("councils.index")}>
+                <Link href={route("agendas.index")}>
                     <Tooltip title={t("button.go back")}>
                         <IconButton size="large">
                             <ArrowCircleLeftRoundedIcon fontSize="inherit" />
@@ -90,41 +90,41 @@ export default function CouncilShow({ auth, council, counselors, votingOptions }
                 <Box className="flex justify-between items-start">
                     <div>
                         <Typography variant="h4" component="h2" gutterBottom>
-                            {council.name} ({council.code})
+                            {agenda.name} ({agenda.code})
                         </Typography>
                         <Box display="flex" alignItems="center" gap={2} color="text.secondary" mb={2}>
-                            <Box display="flex" alignItems="center" gap={0.5}><EventIcon fontSize="small" /> {new Date(council.date).toLocaleDateString()}</Box>
-                            <Box display="flex" alignItems="center" gap={0.5}><GroupIcon fontSize="small" /> {council.participants.length} {t('Participants')}</Box>
-                            {getStatusChip(council.status)}
+                            <Box display="flex" alignItems="center" gap={0.5}><EventIcon fontSize="small" /> {new Date(agenda.date).toLocaleDateString()}</Box>
+                            <Box display="flex" alignItems="center" gap={0.5}><GroupIcon fontSize="small" /> {agenda.participants.length} {t('Participants')}</Box>
+                            {getStatusChip(agenda.status)}
                         </Box>
                     </div>
-                    {isDirector && isCouncilOpen && (
-                        <Button variant="contained" color="error" onClick={handleCloseCouncil} disabled={processing} startIcon={<LockClockIcon />}>
-                            {t('close council')}
+                    {isDirector && isAgendaOpen && (
+                        <Button variant="contained" color="error" onClick={handleCloseAgenda} disabled={processing} startIcon={<LockClockIcon />}>
+                            {t('close agenda')}
                         </Button>
                     )}
                 </Box>
                 <Divider className="my-4" />
-                <Typography variant="subtitle1" gutterBottom><strong>{t('director')}:</strong> {council.director.name}</Typography>
-                <Typography variant="subtitle1"><strong>{t('Participants')}:</strong> {council.participants.map(p => p.name).join(', ')}</Typography>
+                <Typography variant="subtitle1" gutterBottom><strong>{t('director')}:</strong> {agenda.director.name}</Typography>
+                <Typography variant="subtitle1"><strong>{t('Participants')}:</strong> {agenda.participants.map(p => p.name).join(', ')}</Typography>
             </Paper>
 
             {/* Sección de Puntos del Consejo */}
             <Box>
                 <Typography variant="h5" component="h2" className="text-gray-600 mb-4">
-                    {t("council points")}
+                    {t("agenda points")}
                 </Typography>
                 <Box className="space-y-4">
-                    {council.points.length > 0 ? (
-                        council.points.map((point) => (
+                    {agenda.points.length > 0 ? (
+                        agenda.points.map((point) => (
                             <PointCard
                                 key={point.id}
                                 point={point}
                                 auth={auth}
-                                council={council}
+                                agenda={agenda}
                                 counselors={counselors}
                                 votingOptions={votingOptions}
-                                isCouncilOpen={isCouncilOpen}
+                                isAgendaOpen={isAgendaOpen}
                                 onEdit={() => handleOpenEditModal(point)}
                             />
                         ))
@@ -135,7 +135,7 @@ export default function CouncilShow({ auth, council, counselors, votingOptions }
             </Box>
 
             {/* Ocultar el botón "Añadir Punto" si el consejo está cerrado */}
-            {isDirector && isCouncilOpen && (
+            {isDirector && isAgendaOpen && (
                 <Box className="mt-6 text-center">
                     <Button variant="contained" onClick={handleOpenModal}>
                         {t('add new point')}
@@ -149,7 +149,7 @@ export default function CouncilShow({ auth, council, counselors, votingOptions }
                 <DialogContent>
                     {/* Renderizamos el formulario dentro del modal */}
                     <PointForm
-                        council={council}
+                        agenda={agenda}
                         counselors={counselors}
                         votingOptions={votingOptions}
                         onSuccess={handleCloseModal} // Pasamos la función para cerrar el modal
@@ -160,12 +160,12 @@ export default function CouncilShow({ auth, council, counselors, votingOptions }
 
             {/* Modal para EDITAR */}
             <Dialog open={!!editingPoint} onClose={handleCloseEditModal} fullWidth maxWidth="md">
-                <DialogTitle>{t('edit council point')}</DialogTitle>
+                <DialogTitle>{t('edit agenda point')}</DialogTitle>
                 <DialogContent>
                     {/* Renderizamos el formulario solo si hay un punto para editar */}
                     {editingPoint && (
                         <PointForm
-                            council={council}
+                            agenda={agenda}
                             point={editingPoint} // Pasamos el punto a editar
                             counselors={counselors}
                             votingOptions={votingOptions}

@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Council;
+use App\Models\Agenda;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -11,7 +11,7 @@ class AllPointsReadyForClosure extends Notification
 {
     use Queueable;
 
-    public function __construct(public Council $council)
+    public function __construct(public Agenda $agenda)
     {
     }
 
@@ -23,10 +23,10 @@ class AllPointsReadyForClosure extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Consejo listo para cierre: ' . $this->council->name)
-                    ->line('Se ha alcanzado el número mínimo de votos en todos los puntos del consejo "' . $this->council->name . '".')
+                    ->subject('Consejo listo para cierre: ' . $this->agenda->name)
+                    ->line('Se ha alcanzado el número mínimo de votos en todos los puntos del consejo "' . $this->agenda->name . '".')
                     ->line('Ya puede proceder a revisar los resultados y cerrar oficialmente el consejo.')
-                    ->action('Ver Consejo', route('councils.show', $this->council))
+                    ->action('Ver Consejo', route('agendas.show', $this->agenda))
                     ->line('Gracias por utilizar nuestra aplicación.');
     }
 }

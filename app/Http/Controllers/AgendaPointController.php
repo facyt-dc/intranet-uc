@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Council;
-use App\Models\CouncilPoint;
+use App\Models\Agenda;
+use App\Models\AgendaPoint;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class CouncilPointController extends Controller
+class AgendaPointController extends Controller
 {
     /**
      * Almacena un nuevo punto de consejo asociado a un consejo existente.
      *
      * @param  Request $request
-     * @param  Council $council El consejo padre, inyectado por Route Model Binding.
+     * @param  Agenda $agenda El consejo padre, inyectado por Route Model Binding.
      * @return RedirectResponse
      */
-    public function store(Request $request, Council $council): RedirectResponse
+    public function store(Request $request, Agenda $agenda): RedirectResponse
     {
         // Contamos cuántos usuarios votantes se seleccionaron en el request.
         $numberOfVotableUsers = count($request->input('votable_users', []));
@@ -29,7 +29,7 @@ class CouncilPointController extends Controller
                 'required',
                 'integer',
                 // Regla: asegura que el usuario solicitante sea un participante del consejo.
-                Rule::exists('council_user', 'user_id')->where('council_id', $council->id),
+                Rule::exists('agenda_user', 'user_id')->where('agenda_id', $agenda->id),
             ],
             'min_votes_to_close' => [
                 'required',
@@ -43,7 +43,7 @@ class CouncilPointController extends Controller
                 'required',
                 'integer',
                 // Regla: asegura que todos los votantes asignados sean participantes del consejo.
-                Rule::exists('council_user', 'user_id')->where('council_id', $council->id),
+                Rule::exists('agenda_user', 'user_id')->where('agenda_id', $agenda->id),
             ],
             'available_options' => 'required|array|min:1',
             'available_options.*' => 'required|integer|exists:voting_options,id',
@@ -53,7 +53,7 @@ class CouncilPointController extends Controller
         ]);
 
         // Creación del punto del consejo, asociándolo directamente al consejo padre
-        $point = $council->points()->create([
+        $point = $agenda->points()->create([
             'description' => $validated['description'],
             'requested_by_user_id' => $validated['requested_by_user_id'],
             'min_votes_to_close' => $validated['min_votes_to_close'],
@@ -66,26 +66,26 @@ class CouncilPointController extends Controller
         $point->votingOptions()->sync($validated['available_options']);
 
         // Redirección a la vista del consejo con un mensaje de éxito
-        return to_route('councils.show', $council)->with('success', 'Punto del consejo añadido correctamente.');
+        return to_route('agendas.show', $agenda)->with('success', 'Punto del consejo añadido correctamente.');
     }
 
     /**
      * Actualiza un punto de consejo existente.
      *
      * @param  Request      $request
-     * @param  Council      $council El consejo padre
-     * @param  CouncilPoint $point   El punto a actualizar
+     * @param  Agenda      $agenda El consejo padre
+     * @param  AgendaPoint $point   El punto a actualizar
      * @return RedirectResponse
      */
-    public function update(Request $request, CouncilPoint $point): RedirectResponse
+    public function update(Request $request, AgendaPoint $point): RedirectResponse
     {
-        $council = $point->council;
+        $agenda = $point->agenda;
 
         if ($point->votes()->exists()) {
             return back()->with('error', 'No se puede editar un punto que ya tiene votos.');
         }
 
-        if ($council->status === 'Cerrado') {
+        if ($agenda->status === 'Cerrado') {
             return back()->with('error', 'No se pueden editar puntos de un consejo que ya ha sido cerrado.');
         }
 
@@ -96,7 +96,7 @@ class CouncilPointController extends Controller
             'requested_by_user_id' => [
                 'required',
                 'integer',
-                Rule::exists('council_user', 'user_id')->where('council_id', $council->id),
+                Rule::exists('agenda_user', 'user_id')->where('agenda_id', $agenda->id),
             ],
             'min_votes_to_close' => [
                 'required',
@@ -106,7 +106,7 @@ class CouncilPointController extends Controller
             ],
             'order' => 'nullable|integer',
             'votable_users' => 'required|array|min:1',
-            'votable_users.*' => ['required', 'integer', Rule::exists('council_user', 'user_id')->where('council_id', $council->id)],
+            'votable_users.*' => ['required', 'integer', Rule::exists('agenda_user', 'user_id')->where('agenda_id', $agenda->id)],
             'available_options' => 'required|array|min:1',
             'available_options.*' => 'required|integer|exists:voting_options,id',
         ], [
@@ -120,22 +120,22 @@ class CouncilPointController extends Controller
         $point->votableUsers()->sync($validated['votable_users']);
         $point->votingOptions()->sync($validated['available_options']);
 
-        return to_route('councils.show', $council)->with('success', 'Punto del consejo actualizado correctamente.');
+        return to_route('agendas.show', $agenda)->with('success', 'Punto del consejo actualizado correctamente.');
     }
 
     /**
      * Elimina un punto de consejo.
      *
-     * @param  Council      $council
-     * @param  CouncilPoint $point
+     * @param  Agenda      $agenda
+     * @param  AgendaPoint $point
      * @return RedirectResponse
      */
-    public function destroy(CouncilPoint $point): RedirectResponse
+    public function destroy(AgendaPoint $point): RedirectResponse
     {
-        $councilCode = $point->council->code;
+        $agendaCode = $point->agenda->code;
         $point->delete();
 
-        return to_route('councils.show', $councilCode)->with('success', 'Punto del consejo eliminado correctamente.');
+        return to_route('agendas.show', $agendaCode)->with('success', 'Punto del consejo eliminado correctamente.');
     }
 
     /**
@@ -143,13 +143,13 @@ class CouncilPointController extends Controller
      * Este es el nuevo método para manejar específicamente la conclusión.
      *
      * @param  Request      $request
-     * @param  CouncilPoint $point
+     * @param  AgendaPoint $point
      * @return RedirectResponse
      */
-    public function addConclusion(Request $request, CouncilPoint $point): RedirectResponse
+    public function addConclusion(Request $request, AgendaPoint $point): RedirectResponse
     {
         // 1. Cláusula de guarda: Verificar que el consejo no esté cerrado
-        if ($point->council->status === 'Cerrado') {
+        if ($point->agenda->status === 'Cerrado') {
             return back()->with('error', 'No se puede añadir una conclusión a un punto de un consejo cerrado.');
         }
 

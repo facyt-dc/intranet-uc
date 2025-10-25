@@ -17,12 +17,12 @@ import FormGroup from '@mui/material/FormGroup';
 
 
 // Props:
-// - council: El consejo al que se añadirá el punto.
+// - agenda: El consejo al que se añadirá el punto.
 // - counselors: Lista de consejeros para los selectores.
 // - votingOptions: Lista de opciones de voto para el selector.
 // - onSuccess: Función a llamar cuando el formulario se envía con éxito (para cerrar el modal).
 // - onCancel: Función para cancelar y cerrar el modal.
-export default function PointForm({ council, point, counselors, votingOptions, onSuccess, onCancel }) {
+export default function PointForm({ agenda, point, counselors, votingOptions, onSuccess, onCancel }) {
     const { t } = useTranslation(['common']);
     
     // El estado inicial se basa en si se proporciona un 'point'
@@ -52,7 +52,7 @@ export default function PointForm({ council, point, counselors, votingOptions, o
     // useEffect(() => {
     //     console.log('votingOptions (raw):', votingOptions);
     //     console.log('point (raw):', point);
-    //     console.log('council (raw):', council);
+    //     console.log('agenda (raw):', agenda);
     //     console.log('point.available_options (raw):', point?.available_options);
     //     console.log('point.available_options ids:', point?.available_options?.map(o => o.id));
     //     console.log('initialized available_options (form):', point?.available_options?.map(o => o.id) ?? []);
@@ -67,7 +67,7 @@ export default function PointForm({ council, point, counselors, votingOptions, o
                 onSuccess: () => onSuccess(),
             });
         } else {
-            post(route('councils.points.store', council.code), {
+            post(route('agendas.points.store', agenda.code), {
                 preserveScroll: true,
                 onSuccess: () => {
                     reset();

@@ -10,8 +10,8 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DocumentController;
 
-use App\Http\Controllers\CouncilController;
-use App\Http\Controllers\CouncilPointController;
+use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\AgendaPointController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\Settings\VotingOptionController;
 use Spatie\Permission\Middleware\RoleMiddleware;
@@ -59,13 +59,13 @@ Route::middleware(['auth','verified'])->group(function(){
 
 Route::middleware(['auth', 'verified', 'role:director'])->group(function () {
 
-    // --- Gestión de Consejos (Council) ---
-    Route::put('councils/{council}/close', [CouncilController::class, 'close'])->name('councils.close');
-    Route::resource('councils', CouncilController::class)->except(['index', 'show']);
+    // --- Gestión de Consejos (Agenda) ---
+    Route::put('agendas/{agenda}/close', [AgendaController::class, 'close'])->name('agendas.close');
+    Route::resource('agendas', AgendaController::class)->except(['index', 'show']);
 
-    // --- Gestión de Puntos de Consejo (CouncilPoint) ---
+    // --- Gestión de Puntos de Consejo (AgendaPoint) ---
     // Es un recurso anidado bajo los consejos.
-    Route::resource('councils.points', CouncilPointController::class)
+    Route::resource('agendas.points', AgendaPointController::class)
          ->only(['store', 'update', 'destroy']) // Solo se necesitan los endpoints, no las vistas.
          ->shallow(); // Hace las URLs de update/destroy más limpias (ej: /points/123)
 
@@ -77,12 +77,12 @@ Route::middleware(['auth', 'verified', 'role:director'])->group(function () {
     });
 
     // --- Acción de Añadir Conclusión a un Punto de Consejo ---
-    Route::patch('points/{point}/conclusion', [CouncilPointController::class, 'addConclusion'])->name('points.conclusion.add');
+    Route::patch('points/{point}/conclusion', [AgendaPointController::class, 'addConclusion'])->name('points.conclusion.add');
 });
 
 Route::middleware(['auth', 'verified', 'role:director|counselor'])->group(function () {
-    Route::get('/councils', [CouncilController::class, 'index'])->name('councils.index');
-    Route::get('/councils/{council}', [CouncilController::class, 'show'])->name('councils.show');
+    Route::get('/agendas', [AgendaController::class, 'index'])->name('agendas.index');
+    Route::get('/agendas/{agenda}', [AgendaController::class, 'show'])->name('agendas.show');
 });
 
 Route::middleware(['auth', 'verified', 'role:counselor'])->group(function () {

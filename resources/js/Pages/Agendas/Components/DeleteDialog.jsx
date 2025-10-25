@@ -9,7 +9,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useTranslation } from 'react-i18next';
 
-export default function DeleteDialog({ council }) {
+export default function DeleteDialog({ agenda }) {
     const [open, setOpen] = React.useState(false);
     const { t } = useTranslation(['common']);
     const { delete: inertiaDelete } = useForm();
@@ -23,7 +23,7 @@ export default function DeleteDialog({ council }) {
     };
 
     const handleDelete = () => {
-        inertiaDelete(route('councils.destroy', council.code), {
+        inertiaDelete(route('agendas.destroy', agenda.code), {
             onSuccess: () => handleClose(),
         });
     };
@@ -46,11 +46,11 @@ export default function DeleteDialog({ council }) {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {t('confirm delete', { field: t('council', { count: 1 }) })}
+                    {t('confirm delete', { field: t('agenda', { count: 1 }) })}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {t('are you sure you want to delete this field', { field: council.name })}?
+                        {t('are you sure you want to delete this field', { field: agenda.name })}?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

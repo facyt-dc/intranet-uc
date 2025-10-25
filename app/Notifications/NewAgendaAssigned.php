@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Council;
+use App\Models\Agenda;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,7 +14,7 @@ use Illuminate\Notifications\Notification;
  * Implementa ShouldQueue para que el envío se procese en segundo plano,
  * mejorando el rendimiento y la experiencia del usuario (el director).
  */
-class NewCouncilAssigned extends Notification implements ShouldQueue
+class NewAgendaAssigned extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -22,19 +22,19 @@ class NewCouncilAssigned extends Notification implements ShouldQueue
      * El consejo al que el usuario ha sido asignado.
      * La promoción de propiedades del constructor de PHP 8+ hace esto más limpio.
      *
-     * @var \App\Models\Council
+     * @var \App\Models\Agenda
      */
-    public $council;
+    public $agenda;
 
     /**
      * Crea una nueva instancia de la notificación.
      *
-     * @param  \App\Models\Council $council
+     * @param  \App\Models\Agenda $agenda
      * @return void
      */
-    public function __construct(Council $council)
+    public function __construct(Agenda $agenda)
     {
-        $this->council = $council;
+        $this->agenda = $agenda;
     }
 
     /**
@@ -60,15 +60,15 @@ class NewCouncilAssigned extends Notification implements ShouldQueue
     {
         // El director se carga aquí para asegurar que esté disponible,
         // aunque normalmente ya vendrá con el modelo si se creó correctamente.
-        $this->council->loadMissing('director');
+        $this->agenda->loadMissing('director');
 
         return (new MailMessage)
-                    ->subject('Invitación a un nuevo consejo: ' . $this->council->name)
+                    ->subject('Invitación a un nuevo consejo: ' . $this->agenda->name)
                     ->greeting('Hola, ' . $notifiable->name . '!')
-                    ->line('Has sido invitado a participar en un nuevo consejo organizado por ' . $this->council->director->name . '.')
-                    ->line('**Consejo:** ' . $this->council->name)
-                    ->line('**Fecha programada:** ' . $this->council->date->format('d/m/Y \a \l\a\s H:i'))
-                    ->action('Ver Detalles del Consejo', route('councils.show', $this->council))
+                    ->line('Has sido invitado a participar en un nuevo consejo organizado por ' . $this->agenda->director->name . '.')
+                    ->line('**Consejo:** ' . $this->agenda->name)
+                    ->line('**Fecha programada:** ' . $this->agenda->date->format('d/m/Y \a \l\a\s H:i'))
+                    ->action('Ver Detalles del Consejo', route('agendas.show', $this->agenda))
                     ->line('Puedes acceder a la plataforma para revisar los puntos a tratar y prepararte para las votaciones.');
     }
 
@@ -81,10 +81,10 @@ class NewCouncilAssigned extends Notification implements ShouldQueue
     public function toArray($notifiable): array
     {
         return [
-            'council_id' => $this->council->id,
-            'council_name' => $this->council->name,
-            'message' => 'Has sido asignado al consejo "' . $this->council->name . '".',
-            'url' => route('councils.show', $this->council),
+            'agenda_id' => $this->agenda->id,
+            'agenda_name' => $this->agenda->name,
+            'message' => 'Has sido asignado al consejo "' . $this->agenda->name . '".',
+            'url' => route('agendas.show', $this->agenda),
             'icon' => 'calendar-plus', // Un ícono de ejemplo para el frontend.
         ];
     }

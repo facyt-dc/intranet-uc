@@ -10,10 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('council_points', function (Blueprint $table) {
+        Schema::create('agenda_points', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('council_id')
-                  ->constrained('councils')
+            $table->foreignId('agenda_id')
+                  ->constrained('agendas')
                   ->onUpdate('cascade')
                   ->onDelete('cascade');
             $table->text('description');
@@ -36,6 +36,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('council_points');
+        Schema::dropIfExists('agenda_points');
     }
 };

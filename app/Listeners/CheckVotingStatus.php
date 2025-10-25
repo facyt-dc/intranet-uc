@@ -37,18 +37,18 @@ class CheckVotingStatus implements ShouldQueue
     {
         // 1. Obtener el consejo y cargar las relaciones necesarias eficientemente
         // para evitar el problema N+1.
-        $council = $event->vote->point->council()->with(['points.votes', 'director'])->first();
+        $agenda = $event->vote->point->agenda()->with(['points.votes', 'director'])->first();
 
         // 2. Comprobar si ya se envió una notificación para este consejo.
         // Esto previene el envío de notificaciones duplicadas si se emiten más
         // votos después de que el consejo ya esté listo.
-        if ($council->closure_notification_sent) {
+        if ($agenda->closure_notification_sent) {
             return; // No hacer nada más.
         }
 
         // 3. Iterar sobre todos los puntos del consejo para verificar su estado.
         $allPointsAreReady = true;
-        foreach ($council->points as $point) {
+        foreach ($agenda->points as $point) {
             // Comparamos el número de votos emitidos (ya cargados) con el mínimo requerido.
             if ($point->votes->count() < $point->min_votes_to_close) {
                 $allPointsAreReady = false; // Se encontró un punto que aún no está listo.
@@ -60,10 +60,10 @@ class CheckVotingStatus implements ShouldQueue
         if ($allPointsAreReady) {
             
             // Enviamos la notificación al director del consejo.
-            Notification::send($council->director, new AllPointsReadyForClosure($council));
+            Notification::send($agenda->director, new AllPointsReadyForClosure($agenda));
 
             // 5. MARCAR el consejo como notificado. Este es un paso CRÍTICO.
-            $council->update(['closure_notification_sent' => true]);
+            $agenda->update(['closure_notification_sent' => true]);
         }
     }
 }

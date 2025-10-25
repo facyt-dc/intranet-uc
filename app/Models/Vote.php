@@ -24,7 +24,7 @@ class Vote extends Model
     use HasFactory;
 
     protected $fillable = [
-        'council_point_id',
+        'agenda_point_id',
         'user_id',
         'voting_option_id',
     ];
@@ -36,7 +36,7 @@ class Vote extends Model
      */
     public function point(): BelongsTo
     {
-        return $this->belongsTo(CouncilPoint::class, 'council_point_id');
+        return $this->belongsTo(AgendaPoint::class, 'agenda_point_id');
     }
 
     /**

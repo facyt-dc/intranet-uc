@@ -12,8 +12,8 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-// Recibe el 'council' y el 'point' como props para construir la ruta de eliminación
-export default function DeletePointDialog({ council, point }) {
+// Recibe el 'agenda' y el 'point' como props para construir la ruta de eliminación
+export default function DeletePointDialog({ agenda, point }) {
     const [open, setOpen] = useState(false);
     const { t } = useTranslation(['common']);
     const { delete: inertiaDelete, processing } = useForm();
@@ -36,7 +36,7 @@ export default function DeletePointDialog({ council, point }) {
                 </IconButton>
             </Tooltip>
             <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>{t('confirm delete', { field: t('council point') })}</DialogTitle>
+                <DialogTitle>{t('confirm delete', { field: t('agenda point') })}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         {t('are you sure you want to delete this point')}? "{point.description}"

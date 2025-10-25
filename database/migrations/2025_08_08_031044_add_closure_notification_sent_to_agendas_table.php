@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('councils', function (Blueprint $table) {
+        Schema::table('agendas', function (Blueprint $table) {
             $table->boolean('closure_notification_sent')->default(false)->after('status');
         });
     }
@@ -20,7 +20,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('councils', function (Blueprint $table) {
+        Schema::table('agendas', function (Blueprint $table) {
             $table->dropColumn('closure_notification_sent');
         });
     }

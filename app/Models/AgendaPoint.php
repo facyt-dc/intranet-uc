@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * consejeros que están autorizados para votar en él.
  *
  * @property int $id
- * @property int $council_id ID del consejo al que pertenece.
+ * @property int $agenda_id ID del consejo al que pertenece.
  * @property string $requesting_counselor Nombre del consejero que solicitó el punto.
  * @property string $description Texto que detalla el punto a tratar.
  * @property string $status Estado del punto (ej. 'Pendiente', 'Abierto para Votación', 'Cerrado').
@@ -23,12 +23,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  */
-class CouncilPoint extends Model
+class AgendaPoint extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'council_id',
+        'agenda_id',
         'description',
         'requested_by_user_id',
         'status',
@@ -47,9 +47,9 @@ class CouncilPoint extends Model
      *
      * @return BelongsTo
      */
-    public function council(): BelongsTo
+    public function agenda(): BelongsTo
     {
-        return $this->belongsTo(Council::class);
+        return $this->belongsTo(Agenda::class);
     }
 
     /**
@@ -69,7 +69,7 @@ class CouncilPoint extends Model
      */
     public function votableUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'council_point_votable_user');
+        return $this->belongsToMany(User::class, 'agenda_point_votable_user');
     }
 
     /**
@@ -80,7 +80,7 @@ class CouncilPoint extends Model
      */
     public function votingOptions(): BelongsToMany
     {
-        return $this->belongsToMany(VotingOption::class, 'council_point_voting_option');
+        return $this->belongsToMany(VotingOption::class, 'agenda_point_voting_option');
     }
 
     /**

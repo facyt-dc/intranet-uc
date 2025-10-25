@@ -8,21 +8,26 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import Alert from "@/Components/Alert";
 
 // Importamos el nuevo componente de tabla para Consejos
-import CouncilTable from "./Components/CouncilTable"; 
+import AgendaTable from "./Components/AgendaTable"; 
 
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
-// Renombramos la prop 'roles' a 'councils'
-export default function CouncilIndex({ auth, councils}) {
+// Renombramos la prop 'roles' a 'agendas'
+export default function AgendaIndex({ auth, agendas}) {
     const { flash } = usePage().props;
     const alert = flash?.alert;
     const { t } = useTranslation(["common"]);
     const isDirector = auth.user.roles.some(role => role.name === 'director');
 
+    useEffect(() => {
+        console.log('agenda (raw):', agendas);
+    }, [agendas]);
+
     return (
         <AdminLayout auth={auth}>
-            {/* Título de la página: "Councils" */}
-            <Head title={t("council", { count: 2 })} />
+            {/* Título de la página: "Agendas" */}
+            <Head title={t("agenda", { count: 2 })} />
             
             {/* Mostrar alertas de éxito o error */}
             {alert && (
@@ -35,16 +40,16 @@ export default function CouncilIndex({ auth, councils}) {
 
             <div className="flex justify-between items-center">
                 <h2 className="text-xl text-gray-500 capitalize">
-                    {/* Título de la lista: "List of Councils" */}
-                    {t("list of field", { field: t("council", { count: 2 }) })}
+                    {/* Título de la lista: "List of Agendas" */}
+                    {t("list of field", { field: t("agenda", { count: 2 }) })}
                 </h2>
                 
                 {/* Ocultamos el botón "Crear" si no es Director */}
                 {isDirector && (
-                    <Link href={route("councils.create")}>
+                    <Link href={route("agendas.create")}>
                         <Button variant="contained" startIcon={<AddRoundedIcon />}>
                             {t("button.create field", {
-                                field: t("council", { count: 1 }),
+                                field: t("agenda", { count: 1 }),
                             })}
                         </Button>
                     </Link>
@@ -52,7 +57,7 @@ export default function CouncilIndex({ auth, councils}) {
             </div>
 
             {/* Pasamos los datos paginados a la tabla */}
-            <CouncilTable councils={councils} />
+            <AgendaTable agendas={agendas} />
         </AdminLayout>
     );
 }

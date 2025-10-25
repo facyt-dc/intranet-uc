@@ -16,17 +16,17 @@ import { useTranslation } from "react-i18next";
  * Página para editar un consejo existente.
  * 
  * @param {object} auth - El objeto de autenticación del usuario.
- * @param {object} council - El objeto del consejo a editar. Incluye los participantes cargados.
+ * @param {object} agenda - El objeto del consejo a editar. Incluye los participantes cargados.
  * @param {array} counselors - La lista completa de todos los usuarios con el rol 'Consejero'.
  */
-export default function CouncilEdit({ auth, council, counselors }) {
+export default function AgendaEdit({ auth, agenda, counselors }) {
     const { t } = useTranslation(["translation", "common"]);
     
     return (
         <AdminLayout auth={auth}>
             <Head
                 title={t("Edit resource", {
-                    resource: t("council", {
+                    resource: t("agenda", {
                         count: 1,
                         ns: "common",
                     }),
@@ -36,7 +36,7 @@ export default function CouncilEdit({ auth, council, counselors }) {
                 <h2 className="text-xl text-gray-500">
                     {/* Título: "Editar Consejo" */}
                     {t("Edit resource", {
-                        resource: t("council", {
+                        resource: t("agenda", {
                             count: 1,
                             ns: "common",
                         }),
@@ -44,7 +44,7 @@ export default function CouncilEdit({ auth, council, counselors }) {
                 </h2>
                 
                 {/* Botón para volver a la lista de consejos */}
-                <Link href={route("councils.index")}>
+                <Link href={route("agendas.index")}>
                     <Tooltip title={t("button.go back", { ns: "common" })}>
                         <IconButton size="large">
                             <ArrowCircleLeftRoundedIcon fontSize="inherit" />
@@ -55,14 +55,14 @@ export default function CouncilEdit({ auth, council, counselors }) {
 
             {/* 
               Renderizamos el mismo componente Form que en Create.jsx.
-              La diferencia clave es que le pasamos las props 'council',
-              le indicamos que el método es 'patch' y la ruta es 'councils.update'.
+              La diferencia clave es que le pasamos las props 'agenda',
+              le indicamos que el método es 'patch' y la ruta es 'agendas.update'.
             */}
             <Form
-                council={council} // Los datos del consejo para pre-rellenar el formulario
+                agenda={agenda} // Los datos del consejo para pre-rellenar el formulario
                 counselors={counselors} // La lista completa de consejeros para el selector
                 method="patch" // El método HTTP para la actualización
-                routeName="councils.update" // El nombre de la ruta de actualización
+                routeName="agendas.update" // El nombre de la ruta de actualización
             />
         </AdminLayout>
     );

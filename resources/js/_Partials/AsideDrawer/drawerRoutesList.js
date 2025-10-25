@@ -66,12 +66,12 @@ const drawerRoutesList = [
         ],
     },
     {
-        permissionNeeded: "view councils",
+        permissionNeeded: "view agendas",
         subHeaderText: "Agenda de consejos",
         routes: [
             {
                 linkText: "Consejos",
-                routeName: "councils.index",
+                routeName: "agendas.index",
             }
         ],
     },

@@ -15,10 +15,10 @@ import PersonIcon from '@mui/icons-material/Person';
 import BlockIcon from '@mui/icons-material/Block';
 
 import VoteForm from './VoteForm.jsx'; // Importamos el formulario de votación
-import DeletePointDialog from './DeletePointDialog';
-import ConclusionForm from './ConclusionForm';
+import DeletePointDialog from './DeletePointDialog.jsx';
+import ConclusionForm from './ConclusionForm.jsx';
 
-export default function PointCard({ point, auth, council, onEdit, isCouncilOpen  }) {
+export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }) {
 
     const { t } = useTranslation(['common']);
 
@@ -56,7 +56,7 @@ export default function PointCard({ point, auth, council, onEdit, isCouncilOpen 
                 </Box>
 
                 {/* Acciones para el Director */}
-                {isDirector && isCouncilOpen && (
+                {isDirector && isAgendaOpen && (
                     <Box>
                         <Tooltip title={hasVotes ? "No se puede editar, ya tiene votos" : "Editar Punto"}>
                             <span>
@@ -67,7 +67,7 @@ export default function PointCard({ point, auth, council, onEdit, isCouncilOpen 
                             </span>
                         </Tooltip>
                         
-                        <DeletePointDialog council={council} point={point} />
+                        <DeletePointDialog agenda={agenda} point={point} />
                     </Box>
                 )}
             </Box>
@@ -94,7 +94,7 @@ export default function PointCard({ point, auth, council, onEdit, isCouncilOpen 
                                 <HowToVoteIcon /> Usted votó: <strong>{userVote.option.name}</strong>
                             </Typography>
                         ) : (
-                            council.status !== 'Cerrado' ? (
+                            agenda.status !== 'Cerrado' ? (
                                 <VoteForm point={point} />
                             ) : (
                                 <Typography color="error">La votación está cerrada.</Typography>
@@ -117,7 +117,7 @@ export default function PointCard({ point, auth, council, onEdit, isCouncilOpen 
                         </Typography>
                         
                         {/* El Director ve un formulario si el consejo está abierto */}
-                        {isDirector && isCouncilOpen ? (
+                        {isDirector && isAgendaOpen ? (
                             <ConclusionForm point={point} />
                         ) : (
                             // El Consejero o el Director (si el consejo está cerrado) ven solo el texto
