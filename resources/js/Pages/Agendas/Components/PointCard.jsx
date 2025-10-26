@@ -20,7 +20,7 @@ import ConclusionForm from './ConclusionForm.jsx';
 
 export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }) {
 
-    const { t } = useTranslation(['common']);
+    const { t } = useTranslation(['common', 'agenda']);
 
     const isDirector = auth.user.roles.some(role => role.name === 'director');
     
@@ -113,7 +113,7 @@ export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }
                     <Divider className="my-3" />
                     <Box>
                         <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
-                            {t('conclusion')}
+                            {t('Conclusion')}
                         </Typography>
                         
                         {/* El Director ve un formulario si el consejo está abierto */}
@@ -122,7 +122,7 @@ export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }
                         ) : (
                             // El Consejero o el Director (si el consejo está cerrado) ven solo el texto
                             <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                                {point.conclusion || <i>{t('no conclusion has been added yet')}</i>}
+                                {point.conclusion || <i>{t('agenda:No conclusion has been added yet')}</i>}
                             </Typography>
                         )}
                     </Box>

@@ -30,16 +30,16 @@ export default function DeletePointDialog({ agenda, point }) {
 
     return (
         <>
-            <Tooltip title="Eliminar Punto">
+            <Tooltip title={t('agenda:Delete point')}>
                 <IconButton size="small" color="error" onClick={handleClickOpen}>
                     <DeleteIcon />
                 </IconButton>
             </Tooltip>
             <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>{t('confirm delete', { field: t('agenda point') })}</DialogTitle>
+                <DialogTitle>{t('confirm delete', { field: t('Agenda point') })}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {t('are you sure you want to delete this point')}? "{point.description}"
+                        {t('agenda:Are you sure you want to delete this point?')} "{point.description}"
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

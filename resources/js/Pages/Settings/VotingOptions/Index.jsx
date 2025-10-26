@@ -28,7 +28,7 @@ import VotingOptionFormModal from './Components/VotingOptionFormModal';
 import DeleteVotingOptionDialog from './Components/DeleteVotingOptionDialog';
 
 export default function Index({ auth, votingOptions }) {
-    const { t } = useTranslation(['common']);
+    const { t } = useTranslation(['common', 'agenda']);
     const { flash } = usePage().props;
     const alert = flash?.alert;
 
@@ -64,15 +64,15 @@ export default function Index({ auth, votingOptions }) {
 
     return (
         <AdminLayout auth={auth}>
-            <Head title={t('voting options')} />
+            <Head title={t('agenda:Voting options')} />
             {alert && <Alert message={alert.message} severity={alert.severity} />}
 
             <Box className="flex justify-between items-center mb-4">
                 <Typography variant="h5" className="text-gray-600">
-                    {t('manage voting options')}
+                    {t('agenda:Manage voting options')}
                 </Typography>
                 <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={handleOpenCreateModal}>
-                    {t('button.create field', { field: t('option') })}
+                    {t('button.create field', { field: t('Option') })}
                 </Button>
             </Box>
 
@@ -90,7 +90,7 @@ export default function Index({ auth, votingOptions }) {
                             <TableRow key={option.id} hover>
                                 <TableCell>{option.name}</TableCell>
                                 <TableCell align="center">
-                                    <Tooltip title={option.is_active ? t('active') : t('inactive')}>
+                                    <Tooltip title={option.is_active ? t('Active') : t('Inactive')}>
                                         <Switch
                                             checked={option.is_active}
                                             onChange={() => handleToggleActive(option)}

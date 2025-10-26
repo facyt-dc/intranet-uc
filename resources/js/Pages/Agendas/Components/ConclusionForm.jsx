@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
  * @param {{ point: Object }} props El punto del consejo al que se le añadirá la conclusión.
  */
 export default function ConclusionForm({ point }) {
-    const { t } = useTranslation(['common']);
+    const { t } = useTranslation(['common', 'agenda']);
 
     // useForm se inicializa con la conclusión existente del punto.
     // Si no hay conclusión, se inicializa como una cadena vacía.
@@ -39,7 +39,7 @@ export default function ConclusionForm({ point }) {
             <TextField
                 id="conclusion"
                 name="conclusion"
-                label={t('write a conclusion')}
+                label={t('agenda:Write a conclusion')}
                 multiline
                 rows={4}
                 fullWidth
@@ -71,7 +71,7 @@ export default function ConclusionForm({ point }) {
                     disabled={processing}
                     startIcon={processing ? <CircularProgress size={20} color="inherit" /> : null}
                 >
-                    {processing ? t('saving') : t('save conclusion')}
+                    {processing ? t('Saving') : t('agenda:Save conclusion')}
                 </Button>
             </Box>
         </Box>

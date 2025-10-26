@@ -17,17 +17,13 @@ import { useEffect } from "react";
 export default function AgendaIndex({ auth, agendas}) {
     const { flash } = usePage().props;
     const alert = flash?.alert;
-    const { t } = useTranslation(["common"]);
+    const { t } = useTranslation(["common", "agenda"]);
     const isDirector = auth.user.roles.some(role => role.name === 'director');
-
-    useEffect(() => {
-        console.log('agenda (raw):', agendas);
-    }, [agendas]);
 
     return (
         <AdminLayout auth={auth}>
             {/* Título de la página: "Agendas" */}
-            <Head title={t("agenda", { count: 2 })} />
+            <Head title={t("council:Agenda", { count: 2 })} />
             
             {/* Mostrar alertas de éxito o error */}
             {alert && (
@@ -41,7 +37,7 @@ export default function AgendaIndex({ auth, agendas}) {
             <div className="flex justify-between items-center">
                 <h2 className="text-xl text-gray-500 capitalize">
                     {/* Título de la lista: "List of Agendas" */}
-                    {t("list of field", { field: t("agenda", { count: 2 }) })}
+                    {t("list of field", { field: t("council:Agendas", { count: 2 }) })}
                 </h2>
                 
                 {/* Ocultamos el botón "Crear" si no es Director */}
@@ -49,7 +45,7 @@ export default function AgendaIndex({ auth, agendas}) {
                     <Link href={route("agendas.create")}>
                         <Button variant="contained" startIcon={<AddRoundedIcon />}>
                             {t("button.create field", {
-                                field: t("agenda", { count: 1 }),
+                                field: t("council:Agenda", { count: 1 }),
                             })}
                         </Button>
                     </Link>

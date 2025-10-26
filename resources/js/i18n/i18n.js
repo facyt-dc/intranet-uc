@@ -9,13 +9,15 @@ import enCommon from "./locales/en/common.json";
 import esTranslation from "./locales/es/translation.json";
 import esTest from "./locales/es/test.json";
 import esCommon from "./locales/es/common.json";
+import esAgenda from "./locales/es/agenda.json";
 
 i18n.use(Backend)
     .use(initReactI18next) // passes i18n down to react-i18next
     .init({
         fallbackLng: "en", // fallback language
         lng: "es",
-        ns: ["common", "translation", "test"],
+        ns: ["common", "translation", "test", "agenda"],
+        nsSeparator: ':',
         defaultNs: "common",
         debug: true, // enable debug mode for development
         interpolation: {
@@ -31,6 +33,7 @@ i18n.use(Backend)
                 translation: esTranslation,
                 test: esTest,
                 common: esCommon,
+                agenda: esAgenda,
             },
         },
     });

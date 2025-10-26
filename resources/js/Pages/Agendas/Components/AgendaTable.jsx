@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 // Recibe el objeto paginado 'agendas'
 export default function AgendaTable({ agendas }) {
     const paperElevation = 5;
-    const { t } = useTranslation(["translation", "common"]);
+    const { t } = useTranslation(["common", "agenda"]);
     const { auth } = usePage().props; // Obtenemos el usuario autenticado
     const isDirector = auth.user.roles.some(role => role.name === 'director');
 

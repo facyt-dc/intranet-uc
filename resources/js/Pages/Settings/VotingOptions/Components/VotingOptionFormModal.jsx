@@ -11,7 +11,7 @@ import TextField from '@mui/material/TextField';
 
 // Recibe 'open', 'onClose' y la 'option' a editar (o null si es para crear)
 export default function VotingOptionFormModal({ open, onClose, option }) {
-    const { t } = useTranslation(['common']);
+    const { t } = useTranslation(['common', 'agenda']);
     const { data, setData, post, patch, processing, errors, reset } = useForm({
         name: '',
     });
@@ -43,7 +43,7 @@ export default function VotingOptionFormModal({ open, onClose, option }) {
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>{option ? t('edit option') : t('create option')}</DialogTitle>
+            <DialogTitle>{option ? t('agenda:Edit option') : t('agenda:Create option')}</DialogTitle>
             <Box component="form" onSubmit={handleSubmit}>
                 <DialogContent>
                     <TextField

@@ -28,7 +28,7 @@ import Alert from "@/Components/Alert";
 // Props: 'agenda' viene con todas las relaciones cargadas desde el controlador.
 // 'auth' es crucial para determinar el rol del usuario.
 export default function AgendaShow({ auth, agenda, counselors, votingOptions }) {
-    const { t } = useTranslation(["common", "translation"]);
+    const { t } = useTranslation(["common", "agenda"]);
     const { put, processing } = useForm({});
 
     const flash = usePage().props.flash || {};
@@ -67,14 +67,14 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
 
     return (
         <AdminLayout auth={auth}>
-            <Head title={`${t("agenda", { count: 1 })}: ${agenda.name}`} />
+            <Head title={`${t("agenda:Agenda", { count: 1 })}: ${agenda.name}`} />
 
             {flash.alert && <Alert message={flash.alert.message} severity={flash.alert.severity} />}
 
             {/* Encabezado de la Página */}
             <Box className="flex justify-between items-center mb-4">
                 <Typography variant="h5" component="h1" className="text-gray-600">
-                    {t("agenda details")}
+                    {t('agenda:Agenda details')}
                 </Typography>
                 <Link href={route("agendas.index")}>
                     <Tooltip title={t("button.go back")}>
@@ -100,19 +100,19 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
                     </div>
                     {isDirector && isAgendaOpen && (
                         <Button variant="contained" color="error" onClick={handleCloseAgenda} disabled={processing} startIcon={<LockClockIcon />}>
-                            {t('close agenda')}
+                            {t('agenda:Close agenda')}
                         </Button>
                     )}
                 </Box>
                 <Divider className="my-4" />
-                <Typography variant="subtitle1" gutterBottom><strong>{t('director')}:</strong> {agenda.director.name}</Typography>
+                <Typography variant="subtitle1" gutterBottom><strong>{t('Director')}:</strong> {agenda.director.name}</Typography>
                 <Typography variant="subtitle1"><strong>{t('Participants')}:</strong> {agenda.participants.map(p => p.name).join(', ')}</Typography>
             </Paper>
 
             {/* Sección de Puntos del Consejo */}
             <Box>
                 <Typography variant="h5" component="h2" className="text-gray-600 mb-4">
-                    {t("agenda points")}
+                    {t("agenda:Agenda points")}
                 </Typography>
                 <Box className="space-y-4">
                     {agenda.points.length > 0 ? (
@@ -129,7 +129,7 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
                             />
                         ))
                     ) : (
-                        <Typography className="text-center text-gray-500 py-4">{t('no points have been added yet')}</Typography>
+                        <Typography className="text-center text-gray-500 py-4">{t('agenda:No points have been added yet')}</Typography>
                     )}
                 </Box>
             </Box>
@@ -138,14 +138,14 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
             {isDirector && isAgendaOpen && (
                 <Box className="mt-6 text-center">
                     <Button variant="contained" onClick={handleOpenModal}>
-                        {t('add new point')}
+                        {t('agenda:Add new point')}
                     </Button>
                 </Box>
             )}
 
             {/* El componente Dialog (Modal) */}
             <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="md">
-                <DialogTitle>{t('add new point')}</DialogTitle>
+                <DialogTitle>{t('agenda:Add new point')}</DialogTitle>
                 <DialogContent>
                     {/* Renderizamos el formulario dentro del modal */}
                     <PointForm
@@ -160,7 +160,7 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
 
             {/* Modal para EDITAR */}
             <Dialog open={!!editingPoint} onClose={handleCloseEditModal} fullWidth maxWidth="md">
-                <DialogTitle>{t('edit agenda point')}</DialogTitle>
+                <DialogTitle>{t('agenda:Edit agenda point')}</DialogTitle>
                 <DialogContent>
                     {/* Renderizamos el formulario solo si hay un punto para editar */}
                     {editingPoint && (

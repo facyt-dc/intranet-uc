@@ -23,7 +23,7 @@ import FormGroup from '@mui/material/FormGroup';
 // - onSuccess: Función a llamar cuando el formulario se envía con éxito (para cerrar el modal).
 // - onCancel: Función para cancelar y cerrar el modal.
 export default function PointForm({ agenda, point, counselors, votingOptions, onSuccess, onCancel }) {
-    const { t } = useTranslation(['common']);
+    const { t } = useTranslation(['common', 'agenda']);
     
     // El estado inicial se basa en si se proporciona un 'point'
     const { data, setData, post, patch, processing, errors, reset } = useForm({
@@ -49,15 +49,6 @@ export default function PointForm({ agenda, point, counselors, votingOptions, on
         }
     }, [data.min_votes_to_close, data.votable_users]);
 
-    // useEffect(() => {
-    //     console.log('votingOptions (raw):', votingOptions);
-    //     console.log('point (raw):', point);
-    //     console.log('agenda (raw):', agenda);
-    //     console.log('point.available_options (raw):', point?.available_options);
-    //     console.log('point.available_options ids:', point?.available_options?.map(o => o.id));
-    //     console.log('initialized available_options (form):', point?.available_options?.map(o => o.id) ?? []);
-    // }, [votingOptions, point]);
-
     const handleSubmit = (e) => {
         e.preventDefault();
         // Lógica condicional: si hay un 'point', actualiza (PATCH); si no, crea (POST).
@@ -81,7 +72,7 @@ export default function PointForm({ agenda, point, counselors, votingOptions, on
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <FormGroup sx={{ display: "flex", gap: 3 }}>
                 <TextField
-                    label={t('description')}
+                    label={t('Description')}
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
                     error={!!errors.description}
@@ -92,12 +83,12 @@ export default function PointForm({ agenda, point, counselors, votingOptions, on
                     required
                 />
                 <FormControl fullWidth error={!!errors.requested_by_user_id}>
-                    <InputLabel id="requester-label">{t('requested by')}</InputLabel>
+                    <InputLabel id="requester-label">{t('agenda:Requested by')}</InputLabel>
                     <Select
                         labelId="requester-label"
                         value={data.requested_by_user_id}
                         onChange={(e) => setData('requested_by_user_id', e.target.value)}
-                        label={t('requested by')}
+                        label={t('agenda:Requested by')}
                         required
                     >
                         {counselors.map((c) => (
@@ -107,7 +98,7 @@ export default function PointForm({ agenda, point, counselors, votingOptions, on
                     {errors.requested_by_user_id && <FormHelperText>{errors.requested_by_user_id}</FormHelperText>}
                 </FormControl>
                 <TextField
-                    label={t('min votes to close')}
+                    label={t('agenda:Min votes to close')}
                     type="number"
                     value={data.min_votes_to_close}
                     onChange={(e) => setData('min_votes_to_close', e.target.value)}
@@ -118,13 +109,13 @@ export default function PointForm({ agenda, point, counselors, votingOptions, on
                     InputProps={{ inputProps: { min: 1 } }}
                 />
                 <FormControl fullWidth error={!!errors.votable_users}>
-                    <InputLabel id="votable-users-label">{t('users who can vote')}</InputLabel>
+                    <InputLabel id="votable-users-label">{t('agenda:Users who can vote')}</InputLabel>
                     <Select
                         labelId="votable-users-label"
                         multiple
                         value={data.votable_users}
                         onChange={(e) => setData('votable_users', e.target.value)}
-                        input={<OutlinedInput label={t('users who can vote')} />}
+                        input={<OutlinedInput label={t('agenda:Users who can vote')} />}
                         renderValue={(selected) => counselors.filter(c => selected.includes(c.id)).map(c => c.name).join(', ')}
                         required
                     >
@@ -138,13 +129,13 @@ export default function PointForm({ agenda, point, counselors, votingOptions, on
                     {errors.votable_users && <FormHelperText>{errors.votable_users}</FormHelperText>}
                 </FormControl>
                 <FormControl fullWidth error={!!errors.available_options}>
-                    <InputLabel id="voting-options-label">{t('available voting options')}</InputLabel>
+                    <InputLabel id="voting-options-label">{t('agenda:Available voting options')}</InputLabel>
                     <Select
                         labelId="voting-options-label"
                         multiple
                         value={data.available_options}
                         onChange={(e) => setData('available_options', e.target.value)}
-                        input={<OutlinedInput label={t('available voting options')} />}
+                        input={<OutlinedInput label={t('agenda:Available voting options')} />}
                         renderValue={(selected) => votingOptions.filter(o => selected.includes(o.id)).map(o => o.name).join(', ')}
                         required
                     >

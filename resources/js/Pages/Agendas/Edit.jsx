@@ -20,15 +20,15 @@ import { useTranslation } from "react-i18next";
  * @param {array} counselors - La lista completa de todos los usuarios con el rol 'Consejero'.
  */
 export default function AgendaEdit({ auth, agenda, counselors }) {
-    const { t } = useTranslation(["translation", "common"]);
+    const { t } = useTranslation(["common", "agenda"]);
     
     return (
         <AdminLayout auth={auth}>
             <Head
                 title={t("Edit resource", {
-                    resource: t("agenda", {
+                    resource: t("Agenda", {
                         count: 1,
-                        ns: "common",
+                        ns: "agenda",
                     }),
                 })}
             />
@@ -36,9 +36,9 @@ export default function AgendaEdit({ auth, agenda, counselors }) {
                 <h2 className="text-xl text-gray-500">
                     {/* Título: "Editar Consejo" */}
                     {t("Edit resource", {
-                        resource: t("agenda", {
+                        resource: t("Agenda", {
                             count: 1,
-                            ns: "common",
+                            ns: "agenda",
                         }),
                     })}
                 </h2>

@@ -50,7 +50,7 @@ export default function DeleteDialog({ agenda }) {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {t('are you sure you want to delete this field', { field: agenda.name })}?
+                        {t('Are you sure you want to delete this field', { field: agenda.name })}?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

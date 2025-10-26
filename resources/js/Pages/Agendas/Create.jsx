@@ -18,13 +18,13 @@ export default function AgendaCreate({ auth, counselors }) {
         <AdminLayout auth={auth}>
             <Head
                 title={t("button.create field", {
-                    field: t("agenda", { count: 1 }),
+                    field: t("agenda:Agenda", { count: 1 }),
                 })}
             />
             <div className="flex justify-between items-center">
                 <h2 className="text-xl text-gray-500">
                     {t("button.create field", {
-                        field: t("agenda", { count: 1 }),
+                        field: t("agenda:Agenda", { count: 1 }),
                     })}
                 </h2>
                 <Link href={route("agendas.index")}>
