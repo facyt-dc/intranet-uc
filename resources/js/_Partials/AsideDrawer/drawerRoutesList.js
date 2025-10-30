@@ -70,7 +70,7 @@ const drawerRoutesList = [
         subHeaderText: "Agenda de consejos",
         routes: [
             {
-                linkText: "Consejos",
+                linkText: "Agendas",
                 routeName: "agendas.index",
             }
         ],
