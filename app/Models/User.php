@@ -73,4 +73,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(AgendaPoint::class, 'point_user');
     }
+
+    // Relación con los comentarios realizados por el usuario
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

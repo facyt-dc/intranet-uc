@@ -17,6 +17,8 @@ import BlockIcon from '@mui/icons-material/Block';
 import VoteForm from './VoteForm.jsx'; // Importamos el formulario de votación
 import DeletePointDialog from './DeletePointDialog.jsx';
 import ConclusionForm from './ConclusionForm.jsx';
+import CommentsList from './CommentsList';
+import CommentForm from './CommentForm';
 
 export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }) {
 
@@ -32,6 +34,8 @@ export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }
 
     const votes = point.votes || []; // Aseguramos que 'votes' sea un array
     const hasVotes = votes.length > 0; // Creamos una variable booleana para mayor claridad
+    const comments = point.comments || []; // Aseguramos que 'comments' sea un array
+    const canComment = (isDirector || canVote) && isAgendaOpen;
 
     const votingIsComplete = votes.length >= point.min_votes_to_close;
     
@@ -106,7 +110,7 @@ export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }
                 </Box>
             )}
 
-            {/* --- NUEVA SECCIÓN: Conclusión --- */}
+            {/* --- Conclusión --- */}
             {/* Se muestra solo si la votación ha alcanzado el mínimo de votos */}
             {votingIsComplete && (
                 <>
@@ -128,6 +132,15 @@ export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }
                     </Box>
                 </>
             )}
+
+            {/* Comentarios */}
+            <Box>
+                <Divider />
+                {/* La lista de comentarios siempre se muestra */}
+                <CommentsList comments={comments} />
+                {/* El formulario para añadir un comentario solo se muestra si el usuario puede comentar */}
+                {canComment && <CommentForm point={point} />}
+            </Box>
         </Paper>
     );
 }

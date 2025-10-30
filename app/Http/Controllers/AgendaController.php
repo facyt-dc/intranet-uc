@@ -112,6 +112,7 @@ class AgendaController extends Controller
             'points.votingOptions:id,name',
             'points.votes.user:id,name',
             'points.votes.option:id,name',
+            'points.comments.user:id,name',
         ]);
 
         return Inertia::render('Agendas/Show', [

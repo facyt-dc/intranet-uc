@@ -92,4 +92,14 @@ class AgendaPoint extends Model
     {
         return $this->belongsTo(User::class, 'requested_by_user_id');
     }
+
+    /**
+     * Obtiene los comentarios asociados a este punto de la agenda.
+     *
+     * @return HasMany
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'agenda_point_id');
+    }
 }

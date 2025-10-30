@@ -83,6 +83,7 @@ Route::middleware(['auth', 'verified', 'role:director'])->group(function () {
 Route::middleware(['auth', 'verified', 'role:director|counselor'])->group(function () {
     Route::get('/agendas', [AgendaController::class, 'index'])->name('agendas.index');
     Route::get('/agendas/{agenda}', [AgendaController::class, 'show'])->name('agendas.show');
+    Route::post('points/{point}/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('points.comments.store');
 });
 
 Route::middleware(['auth', 'verified', 'role:counselor'])->group(function () {
