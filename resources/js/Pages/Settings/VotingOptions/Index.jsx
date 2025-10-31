@@ -68,7 +68,7 @@ export default function Index({ auth, votingOptions }) {
             {alert && <Alert message={alert.message} severity={alert.severity} />}
 
             <Box className="flex justify-between items-center mb-4">
-                <Typography variant="h5" className="text-gray-600">
+                <Typography variant="h6" className="text-xl text-gray-500 capitalize">
                     {t('agenda:Manage voting options')}
                 </Typography>
                 <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={handleOpenCreateModal}>

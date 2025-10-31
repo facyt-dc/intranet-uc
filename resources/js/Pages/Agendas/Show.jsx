@@ -73,7 +73,7 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
 
             {/* Encabezado de la Página */}
             <Box className="flex justify-between items-center mb-4">
-                <Typography variant="h5" component="h1" className="text-gray-600">
+                <Typography variant="h5" component="h1" >
                     {t('agenda:Agenda details')}
                 </Typography>
                 <Link href={route("agendas.index")}>
@@ -89,7 +89,7 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
             <Paper elevation={3} className="p-6 mb-6">
                 <Box className="flex justify-between items-start">
                     <div>
-                        <Typography variant="h4" component="h2" gutterBottom>
+                        <Typography variant="h5" component="h2" gutterBottom>
                             {agenda.name} ({agenda.code})
                         </Typography>
                         <Box display="flex" alignItems="center" gap={2} color="text.secondary" mb={2}>
@@ -111,7 +111,7 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
 
             {/* Sección de Puntos del Consejo */}
             <Box>
-                <Typography variant="h5" component="h2" className="text-gray-600 mb-4">
+                <Typography variant="h6" component="h2" className="text-gray-600 mb-4">
                     {t("agenda:Agenda points")}
                 </Typography>
                 <Box className="space-y-4">

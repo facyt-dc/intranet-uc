@@ -44,12 +44,12 @@ export default function AgendaTable({ agendas }) {
             >
                 <TableHead>
                     <TableRow>
-                        <TableCell fontWeight="700">{t("Code")}</TableCell>
-                        <TableCell align="left">{t("Name")}</TableCell>
-                        <TableCell align="left">{t("Date")}</TableCell>
-                        <TableCell align="left">{t("Director")}</TableCell>
-                        <TableCell align="center">{t("Participants")}</TableCell>
-                        <TableCell align="right">{t("Actions")}</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>{t("Code")}</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }} align="left">{t("Name")}</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }} align="left">{t("Date")}</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }} align="left">{t("Director")}</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }} align="center">{t("Participants")}</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }} align="right">{t("Actions")}</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
