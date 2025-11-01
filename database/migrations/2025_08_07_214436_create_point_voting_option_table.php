@@ -22,7 +22,7 @@ return new class extends Migration
             $table->foreignId('voting_option_id')
                   ->constrained('voting_options')
                   ->onUpdate('cascade')
-                  ->onDelete('cascade');
+                  ->onDelete('restrict');
             $table->primary(['agenda_point_id', 'voting_option_id']);
         });
     }
