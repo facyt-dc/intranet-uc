@@ -85,4 +85,31 @@ class VoteController extends Controller
         return to_route('agendas.show', $point->agenda)
                ->with('success', 'Voto emitido correctamente.');
     }
+
+    /**
+     * Elimina un voto existente.
+     * Permite a un consejero retractarse de su voto.
+     *
+     * @param  Vote $vote El voto específico a eliminar (inyectado por Route Model Binding).
+     * @return RedirectResponse
+     */
+    public function destroy(Vote $vote): RedirectResponse
+    {
+        // 1. Cláusula de Guarda (Autorización): Asegurarse de que el usuario autenticado
+        //    es el propietario del voto que intenta eliminar.
+        if (Auth::id() !== $vote->user_id) {
+            abort(403, 'No tienes permiso para eliminar este voto.');
+        }
+
+        // 2. Cláusula de Guarda (Estado): Asegurarse de que el consejo no esté cerrado.
+        if ($vote->point->agenda->status === 'Cerrado') {
+            return back()->with('error', 'No se puede cambiar un voto en una agenda cerrada.');
+        }
+
+        // 3. Eliminar el voto de la base de datos.
+        $vote->delete();
+
+        // 4. Redirigir de vuelta con un mensaje de éxito.
+        return back()->with('success', 'Voto eliminado. Ahora puedes votar de nuevo.');
+    }
 }

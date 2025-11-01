@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import { useForm } from '@inertiajs/react';
+
 
 import React from 'react';
 import Paper from '@mui/material/Paper';
@@ -13,6 +15,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import PersonIcon from '@mui/icons-material/Person';
 import BlockIcon from '@mui/icons-material/Block';
+import UndoIcon from '@mui/icons-material/Undo';
+import Button from '@mui/material/Button';
 
 import VoteForm from './VoteForm.jsx'; // Importamos el formulario de votación
 import DeletePointDialog from './DeletePointDialog.jsx';
@@ -36,6 +40,18 @@ export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }
     const hasVotes = votes.length > 0; // Creamos una variable booleana para mayor claridad
     const comments = point.comments || []; // Aseguramos que 'comments' sea un array
     const canComment = (isDirector || canVote) && isAgendaOpen;
+
+    // Usamos 'inertiaDelete' como alias porque 'delete' es una palabra reservada en JS.
+    const { delete: inertiaDelete, processing } = useForm();
+
+    // Función para manejar la retractación del voto
+    const handleRetractVote = (voteId) => {
+        if (confirm(t('agenda:Are you sure you want to retract your vote'))) {
+            inertiaDelete(route('votes.destroy', voteId), {
+                preserveScroll: true,
+            });
+        }
+    };
 
     const votingIsComplete = votes.length >= point.min_votes_to_close;
     
@@ -94,9 +110,24 @@ export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }
                 <Box>
                     {canVote ? (
                         userVote ? (
-                            <Typography color="primary" className="flex items-center gap-1">
-                                <HowToVoteIcon /> Usted votó: <strong>{userVote.option.name}</strong>
-                            </Typography>
+                            <Box className="flex items-center justify-between">
+                                <Typography color="primary" className="flex items-center gap-1">
+                                    <HowToVoteIcon /> Usted votó: <strong>{userVote.option.name}</strong>
+                                </Typography>
+
+                                {isAgendaOpen && (
+                                    <Button
+                                        size="small"
+                                        variant="outlined"
+                                        color="secondary"
+                                        startIcon={<UndoIcon />}
+                                        onClick={() => handleRetractVote(userVote.id)}
+                                        disabled={processing}
+                                    >
+                                        {t('agenda:Change vote')}
+                                    </Button>
+                                )}
+                            </Box>
                         ) : (
                             agenda.status !== 'Cerrado' ? (
                                 <VoteForm point={point} />

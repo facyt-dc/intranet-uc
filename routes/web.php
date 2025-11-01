@@ -91,6 +91,10 @@ Route::middleware(['auth', 'verified', 'role:counselor'])->group(function () {
     // --- Acción de Votar ---
     // El consejero envía un POST a esta ruta para registrar su voto.
     Route::post('points/{point}/votes', [VoteController::class, 'store'])->name('points.votes.store');
+
+    // --- Accion de aliminar voto ---
+    // La ruta recibe el ID del voto específico a eliminar.
+    Route::delete('votes/{vote}', [VoteController::class, 'destroy'])->name('votes.destroy');
 });
 
 require __DIR__.'/auth.php';
