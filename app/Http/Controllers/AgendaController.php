@@ -59,13 +59,8 @@ class AgendaController extends Controller
     /**
      * Almacena un nuevo consejo en la base de datos.
      */
-    public function store(Request $request, Agenda $agenda): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        if ($agenda->status === 'Cerrado') {
-            // Si está cerrado, redirigimos con un error.
-            return back()->with('error', 'No se pueden añadir puntos a un consejo que ya ha sido cerrado.');
-        }
-
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'date' => 'required|date_format:Y-m-d|after_or_equal:today',

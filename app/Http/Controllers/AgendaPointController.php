@@ -19,6 +19,11 @@ class AgendaPointController extends Controller
      */
     public function store(Request $request, Agenda $agenda): RedirectResponse
     {
+        if ($agenda->status === 'Cerrado') {
+            // Si está cerrado, redirigimos con un error.
+            return back()->with('error', 'No se pueden añadir puntos a un consejo que ya ha sido cerrado.');
+        }
+
         // Contamos cuántos usuarios votantes se seleccionaron en el request.
         $numberOfVotableUsers = count($request->input('votable_users', []));
 

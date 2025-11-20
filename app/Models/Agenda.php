@@ -23,7 +23,7 @@ class Agenda extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'date' => 'datetime',
         'closed_at' => 'datetime',
     ];
 
