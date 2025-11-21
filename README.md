@@ -81,6 +81,12 @@ npm run dev
 php artisan serve
 ```
 
+Para que las notificaciones funcionen hay que activar el worker y configurar correctamente el archivo .env
+
+```bash
+php artisan queue:work  
+```
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
