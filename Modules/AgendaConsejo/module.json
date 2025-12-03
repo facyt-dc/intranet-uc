@@ -1,0 +1,11 @@
+{
+    "name": "AgendaConsejo",
+    "alias": "agendaconsejo",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AgendaConsejo\\Providers\\AgendaConsejoServiceProvider"
+    ],
+    "files": []
+}
