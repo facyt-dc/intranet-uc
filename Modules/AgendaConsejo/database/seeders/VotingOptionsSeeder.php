@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\Seeders;
+namespace Modules\AgendaConsejo\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\VotingOption;
+use Modules\AgendaConsejo\Models\VotingOption;
 
 class VotingOptionsSeeder extends Seeder
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Listeners;
+namespace Modules\AgendaConsejo\Listeners;
 
-use App\Events\VoteCast;
-use App\Notifications\AllPointsReadyForClosure;
+use Modules\AgendaConsejo\Events\VoteCast;
+use Modules\AgendaConsejo\Notifications\AllPointsReadyForClosure;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Notification;
@@ -30,7 +30,7 @@ class CheckVotingStatus implements ShouldQueue
     /**
      * Maneja el evento.
      *
-     * @param  \App\Events\VoteCast  $event
+     * @param  \Modules\AgendaConsejo\Events\VoteCast  $event
      * @return void
      */
     public function handle(VoteCast $event): void

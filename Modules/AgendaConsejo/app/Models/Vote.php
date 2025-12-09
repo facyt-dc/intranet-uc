@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace Modules\AgendaConsejo\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use app\Models\User;
+
 
 /**
  * Representa un voto individual emitido por un usuario en un punto específico.

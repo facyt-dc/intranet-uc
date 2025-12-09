@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Notifications;
+namespace Modules\AgendaConsejo\Notifications;
 
-use App\Models\Agenda;
+use Modules\AgendaConsejo\Models\Agenda;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;

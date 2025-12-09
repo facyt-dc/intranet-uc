@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Events;
+namespace Modules\AgendaConsejo\Events;
 
-use App\Models\Vote;
+use Modules\AgendaConsejo\Models\Vote;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;

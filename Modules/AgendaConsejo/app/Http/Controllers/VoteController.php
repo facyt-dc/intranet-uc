@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\AgendaConsejo\Http\Controllers;
 
-use App\Events\VoteCast;
-use App\Models\AgendaPoint;
-use App\Models\Vote;
+use Modules\AgendaConsejo\Events\VoteCast;
+use Modules\AgendaConsejo\Models\AgendaPoint;
+use Modules\AgendaConsejo\Models\Vote;
+
+use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

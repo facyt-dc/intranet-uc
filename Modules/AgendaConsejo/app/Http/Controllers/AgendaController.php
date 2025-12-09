@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\AgendaConsejo\Http\Controllers;
 
-use App\Models\Agenda;
+use Modules\AgendaConsejo\Models\Agenda;
+use Modules\AgendaConsejo\Notifications\NewAgendaAssigned;
+use Modules\AgendaConsejo\Models\VotingOption;
+
 use App\Models\User;
-use App\Notifications\NewAgendaAssigned;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +41,7 @@ class AgendaController extends Controller
             ->latest()
             ->paginate(10);
 
-        return Inertia::render('Agendas/Index', [
+        return Inertia::render('AgendaConsejo::Agendas/Index', [
             'agendas' => $agendas,
         ]);
     }
@@ -48,7 +51,7 @@ class AgendaController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Agendas/Create', [
+        return Inertia::render('AgendaConsejo::Agendas/Create', [
             'counselors' => User::role('counselor')
                 ->select('id', 'name')
                 ->orderBy('name')
@@ -110,10 +113,10 @@ class AgendaController extends Controller
             'points.comments.user:id,name',
         ]);
 
-        return Inertia::render('Agendas/Show', [
+        return Inertia::render('AgendaConsejo::Agendas/Show', [
             'agenda' => $agenda,
             'counselors' => User::role('counselor')->select('id', 'name')->orderBy('name')->get(),
-            'votingOptions' => \App\Models\VotingOption::where('is_active', true)->get(['id', 'name']),
+            'votingOptions' => VotingOption::where('is_active', true)->get(['id', 'name']),
         ]);
     }
 
@@ -122,7 +125,7 @@ class AgendaController extends Controller
      */
     public function edit(Agenda $agenda): Response
     {
-        return Inertia::render('Agendas/Edit', [
+        return Inertia::render('AgendaConsejo::Agendas/Edit', [
             'agenda' => $agenda->load('participants:id'),
             'counselors' => User::role('counselor')->select('id', 'name')->orderBy('name')->get(),
         ]);

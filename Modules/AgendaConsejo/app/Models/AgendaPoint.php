@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace Modules\AgendaConsejo\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use app\Models\User;
 
 /**
  * Representa un punto del día a discutir y votar en un Consejo.

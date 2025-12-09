@@ -21,8 +21,8 @@ import Button from '@mui/material/Button';
 import VoteForm from './VoteForm.jsx'; // Importamos el formulario de votación
 import DeletePointDialog from './DeletePointDialog.jsx';
 import ConclusionForm from './ConclusionForm.jsx';
-import CommentsList from './CommentsList';
-import CommentForm from './CommentForm';
+import CommentsList from './CommentsList.jsx';
+import CommentForm from './CommentForm.jsx';
 
 export default function PointCard({ point, auth, agenda, onEdit, isAgendaOpen  }) {
 

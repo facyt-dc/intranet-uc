@@ -11,6 +11,9 @@ class AgendaConsejoDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            VotingOptionsSeeder::class
+        ]);
     }
 }

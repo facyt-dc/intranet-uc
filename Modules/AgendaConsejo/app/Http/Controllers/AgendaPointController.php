@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\AgendaConsejo\Http\Controllers;
 
-use App\Models\Agenda;
-use App\Models\AgendaPoint;
+use Modules\AgendaConsejo\Models\Agenda;
+use Modules\AgendaConsejo\Models\AgendaPoint;
+
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

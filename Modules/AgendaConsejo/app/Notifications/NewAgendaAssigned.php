@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Notifications;
+namespace Modules\AgendaConsejo\Notifications;
 
-use App\Models\Agenda;
+use Modules\AgendaConsejo\Models\Agenda;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -22,14 +23,14 @@ class NewAgendaAssigned extends Notification implements ShouldQueue
      * El consejo al que el usuario ha sido asignado.
      * La promoción de propiedades del constructor de PHP 8+ hace esto más limpio.
      *
-     * @var \App\Models\Agenda
+     * @var \Modules\AgendaConsejo\Models\Agenda
      */
     public $agenda;
 
     /**
      * Crea una nueva instancia de la notificación.
      *
-     * @param  \App\Models\Agenda $agenda
+     * @param  \Modules\AgendaConsejo\Models\Agenda $agenda
      * @return void
      */
     public function __construct(Agenda $agenda)

@@ -1,18 +1,18 @@
 <?php
 
-namespace Database\Seeders;
+namespace Modules\AgendaConsejo\Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
     public function run()
     {
         // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // create permissions
         Permission::firstOrCreate(['name' => 'create agendas', 'description' => 'Create new agendas', 'guard_name' => 'web']);

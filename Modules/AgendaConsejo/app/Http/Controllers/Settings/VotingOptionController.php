@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Settings;
+namespace Modules\AgendaConsejo\Http\Controllers\Settings;
+
+use Modules\AgendaConsejo\Models\VotingOption;
 
 use App\Http\Controllers\Controller; 
-use App\Models\VotingOption;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class VotingOptionController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Settings/VotingOptions/Index', [
+        return Inertia::render('AgendaConsejo::Settings/VotingOptions/Index', [
             // Usamos withCount para cargar una nueva propiedad 'points_count' en cada opción.
             'votingOptions' => VotingOption::withCount('points')->orderBy('name')->get(),
         ]);

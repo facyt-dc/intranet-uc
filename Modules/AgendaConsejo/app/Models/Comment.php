@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace Modules\AgendaConsejo\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use app\Models\User;
 
 /**
  * Representa un comentario realizado por un usuario en un punto del día.
