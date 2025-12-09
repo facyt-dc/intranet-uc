@@ -2,6 +2,12 @@
 
 namespace Modules\AgendaConsejo\Providers;
 
+use Modules\AgendaConsejo\Models\Agenda;
+use Modules\AgendaConsejo\Models\AgendaPoint;
+use Modules\AgendaConsejo\Models\Comment;
+use Modules\AgendaConsejo\Models\Vote;
+
+use App\Models\User;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -27,6 +33,31 @@ class AgendaConsejoServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        // Extend User model relationships
+        User::resolveRelationUsing('directedAgendas', function ($userModel) {
+            return $userModel->hasMany(Agenda::class, 'director_id');
+        });
+
+        // 2. Participating Agendas (Counselors)
+        User::resolveRelationUsing('agendas', function ($userModel) {
+            return $userModel->belongsToMany(Agenda::class, 'agenda_user'); // Explicit pivot table name is safer
+        });
+
+        // 3. Votes
+        User::resolveRelationUsing('votes', function ($userModel) {
+            return $userModel->hasMany(Vote::class);
+        });
+
+        // 4. Votable Points
+        User::resolveRelationUsing('votablePoints', function ($userModel) {
+            return $userModel->belongsToMany(AgendaPoint::class, 'point_user');
+        });
+
+        // 5. Comments
+        User::resolveRelationUsing('comments', function ($userModel) {
+            return $userModel->hasMany(Comment::class);
+        });
     }
 
     /**
