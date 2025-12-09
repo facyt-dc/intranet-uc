@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Nwidart\Modules\Facades\Module;
 
 class DatabaseSeeder extends Seeder
 {
@@ -67,9 +68,11 @@ class DatabaseSeeder extends Seeder
 
         $adminUser->assignRole(['admin','teacher']);
 
-        $this->call([
-            RolesAndPermissionsSeeder::class,
-            VotingOptionsSeeder::class
-        ]);
+        // Seed modules conditionally
+
+        $agendaModule = Module::find('AgendaConsejo');
+        if ($agendaModule && $agendaModule->isEnabled()) {
+            $this->call("Modules\\AgendaConsejo\\Database\\Seeders\\AgendaConsejoDatabaseSeeder");
+        }
     }
 }
