@@ -35,16 +35,6 @@ createInertiaApp({
             return resolvePageComponent(mainPath, pages);
         }
 
-        // Case C: Fallback - Try to find it in Modules using "Module/Page" syntax
-        // This handles your current error where the controller returns "AgendaConsejo/Agendas/Index"
-        const [module, ...rest] = name.split('/');
-        const pagePath = rest.join('/');
-        const modulePath = `../../Modules/${module}/resources/assets/js/Pages/${pagePath}.jsx`;
-
-        if (modulePath in modulePages) {
-            return resolvePageComponent(modulePath, modulePages);
-        }
-
         throw new Error(`Page not found: ${name}`);
     },
     setup({ el, App, props }) {

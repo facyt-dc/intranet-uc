@@ -1,6 +1,8 @@
 {
     "Agenda details": "Detalles de la agenda",
+    "agenda": "agenda",
     "Agenda": "Agenda",
+    "Agendas": "Agendas",
     "Agenda_other": "Agendas",
     "Close agenda": "Cerrar agenda",
     "Agenda point": "Punto de la agenda",
@@ -27,5 +29,7 @@
     "Comments": "Comentarios",
     "No comments yet": "No hay comentarios aún",
     "Are you sure you want to retract your vote": "¿Estás seguro de que deseas retractarte de tu voto?",
-    "Change vote": "Cambiar voto"
+    "Change vote": "Cambiar voto",
+    "are you sure you want to close this agenda": "¿estás seguro de que deseas cerrar esta agenda?",
+    "Code": "Código"
 }

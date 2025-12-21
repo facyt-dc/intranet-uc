@@ -47,7 +47,7 @@ export default function AgendaShow({ auth, agenda, counselors, votingOptions }) 
     const handleCloseEditModal = () => setEditingPoint(null);
 
     const handleCloseAgenda = () => {
-        if (confirm(t('are you sure you want to close this agenda'))) {
+        if (confirm(t('agenda:are you sure you want to close this agenda'))) {
             put(route('agendas.close', agenda.code), {
                 preserveScroll: true,
             });

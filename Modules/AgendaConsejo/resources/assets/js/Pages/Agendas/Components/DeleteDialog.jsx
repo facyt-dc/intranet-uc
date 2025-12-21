@@ -46,7 +46,7 @@ export default function DeleteDialog({ agenda }) {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {t('confirm delete', { field: t('agenda', { count: 1 }) })}
+                    {t('confirm delete', { field: t('agenda:agenda', { count: 1 }) })}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
