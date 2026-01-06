@@ -11,7 +11,7 @@
     },
     "delete resource?": "¿Eliminar el {{resource}} {{resourceName}}?",
     "confirm delete": "¿Confirmar eliminación de {{field}}?",
-    "are you sure you want to delete this field": "¿Estás seguro de que deseas eliminar {{field}}?",
+    "are you sure you want to delete this field": "¿Estás seguro de que deseas eliminar this {{field}}?",
     "do you want delete resource?": "Estas a punto de eliminar un {{resource}}, esta accion es irreversible. ¿Estas seguro que desea eliminar el {{resource}}?.",
     "list of field": "lista de {{field}}",
     "permission_one": "Permiso",

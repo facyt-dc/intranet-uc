@@ -9,17 +9,17 @@ import enCommon from "./locales/en/common.json";
 import esTranslation from "./locales/es/translation.json";
 import esTest from "./locales/es/test.json";
 import esCommon from "./locales/es/common.json";
-import esAgenda from "./locales/es/agenda.json";
 
 i18n.use(Backend)
     .use(initReactI18next) // passes i18n down to react-i18next
     .init({
         fallbackLng: "en", // fallback language
         lng: "es",
-        ns: ["common", "translation", "test", "agenda"],
+        ns: ["common", "translation", "test"],
         nsSeparator: ':',
         defaultNs: "common",
         debug: true, // enable debug mode for development
+        partialBundledLanguages: true,
         interpolation: {
             escapeValue: false, // react already does escaping
         },
@@ -33,9 +33,27 @@ i18n.use(Backend)
                 translation: esTranslation,
                 test: esTest,
                 common: esCommon,
-                agenda: esAgenda,
             },
         },
+        backend: {
+            loadPath: (lng, ns) => {
+                // Vite inyecta esta variable booleana automáticamente
+                const isDev = import.meta.env.DEV;
+
+                if (isDev) {
+                    const currentScriptUrl = new URL(import.meta.url);
+
+                    // 2. Extraemos el origen (ej: http://localhost:5173)
+                    // Esto detectará automáticamente si es 5173, 5174, o si usas HTTPS.
+                    const viteOrigin = currentScriptUrl.origin;
+
+                    return `${viteOrigin}/locales/${lng}/${ns}.json`;
+                }
+
+                // En producción
+                return `/build/locales/${lng}/${ns}.json`;
+            },
+        }
     });
 
 i18n.services.formatter.add("lowercase", (value, lng, options) => {

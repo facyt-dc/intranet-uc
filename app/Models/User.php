@@ -52,31 +52,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Document::class);
     }
-
-    public function directedAgendas()
-    {
-        return $this->hasMany(Agenda::class, 'director_id');
-    }
-
-    public function agendas()
-    {
-        return $this->belongsToMany(Agenda::class);
-    }
-
-    public function votes()
-    {
-        return $this->hasMany(Vote::class);
-    }
-
-    // Puntos en los que este consejero está autorizado a votar
-    public function votablePoints()
-    {
-        return $this->belongsToMany(AgendaPoint::class, 'point_user');
-    }
-
-    // Relación con los comentarios realizados por el usuario
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
 }
