@@ -31,7 +31,6 @@ class AgendaConsejoServiceProvider extends ServiceProvider
         $this->registerCommandSchedules();
         $this->registerTranslations();
         $this->registerConfig();
-        $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
 
         // Extend User model relationships
