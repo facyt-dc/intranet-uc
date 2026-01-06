@@ -1,6 +1,7 @@
 # Módulo: Agenda de Consejos
 
 Este módulo permite la gestión digital de los Consejos de Departamento.
+Para Utilizar, simplemente utilize los roles de Director o usuario dependiendo de la necesidad.
 
 ## Funcionalidades Principales
 1.  **Gestión de Agendas:** Creación de consejos con fecha, director y participantes.
