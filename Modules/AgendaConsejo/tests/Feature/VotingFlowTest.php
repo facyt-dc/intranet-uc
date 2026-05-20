@@ -50,11 +50,12 @@ class VotingFlowTest extends TestCase
 
         // Crear punto de agenda con el consejero como votante autorizado
         $this->point = AgendaPoint::create([
-            'agenda_id'         => $this->agenda->id,
-            'description'       => 'Punto de prueba para votación',
-            'status'            => 'Pendiente',
-            'min_votes_to_close' => 1,
-            'order'             => 1,
+            'agenda_id'            => $this->agenda->id,
+            'description'          => 'Punto de prueba para votación',
+            'requested_by_user_id' => $this->counselor->id,
+            'status'               => 'Pendiente',
+            'min_votes_to_close'   => 1,
+            'order'                => 1,
         ]);
         $this->point->votableUsers()->sync([$this->counselor->id]);
         $this->point->votingOptions()->sync([$this->option->id]);
