@@ -29,8 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 Route::middleware(['auth','verified'])->group(function(){
-    Route::get('/hola',function(){ return Inertia::render('holaMundo'); })->name('hola');
 
     Route::resource('/admin/role', RoleController::class )
             ->only(['index','create','store','edit','update','destroy'])
