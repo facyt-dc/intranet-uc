@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
-
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -42,9 +42,9 @@ class UserController extends Controller
         ]);
 
         $newUser = User::create($request->all());
-        
+
         // asignando roles al usuario
-        $newUser->assignRole($request->roles);
+        $newUser->syncRoles($request->roles ?? []);
 
         return to_route('admin.user.index')->with('flash',[
             'alert' => [
@@ -80,15 +80,15 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
 
-        // comprueba si elpassword a cambiado
-        if( $request->password != '' ){
-            $user->password = $request->password;
+        // comprueba si el password ha cambiado
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
         }
 
         $user->save();
 
-        // actualizando los roles del ususario
-        $user->assignRole($request->roles);
+        // actualizando los roles del usuario (syncRoles revoca los anteriores)
+        $user->syncRoles($request->roles ?? []);
 
         return to_route('admin.user.index')->with('flash',[
             'alert' => [
