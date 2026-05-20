@@ -24,12 +24,8 @@ const drawerRoutesList = [
             {
                 linkText: "Dashboard",
                 routeName: "dashboard",
-            },
-            {
-                linkText: "Hola",
-                routeName: "hola",
-            },
-        ],
+            }
+        ]
     },
     {
         permissionNeeded: "isAdmin",
