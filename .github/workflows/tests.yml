@@ -1,0 +1,66 @@
+name: Tests
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, sqlite, pdo_sqlite, openssl, tokenizer, xml, ctype, json, bcmath
+          coverage: none
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache de dependencias Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Cache de dependencias npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+      - name: Instalar dependencias PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Instalar dependencias npm
+        run: npm install --legacy-peer-deps
+
+      - name: Copiar .env.example a .env
+        run: cp .env.example .env
+
+      - name: Generar APP_KEY
+        run: php artisan key:generate
+
+      - name: Regenerar autoload
+        run: composer dump-autoload
+
+      - name: Build de frontend (validación)
+        run: npm run build
+
+      - name: Ejecutar tests
+        run: php artisan test --no-coverage
+
+      - name: Resumen
+        if: always()
+        run: echo "CI ejecutado en commit ${{ github.sha }}"
