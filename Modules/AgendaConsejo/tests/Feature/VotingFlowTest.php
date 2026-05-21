@@ -36,26 +36,19 @@ class VotingFlowTest extends TestCase
         $this->counselor = User::factory()->create();
         $this->counselor->assignRole('counselor');
 
-        // Crear agenda con el consejero como participante
-        $this->agenda = Agenda::create([
-            'name'        => 'Consejo de Votación',
-            'date'        => now()->addDays(3)->toDateString(),
+        $this->agenda = Agenda::factory()->create([
             'director_id' => $this->director->id,
-            'status'      => 'Programado',
         ]);
         $this->agenda->participants()->sync([$this->counselor->id]);
 
-        // Crear opción de votación
         $this->option = VotingOption::create(['name' => 'A favor', 'is_active' => true]);
 
-        // Crear punto de agenda con el consejero como votante autorizado
-        $this->point = AgendaPoint::create([
-            'agenda_id'            => $this->agenda->id,
-            'description'          => 'Punto de prueba para votación',
+        $this->point = AgendaPoint::factory()->create([
+            'agenda_id' => $this->agenda->id,
             'requested_by_user_id' => $this->counselor->id,
-            'status'               => 'Pendiente',
-            'min_votes_to_close'   => 1,
-            'order'                => 1,
+            'status' => 'Pendiente',
+            'min_votes_to_close' => 1,
+            'order' => 1,
         ]);
         $this->point->votableUsers()->sync([$this->counselor->id]);
         $this->point->votingOptions()->sync([$this->option->id]);
