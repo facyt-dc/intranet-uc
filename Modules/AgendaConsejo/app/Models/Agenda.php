@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use App\Models\User;
+use Modules\AgendaConsejo\Database\Factories\AgendaFactory;
 
 class Agenda extends Model
 {
@@ -104,5 +105,10 @@ class Agenda extends Model
     public function points(): HasMany
     {
         return $this->hasMany(AgendaPoint::class);
+    }
+
+    protected static function newFactory(): AgendaFactory
+    {
+        return AgendaFactory::new();
     }
 }

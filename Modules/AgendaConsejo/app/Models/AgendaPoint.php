@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
+use Modules\AgendaConsejo\Database\Factories\AgendaPointFactory;
 
 /**
  * Representa un punto del día a discutir y votar en un Consejo.
@@ -102,5 +103,10 @@ class AgendaPoint extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'agenda_point_id');
+    }
+
+    protected static function newFactory(): AgendaPointFactory
+    {
+        return AgendaPointFactory::new();
     }
 }
