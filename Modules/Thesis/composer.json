@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/thesis",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Thesis\\": "app/",
+            "Modules\\Thesis\\Database\\Factories\\": "database/factories/",
+            "Modules\\Thesis\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Thesis\\Tests\\": "tests/"
+        }
+    }
+}

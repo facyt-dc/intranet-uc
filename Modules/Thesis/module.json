@@ -1,0 +1,11 @@
+{
+    "name": "Thesis",
+    "alias": "thesis",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Thesis\\Providers\\ThesisServiceProvider"
+    ],
+    "files": []
+}
