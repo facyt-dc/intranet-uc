@@ -74,5 +74,10 @@ class DatabaseSeeder extends Seeder
         if ($agendaModule && $agendaModule->isEnabled()) {
             $this->call("Modules\\AgendaConsejo\\Database\\Seeders\\AgendaConsejoDatabaseSeeder");
         }
+
+        $thesisModule = Module::find('Thesis');
+        if ($thesisModule && $thesisModule->isEnabled()) {
+            $this->call("Modules\\Thesis\\Database\\Seeders\\ThesisDatabaseSeeder");
+        }
     }
 }
