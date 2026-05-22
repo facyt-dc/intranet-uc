@@ -12,14 +12,14 @@ class StudentStatusesController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Thesis/StudentStatuses/index', [
+        return Inertia::render('thesis::StudentStatuses/index', [
             'studentStatuses' => StudentStatus::all(),
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Thesis/StudentStatuses/create', [
+        return Inertia::render('thesis::StudentStatuses/create', [
             'roles' => Role::all(),
         ]);
     }
@@ -44,14 +44,14 @@ class StudentStatusesController extends Controller
 
     public function edit(StudentStatus $studentStatus)
     {
-        return Inertia::render('Thesis/StudentStatuses/edit', [
+        return Inertia::render('thesis::StudentStatuses/edit', [
             'studentStatus' => $studentStatus,
         ]);
     }
 
     public function show(StudentStatus $studentStatus)
     {
-        return Inertia::render('Thesis/StudentStatuses/show', [
+        return Inertia::render('thesis::StudentStatuses/show', [
             'studentStatus' => $studentStatus,
         ]);
     }

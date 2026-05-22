@@ -39,7 +39,7 @@ class GanttChartController extends Controller
             ];
         });
 
-        return Inertia::render('Thesis/GanttChart/index', [
+        return Inertia::render('thesis::GanttChart/index', [
             'ganttData' => $ganttData,
         ]);
     }

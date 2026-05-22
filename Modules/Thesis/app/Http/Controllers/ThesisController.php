@@ -18,14 +18,14 @@ class ThesisController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Thesis/ThesisProjects/index', [
+        return Inertia::render('thesis::ThesisProjects/index', [
             'thesis' => Thesis::with(['students', 'teachers'])->latest()->get(),
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Thesis/ThesisProjects/create', [
+        return Inertia::render('thesis::ThesisProjects/create', [
             'students' => ThesisStudent::all(),
             'teachers' => ThesisTeacher::all(),
         ]);
@@ -33,7 +33,7 @@ class ThesisController extends Controller
 
     public function show(Thesis $thesis)
     {
-        return Inertia::render('Thesis/ThesisProjects/show', [
+        return Inertia::render('thesis::ThesisProjects/show', [
             'thesis' => $thesis->load(['students', 'teachers', 'files']),
         ]);
     }
@@ -127,7 +127,7 @@ class ThesisController extends Controller
 
     public function edit(Thesis $thesis)
     {
-        return Inertia::render('Thesis/ThesisProjects/edit', [
+        return Inertia::render('thesis::ThesisProjects/edit', [
             'thesis' => $thesis->load(['students', 'teachers', 'files']),
             'students' => ThesisStudent::all(),
             'teachers' => ThesisTeacher::all(),

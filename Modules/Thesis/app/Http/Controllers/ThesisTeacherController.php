@@ -11,14 +11,14 @@ class ThesisTeacherController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Thesis/ThesisTeacher/Index', [
+        return Inertia::render('thesis::ThesisTeacher/Index', [
             'teachers' => ThesisTeacher::with('theses')->latest()->get(),
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Thesis/ThesisTeacher/Create');
+        return Inertia::render('thesis::ThesisTeacher/Create');
     }
 
     public function store(Request $request)
@@ -43,14 +43,14 @@ class ThesisTeacherController extends Controller
 
     public function show(ThesisTeacher $thesisTeacher)
     {
-        return Inertia::render('Thesis/ThesisTeacher/Show', [
+        return Inertia::render('thesis::ThesisTeacher/Show', [
             'teacher' => $thesisTeacher->load('theses'),
         ]);
     }
 
     public function edit(ThesisTeacher $thesisTeacher)
     {
-        return Inertia::render('Thesis/ThesisTeacher/Edit', [
+        return Inertia::render('thesis::ThesisTeacher/Edit', [
             'teacher' => $thesisTeacher,
         ]);
     }

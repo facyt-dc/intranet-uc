@@ -16,7 +16,7 @@ class ThesisStudentController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Thesis/ThesisStudent/index', [
+        return Inertia::render('thesis::ThesisStudent/index', [
             'thesisStudent' => ThesisStudent::with(['status', 'theses'])->get(),
             'studentStatuses' => StudentStatus::all(),
         ]);
@@ -24,14 +24,14 @@ class ThesisStudentController extends Controller
 
     public function show(ThesisStudent $thesisStudent)
     {
-        return Inertia::render('Thesis/ThesisStudent/show', [
+        return Inertia::render('thesis::ThesisStudent/show', [
             'thesisStudent' => $thesisStudent->load('theses', 'status'),
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Thesis/ThesisStudent/create', [
+        return Inertia::render('thesis::ThesisStudent/create', [
             'roles' => Role::all(),
         ]);
     }
@@ -110,7 +110,7 @@ class ThesisStudentController extends Controller
 
     public function edit(ThesisStudent $thesisStudent)
     {
-        return Inertia::render('Thesis/ThesisStudent/edit', [
+        return Inertia::render('thesis::ThesisStudent/edit', [
             'thesisStudent' => $thesisStudent->load('status', 'theses'),
             'statuses' => StudentStatus::all(),
         ]);
