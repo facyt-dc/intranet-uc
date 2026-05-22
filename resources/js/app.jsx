@@ -14,7 +14,7 @@ createInertiaApp({
         // Define the globs for both locations
         // Main App: resources/js/Pages
         const pages = import.meta.glob("./Pages/**/*.jsx");
-        
+
         // Modules: Modules/{Module}/resources/assets/js/Pages
         // Note: The path is relative to this app.jsx file (resources/js/)
         const modulePages = import.meta.glob("../../Modules/**/resources/assets/js/Pages/**/*.jsx");
@@ -23,8 +23,9 @@ createInertiaApp({
         // Case A: Using the "Module::Page" syntax (Recommended for clarity)
         if (name.includes('::')) {
             const [module, page] = name.split('::');
+            const moduleFolder = module.charAt(0).toUpperCase() + module.slice(1);
             return resolvePageComponent(
-                `../../Modules/${module}/resources/assets/js/Pages/${page}.jsx`,
+                `../../Modules/${moduleFolder}/resources/assets/js/Pages/${page}.jsx`,
                 modulePages
             );
         }
