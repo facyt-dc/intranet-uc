@@ -26,4 +26,9 @@ class ThesisTeacher extends Model
     {
         return $this->belongsToMany(Thesis::class, 'teacher_thesis_pivot', 'teacher_id', 'thesis_id');
     }
+
+    protected static function newFactory()
+    {
+        return \Modules\Thesis\Database\Factories\ThesisTeacherFactory::new();
+    }
 }

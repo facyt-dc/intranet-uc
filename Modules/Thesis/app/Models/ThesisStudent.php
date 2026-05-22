@@ -50,4 +50,9 @@ class ThesisStudent extends Model
     {
         return $this->hasMany(StudentStatusHistory::class, 'thesis_student_id')->orderBy('start_date', 'asc');
     }
+
+    protected static function newFactory()
+    {
+        return \Modules\Thesis\Database\Factories\ThesisStudentFactory::new();
+    }
 }

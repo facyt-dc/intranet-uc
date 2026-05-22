@@ -42,4 +42,9 @@ class Thesis extends Model
     {
         return $this->hasMany(ThesisFile::class);
     }
+
+    protected static function newFactory()
+    {
+        return \Modules\Thesis\Database\Factories\ThesisFactory::new();
+    }
 }

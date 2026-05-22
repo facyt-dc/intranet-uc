@@ -22,4 +22,9 @@ class StudentStatus extends Model
     {
         return $this->hasMany(StudentStatusHistory::class, 'student_status_id');
     }
+
+    protected static function newFactory()
+    {
+        return \Modules\Thesis\Database\Factories\StudentStatusFactory::new();
+    }
 }

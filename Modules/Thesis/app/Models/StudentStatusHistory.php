@@ -31,4 +31,9 @@ class StudentStatusHistory extends Model
     {
         return $this->belongsTo(StudentStatus::class, 'student_status_id');
     }
+
+    protected static function newFactory()
+    {
+        return \Modules\Thesis\Database\Factories\StudentStatusHistoryFactory::new();
+    }
 }
