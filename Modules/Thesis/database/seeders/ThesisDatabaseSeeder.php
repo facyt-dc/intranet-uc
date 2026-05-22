@@ -11,6 +11,8 @@ class ThesisDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        $this->call([
+            StudentStatusSeeder::class,
+        ]);
     }
 }
