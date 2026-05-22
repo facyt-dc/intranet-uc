@@ -19,41 +19,49 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $adminUser = User::factory()->create([
-            'name' => 'Admin User',
+        $adminUser = User::firstOrCreate([
             'email' => 'admini@example.com',
+        ], [
+            'name' => 'Admin User',
+            'password' => bcrypt('password'),
         ]);
 
-        User::factory()->create([
-            'name' => 'Regular User',
+        User::firstOrCreate([
             'email' => 'regulari@example.com',
+        ], [
+            'name' => 'Regular User',
+            'password' => bcrypt('password'),
         ]);
 
         // Permissions and Roles
         // Administrator, Director, Teacher and Administrative
         
         // Roles
-        $admin          = Role::create(['name' => 'admin']);
-        $director       = Role::create(['name' => 'director']);
-        $teacher        = Role::create(['name' => 'teacher']);
-        $administrative = Role::create(['name' => 'administrative']);
+        $admin          = Role::firstOrCreate(['name' => 'admin']);
+        $director       = Role::firstOrCreate(['name' => 'director']);
+        $teacher        = Role::firstOrCreate(['name' => 'teacher']);
+        $administrative = Role::firstOrCreate(['name' => 'administrative']);
 
         // Permissions
 
-        $isAdmin = Permission::create([
+        $isAdmin = Permission::firstOrCreate([
             'name' => 'isAdmin',
+        ], [
             'description' => 'Permiso de Administrador'
         ]);
-        $isDirector = Permission::create([
+        $isDirector = Permission::firstOrCreate([
             'name' => 'isDirector',
+        ], [
             'description' => 'Permiso de Director'
         ]);
-        $isTeacher = Permission::create([
+        $isTeacher = Permission::firstOrCreate([
             'name' => 'isTeacher',
+        ], [
             'description' => 'Permiso de Profesor'
         ]);
-        $isAdministrative = Permission::create([
+        $isAdministrative = Permission::firstOrCreate([
             'name' => 'isAdministrative',
+        ], [
             'description' => 'Permiso Administrativo'
         ]);
 
@@ -66,7 +74,7 @@ class DatabaseSeeder extends Seeder
 
         // assing roles to users
 
-        $adminUser->assignRole(['admin','teacher']);
+        $adminUser->syncRoles(['admin', 'teacher']);
 
         // Seed modules conditionally
 

@@ -72,6 +72,32 @@ const drawerRoutesList = [
         ],
     },
     {
+        permissionNeeded: "isAdmin",
+        subHeaderText: "Tesis",
+        routes: [
+            {
+                linkText: "Estudiantes",
+                routeName: "thesisStudent.index",
+            },
+            {
+                linkText: "Estados",
+                routeName: "studentStatuses.index",
+            },
+            {
+                linkText: "Tesis",
+                routeName: "Thesis.index",
+            },
+            {
+                linkText: "Profesores",
+                routeName: "thesisTeacher.index",
+            },
+            {
+                linkText: "Gantt",
+                routeName: "thesis.ganttChart",
+            },
+        ],
+    },
+    {
         permissionNeeded: "isDirector",
         subHeaderText: "Opciones del Director",
         routes: [
