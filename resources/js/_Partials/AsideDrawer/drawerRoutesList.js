@@ -98,6 +98,36 @@ const drawerRoutesList = [
         ],
     },
     {
+        permissionNeeded: "isAdmin",
+        subHeaderText: "Empleados",
+        routes: [
+            {
+                linkText: "Cargos",
+                routeName: "employee.staff.index",
+            },
+            {
+                linkText: "Empleados",
+                routeName: "employee.index",
+            },
+            {
+                linkText: "Beneficios",
+                routeName: "employee.benefit.index",
+            },
+            {
+                linkText: "Tipos de Personal",
+                routeName: "employee.staff.type.index",
+            },
+            {
+                linkText: "Niveles de Docencia",
+                routeName: "employee.teaching.level.index",
+            },
+            {
+                linkText: "Historial de Beneficios",
+                routeName: "employee.benefit.history.index",
+            },
+        ],
+    },
+    {
         permissionNeeded: "isDirector",
         subHeaderText: "Opciones del Director",
         routes: [
