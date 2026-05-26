@@ -76,23 +76,23 @@ const drawerRoutesList = [
         subHeaderText: "Tesis",
         routes: [
             {
-                linkText: "Estudiantes",
+                linkText: "Tesistas",
                 routeName: "thesisStudent.index",
             },
             {
-                linkText: "Estados",
+                linkText: "Docentes",
+                routeName: "thesisTeacher.index"
+            },
+            {
+                linkText: "Estatus de estudiantes",
                 routeName: "studentStatuses.index",
             },
             {
-                linkText: "Tesis",
+                linkText: "Proyectos PTEG/TEG",
                 routeName: "Thesis.index",
             },
             {
-                linkText: "Profesores",
-                routeName: "thesisTeacher.index",
-            },
-            {
-                linkText: "Gantt",
+                linkText: "Diagrama General de Tesistas",
                 routeName: "thesis.ganttChart",
             },
         ],
