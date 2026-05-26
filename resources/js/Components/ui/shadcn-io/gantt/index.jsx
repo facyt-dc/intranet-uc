@@ -968,8 +968,6 @@ export const GanttProvider = ({
   }
 
   const [startYear, endYear] = useMemo(() => {
-    console.log("esto es features", features)
-
     if (features.length === 0) {
       const currentYear = getYear(new Date());
       return [currentYear - 1, currentYear + 1]; // Fallback: año anterior, actual y siguiente
@@ -977,7 +975,6 @@ export const GanttProvider = ({
 
     let earliestYear = getYear(features[0].startAt);
     let latestYear = getYear(features[0].endAt);
-    console.log("esto es earliestYear", earliestYear)
 
     for (const feature of features) {
       const start = getYear(feature.startAt);
@@ -987,7 +984,7 @@ export const GanttProvider = ({
     }
 
     // Añadimos un año de margen al principio y al final para tener espacio
-    return [earliestYear + 1, latestYear - 1];
+    return [earliestYear - 1, latestYear + 1];
 
   }, [features]);
 
@@ -1067,33 +1064,7 @@ export const GanttProvider = ({
     const { scrollLeft, scrollWidth, clientWidth } = scrollElement;
     setScrollX(scrollLeft);
 
-    if (scrollLeft === 0) {
-      // Extend timelineData to the past
-      const firstYear = timelineData[0]?.year;
-
-      if (!firstYear) {
-        return;
-      }
-
-      const newTimelineData = [...timelineData];
-      newTimelineData.unshift({
-        year: firstYear - 1,
-        quarters: new Array(4).fill(null).map((_, quarterIndex) => ({
-          months: new Array(3).fill(null).map((_, monthIndex) => {
-            const month = quarterIndex * 3 + monthIndex;
-            return {
-              days: getDaysInMonth(new Date(firstYear, month, 1)),
-            };
-          }),
-        })),
-      });
-
-      setTimelineData(newTimelineData);
-
-      // Scroll a bit forward so it's not at the very start
-      scrollElement.scrollLeft = scrollElement.clientWidth;
-      setScrollX(scrollElement.scrollLeft);
-    } else if (scrollLeft + clientWidth >= scrollWidth) {
+    if (scrollLeft + clientWidth >= scrollWidth) {
       // Extend timelineData to the future
       const lastYear = timelineData.at(-1)?.year;
 
