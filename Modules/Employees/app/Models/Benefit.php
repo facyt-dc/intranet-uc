@@ -14,6 +14,11 @@ class Benefit extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Modules\Employees\Database\Factories\BenefitFactory::new();
+    }
+
     protected $table = "benefits";
 
     protected $fillable = [

@@ -10,6 +10,11 @@ class TimeUnit extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Modules\Employees\Database\Factories\TimeUnitFactory::new();
+    }
+
     protected $table = "time_units";
 
     protected function name(): Attribute

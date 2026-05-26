@@ -12,6 +12,11 @@ class TeachingLevel extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Modules\Employees\Database\Factories\TeachingLevelFactory::new();
+    }
+
     protected $table = "teaching_levels";
 
     protected $fillable = [

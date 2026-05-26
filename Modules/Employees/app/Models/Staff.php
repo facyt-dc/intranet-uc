@@ -15,6 +15,11 @@ class Staff extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Modules\Employees\Database\Factories\StaffFactory::new();
+    }
+
     protected $table = 'staffs';
 
     protected $fillable = [
