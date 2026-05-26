@@ -1,0 +1,31 @@
+<?php
+
+namespace Modules\Employees\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Employees\Models\Staff;
+
+class StaffType extends Model
+{
+    use HasFactory;
+
+    protected $table = "staff_types";
+    protected $fillable = ["name"];
+
+    // Aplicamos una transformacion cada vez que obtenemos y establecemos el nombre
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ucfirst($value),
+            set: fn (string $value) => ucfirst($value),
+        );
+    }
+
+    protected function staffs(): HasMany
+    {
+        return $this->hasMany(Staff::class);
+    }
+}
