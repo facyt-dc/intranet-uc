@@ -12,6 +12,7 @@
             <directory>tests/Feature</directory>
             <directory>Modules/AgendaConsejo/tests/Feature</directory>
             <directory>Modules/Thesis/tests/Feature</directory>
+            <directory>Modules/Employees/tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>
