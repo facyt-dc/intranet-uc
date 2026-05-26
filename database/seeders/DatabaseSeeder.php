@@ -87,5 +87,10 @@ class DatabaseSeeder extends Seeder
         if ($thesisModule && $thesisModule->isEnabled()) {
             $this->call("Modules\\Thesis\\Database\\Seeders\\ThesisDatabaseSeeder");
         }
+
+        $employeesModule = Module::find('Employees');
+        if ($employeesModule && $employeesModule->isEnabled()) {
+            $this->call("Modules\\Employees\\Database\\Seeders\\EmployeesDatabaseSeeder");
+        }
     }
 }
