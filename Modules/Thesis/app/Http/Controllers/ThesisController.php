@@ -270,4 +270,56 @@ class ThesisController extends Controller
             ],
         ]);
     }
+    
+    public function destroy(Thesis $thesis)
+    {
+        if (!$thesis->is_active) {
+            return back()->with('flash', [
+                'alert' => [
+                    'message' => 'Esta tesis ya se encuentra archivada.',
+                    'severity' => 'info',
+                ],
+            ]);
+        }
+
+        try {
+            $inscritoStatus = StudentStatus::where('name', 'inscrito')->firstOrFail();
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return back()->with('flash', [
+                'alert' => [
+                    'message' => 'Error de configuración: El estado "inscrito" para estudiantes no se encuentra en el sistema.',
+                    'severity' => 'error',
+                ],
+            ]);
+        }
+
+        DB::transaction(function () use ($thesis, $inscritoStatus) {
+            $studentsToUpdate = $thesis->students;
+
+            if ($studentsToUpdate->isNotEmpty()) {
+                // Crear un registro en el historial para CADA estudiante que se revierte.
+                foreach ($studentsToUpdate as $student) {
+                    StudentStatusHistory::create([
+                        'thesis_student_id' => $student->id,
+                        'student_status_id' => $inscritoStatus->id,
+                        'start_date'        => now(),
+                    ]);
+                }
+
+                // Actualizar el estado de todos los estudiantes asociados a la tesis en una sola consulta.
+                $thesis->students()->update(['status_id' => $inscritoStatus->id]);
+            }
+
+            // Marcar la tesis como inactiva (archivarla).
+            $thesis->update(['is_active' => false]);
+        });
+
+        return to_route('Thesis.index')->with('flash', [
+            'alert' => [
+                'id' => $thesis->id,
+                'message' => 'Tesis archivada. Los estudiantes asociados han sido revertidos al estado "inscrito".',
+                'severity' => 'success',
+            ],
+        ]);
+    }
 }
