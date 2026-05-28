@@ -83,3 +83,71 @@ Para entender la profundidad del sistema, consulta las siguientes guías en la c
 ## Licencia
 
 The Laravel framework is open-sourced software licensed under the MIT license.
+
+
+## README Docker (WIP)
+
+# PHP Docker Development Environment
+
+## Installation
+
+### Requirements
+
+- Docker
+
+### Environment Variables
+
+Copy the example environment file and customize it as needed:
+
+```bash
+cp .env.example .env
+```
+
+### Setup
+
+Build the Docker images:
+
+```bash
+docker compose build
+```
+
+## Usage
+
+### Start Containers
+
+Start all services in the background:
+
+```bash
+docker compose up
+```
+
+Access the application at `http://localhost:8000`.
+
+### Composer Installation
+To install Composer dependencies, run the following command:
+
+```bash
+docker compose exec app composer install
+```
+
+### Key Generation
+Generate the application key:
+
+```bash
+docker compose exec app php artisan key:generate
+```
+
+### Database Migrations and Seeding
+Run the migrations and seed the database:
+
+```bash
+docker compose exec app php artisan migrate --seed
+```
+
+### Running Composer Commands
+
+To run Composer commands inside the running PHP container, for example, to dump the autoload files, use:
+
+```bash
+docker compose exec app composer dump-autoload
+```
