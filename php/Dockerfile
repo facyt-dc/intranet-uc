@@ -22,3 +22,9 @@ RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction
 COPY ./src .
 
 RUN composer dump-autoload --optimize
+
+RUN mkdir -p database && touch database/database.sqlite
+
+RUN chown -R www-data:www-data storage bootstrap/cache database
+
+RUN chmod -R 775 storage bootstrap/cache database
