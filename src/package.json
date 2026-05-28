@@ -1,4 +1,6 @@
 {
+    "name": "intranet-uc",
+    "version": "1.0.0",
     "private": true,
     "type": "module",
     "scripts": {
@@ -39,7 +41,7 @@
         "@inertiajs/react": "^1.0.16",
         "@mui/icons-material": "^5.15.18",
         "@mui/material": "^5.15.18",
-        "@mui/x-date-pickers": "^9.3.0",
+        "@mui/x-date-pickers": "^6.20.2",
         "@radix-ui/react-context-menu": "^2.1.5",
         "@testing-library/jest-dom": "^6.4.5",
         "@testing-library/react": "^16.0.0",
@@ -47,7 +49,7 @@
         "@uidotdev/usehooks": "^2.4.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "date-fns": "^4.1.0",
+        "date-fns": "^3.6.0",
         "dayjs": "^1.11.20",
         "frappe-gantt": "^1.2.2",
         "i18next": "23.16.4",
