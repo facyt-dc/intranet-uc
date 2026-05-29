@@ -92,5 +92,10 @@ class DatabaseSeeder extends Seeder
         if ($employeesModule && $employeesModule->isEnabled()) {
             $this->call("Modules\\Employees\\Database\\Seeders\\EmployeesDatabaseSeeder");
         }
+
+        $maintenanceModule = Module::find('Maintenance');
+        if ($maintenanceModule && $maintenanceModule->isEnabled()) {
+            $this->call("Modules\\Maintenance\\Database\\Seeders\\MaintenanceDatabaseSeeder");
+        }
     }
 }
