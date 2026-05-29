@@ -1,5 +1,6 @@
 {
     "AgendaConsejo": true,
     "Thesis": true,
-    "Employees": true
+    "Employees": true,
+    "Maintenance": false
 }
