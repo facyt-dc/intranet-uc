@@ -13,6 +13,8 @@ class MaintenanceDatabaseSeeder extends Seeder
     {
         $this->call([
             TechnicianRoleSeeder::class,
+            EquipmentCategorySeeder::class,
+            EquipmentSeeder::class,
             MaintenanceStageSeeder::class,
             MaintenanceRequestSeeder::class,
         ]);
