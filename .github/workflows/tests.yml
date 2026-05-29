@@ -10,6 +10,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: src
+
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -29,15 +33,15 @@ jobs:
       - name: Cache de dependencias Composer
         uses: actions/cache@v4
         with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          path: src/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('src/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Cache de dependencias npm
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('src/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
       - name: Instalar dependencias PHP
