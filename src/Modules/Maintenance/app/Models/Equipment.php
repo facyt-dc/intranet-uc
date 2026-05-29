@@ -4,10 +4,16 @@ namespace Modules\Maintenance\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Maintenance\Database\Factories\EquipmentFactory;
 
 class Equipment extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): EquipmentFactory
+    {
+        return EquipmentFactory::new();
+    }
 
     protected $fillable = [
         'name',
