@@ -132,20 +132,20 @@ const drawerRoutesList = [
         subHeaderText: "Mantenimiento",
         routes: [
             {
-                linkText: "Solicitudes",
+                linkText: "Solicitudes de mantenimiento",
                 routeName: "mantenimiento.index",
             },
             {
-                linkText: "Archivadas",
-                routeName: "mantenimiento.archived.index",
+                linkText: "Gestionar Etapas",
+                routeName: "mantenimiento.stages.index",
             },
             {
-                linkText: "Equipos",
+                linkText: "Gestionar Equipos",
                 routeName: "mantenimiento.equipment.index",
             },
             {
-                linkText: "Etapas",
-                routeName: "mantenimiento.stages.index",
+                linkText: "Gestionar Categorías",
+                routeName: "mantenimiento.equipment.categories.index",
             },
         ],
     },
