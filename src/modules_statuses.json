@@ -3,5 +3,5 @@
     "Thesis": true,
     "Employees": true,
     "Maintenance": true,
-    "Inventory": false
+    "Inventory": true
 }
