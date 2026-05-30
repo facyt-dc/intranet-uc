@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Inventory\Database\Factories\ItemFactory;
 
 class Item extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function newFactory(): ItemFactory
+    {
+        return ItemFactory::new();
+    }
 
     protected $fillable = [
         'name',
