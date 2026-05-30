@@ -39,7 +39,8 @@
         "psr-4": {
             "Tests\\": "tests/",
             "Modules\\Employees\\Tests\\": "Modules/Employees/tests/",
-            "Modules\\Maintenance\\Tests\\": "Modules/Maintenance/tests/"
+            "Modules\\Maintenance\\Tests\\": "Modules/Maintenance/tests/",
+            "Modules\\Inventory\\Tests\\": "Modules/Inventory/tests/"
         }
     },
     "scripts": {

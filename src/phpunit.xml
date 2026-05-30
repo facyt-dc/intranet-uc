@@ -14,6 +14,7 @@
             <directory>Modules/Thesis/tests/Feature</directory>
             <directory>Modules/Employees/tests/Feature</directory>
             <directory>Modules/Maintenance/tests/Feature</directory>
+            <directory>Modules/Inventory/tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>
