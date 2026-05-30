@@ -2,5 +2,6 @@
     "AgendaConsejo": true,
     "Thesis": true,
     "Employees": true,
-    "Maintenance": true
+    "Maintenance": true,
+    "Inventory": false
 }
