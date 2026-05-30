@@ -159,6 +159,36 @@ const drawerRoutesList = [
             }
         ],
     },
+    {
+        permissionNeeded: "inventory.access",
+        subHeaderText: "Inventario",
+        routes: [
+            {
+                linkText: "Ítems",
+                routeName: "admin.item.index",
+            },
+            {
+                linkText: "Categorías",
+                routeName: "admin.item-category.index",
+            },
+            {
+                linkText: "Ubicaciones",
+                routeName: "admin.item-location.index",
+            },
+            {
+                linkText: "Estados",
+                routeName: "admin.item-status.index",
+            },
+            {
+                linkText: "Movimientos",
+                routeName: "admin.item-inventory-movement.index",
+            },
+            {
+                linkText: "Tipos de Movimiento",
+                routeName: "admin.item-movement-type.index",
+            },
+        ],
+    },
 ];
 
 export default drawerRoutesList;
