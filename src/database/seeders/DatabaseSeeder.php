@@ -97,5 +97,10 @@ class DatabaseSeeder extends Seeder
         if ($maintenanceModule && $maintenanceModule->isEnabled()) {
             $this->call("Modules\\Maintenance\\Database\\Seeders\\MaintenanceDatabaseSeeder");
         }
+
+        $inventoryModule = Module::find('Inventory');
+        if ($inventoryModule && $inventoryModule->isEnabled()) {
+            $this->call("Modules\\Inventory\\Database\\Seeders\\InventoryDatabaseSeeder");
+        }
     }
 }

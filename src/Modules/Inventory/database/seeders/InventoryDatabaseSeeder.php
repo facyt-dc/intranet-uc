@@ -11,6 +11,12 @@ class InventoryDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        $this->call([
+            InventoryAccessSeeder::class,
+            ItemCategorySeeder::class,
+            ItemStatusSeeder::class,
+            LocationSeeder::class,
+            MovementTypeSeeder::class,
+        ]);
     }
 }
