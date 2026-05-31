@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('point_user');
+        Schema::dropIfExists('agenda_point_votable_user');
     }
 };

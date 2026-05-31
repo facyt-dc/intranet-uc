@@ -16,6 +16,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('maintenance_requests', function (Blueprint $table) {
+            $table->dropIndex('maintenance_requests_is_archived_index');
             $table->dropColumn('is_archived');
         });
     }
