@@ -26,7 +26,6 @@ services:
     volumes:
       - ./src:/var/www/html
       - /var/www/html/storage
-      - /var/www/html/database
     depends_on:
       - db
 
