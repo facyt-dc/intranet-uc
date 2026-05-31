@@ -151,3 +151,11 @@ To run Composer commands inside the running PHP container, for example, to dump 
 ```bash
 docker compose exec app composer dump-autoload
 ```
+
+### Adding New NPM Packages
+
+If you need to add new NPM packages, you should restart the Node container to ensure that the new dependencies are installed correctly. You can do this with the following command:
+
+```bash
+docker compose restart node
+```
