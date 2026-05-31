@@ -15,14 +15,10 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --from=composer:2.8.4 /usr/bin/composer /usr/bin/composer
 
-COPY ./src/composer.* ./
+COPY --chown=www-data:www-data ./src/composer.* ./
 
 RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction
 
-COPY ./src .
+COPY --chown=www-data:www-data ./src .
 
 RUN composer dump-autoload --optimize
-
-RUN chown -R www-data:www-data storage
-
-RUN chmod -R 775 storage

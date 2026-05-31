@@ -25,7 +25,7 @@ services:
       dockerfile: ./php/Dockerfile
     volumes:
       - ./src:/var/www/html
-      - /var/www/html/storage
+      - storage:/var/www/html/storage
     depends_on:
       - db
 
@@ -44,3 +44,4 @@ services:
 
 volumes:
   mysqldata:
+  storage:
