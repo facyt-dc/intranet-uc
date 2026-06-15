@@ -1,3 +1,4 @@
+name: facyt-intranet-prod
 services:
   web:
     build:
