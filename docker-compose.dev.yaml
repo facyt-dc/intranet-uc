@@ -17,13 +17,14 @@ services:
       - ./src:/var/www/html
       - /var/www/html/node_modules
     ports:
-      - "5173:5173"
+      - '5173:5173'
     depends_on:
       - app
 
   app:
     build:
-      dockerfile: ./php/Dockerfile
+      dockerfile: Dockerfile.dev
+      target: app
     volumes:
       - ./src:/var/www/html
       - storage:/var/www/html/storage
