@@ -1,3 +1,4 @@
+name: facyt-intranet-dev
 services:
   web:
     image: nginx:1.31.0-alpine-slim
