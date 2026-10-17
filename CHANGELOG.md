@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/facyt-dc/intranet-uc/compare/v0.1.0...v0.1.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* standardize mysql credentials on .env.example ([a5aae47](https://github.com/facyt-dc/intranet-uc/commit/a5aae4787398b1af9c62811377ff5d0c8354e4f7))
+
 ## 0.1.0 (2026-10-17)
 
 
