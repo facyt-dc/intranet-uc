@@ -33,8 +33,8 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees }) {
     const { t } = useTranslation(["common"]);
     const [showAlert, setShowAlert] = useState(false)
     const { data, setData, patch, post, processing, errors } = useForm({
-        employee:employees[0].id,
-        benefit:employees[0].staff.benefits[0].id,
+        employee:employees[0]?.id ?? '',
+        benefit:employees[0]?.staff?.benefits[0]?.id ?? '',
         request_date:dayjs.tz(new Date()),
         start_date: dayjs.tz(new Date()),
         end_date: dayjs.tz(new Date()),
@@ -159,7 +159,7 @@ export default function EmployeeBenefitHistoryCreate({ auth, employees }) {
                             sx={{m:1, maxWidth: 300 }} 
                         >
                             {
-                                employees.find(e => e.id == data.employee).staff.benefits.map( (sv,_index) => (
+                                (employees.find(e => e.id == data.employee)?.staff?.benefits ?? []).map( (sv,_index) => (
                                     <MenuItem 
                                         key={_index}
                                         value={sv.id}
