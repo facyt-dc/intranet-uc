@@ -57,7 +57,7 @@ export default function EmployeeRecordDeleteDialog({ record, model, recordName }
                         <Button
                             component="div"
                             variant="text"
-                            color=""
+                            color="error"
                             onClick={handleClose}
                         >
                             {t("Delete")}
