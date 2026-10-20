@@ -1,17 +1,12 @@
 import Dropdown from "@/Components/Dropdown";
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import { faGripLines } from "@fortawesome/free-solid-svg-icons";
+import Button from "@mui/material/Button";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 
 export default function EmployeeDropdownMenu({ auth, links }) {
     const isAdmin = auth.permissions.find(
         (permission) => permission.name === "isAdmin"
     );
-
-    const dropDownSpanStyle = {
-        fontSize:'40px',
-        color:'#7267EF',
-        cursor:'cursor'
-    }
 
     const dropDownContentStyle = {
         fontSize: '20px'
@@ -20,9 +15,14 @@ export default function EmployeeDropdownMenu({ auth, links }) {
     return (
             <Dropdown>
                 <Dropdown.Trigger>
-                    <span style={dropDownSpanStyle}>
-                        <FontAwesomeIcon icon={faGripLines}  />
-                    </span>
+                    <Button
+                        variant="outlined"
+                        startIcon={<MenuRoundedIcon />}
+                        endIcon={<KeyboardArrowDownRoundedIcon />}
+                        aria-haspopup="menu"
+                    >
+                        Secciones
+                    </Button>
                 </Dropdown.Trigger>
 
                 <Dropdown.Content align="left" style={dropDownContentStyle}>
