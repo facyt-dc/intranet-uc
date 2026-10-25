@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1](https://github.com/facyt-dc/intranet-uc/compare/v1.0.0...v1.0.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* make employees section menu look like a button ([f8f9030](https://github.com/facyt-dc/intranet-uc/commit/f8f903007f8cc061df79e1e8461daa38fe85d09a))
+* prevent benefit history create page crash without employees ([b3e154a](https://github.com/facyt-dc/intranet-uc/commit/b3e154a99fa3f84343e6dc416158ea52cd6bed54))
+* use valid MUI color on employees delete dialog button ([9d5eed5](https://github.com/facyt-dc/intranet-uc/commit/9d5eed5edf706e75892c79f1d2274c3ded8c60fa))
+
 ## [1.0.0](https://github.com/facyt-dc/intranet-uc/compare/v1.0.0...v1.0.0) (2026-10-25)
 
 
