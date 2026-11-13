@@ -1,0 +1,62 @@
+name: Deploy
+
+# Deploys the production stack on the server where the self-hosted runner is installed.
+# Setup instructions: docs/DEPLOYMENT.md
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Only one deployment at a time; a new one waits for the current one to finish.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+  COMPOSE: docker compose -f docker-compose.prod.yaml
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, intranet-uc-production]
+
+    defaults:
+      run:
+        working-directory: ${{ vars.DEPLOY_PATH }}
+
+    steps:
+      - name: Check deployment directory
+        working-directory: /
+        run: |
+          if [ -z "$DEPLOY_PATH" ]; then
+            echo "::error::The DEPLOY_PATH repository variable is not set."
+            exit 1
+          fi
+          for file in .git .env src/.env; do
+            if [ ! -e "$DEPLOY_PATH/$file" ]; then
+              echo "::error::$DEPLOY_PATH/$file does not exist. Follow docs/DEPLOYMENT.md."
+              exit 1
+            fi
+          done
+
+      - name: Update source code
+        run: git pull --ff-only origin main
+
+      - name: Build images
+        run: $COMPOSE build
+
+      - name: Start containers
+        run: $COMPOSE up -d --remove-orphans
+
+      - name: Run database migrations
+        run: $COMPOSE exec -T app php artisan migrate --force
+
+      - name: Cache configuration, routes and views
+        run: $COMPOSE exec -T app php artisan optimize
+
+      - name: Remove unused images
+        run: docker image prune -f
