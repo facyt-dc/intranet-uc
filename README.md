@@ -8,6 +8,9 @@
 
 ### Production
 
+> [!TIP]
+> To set up a server with automatic deployments on every update of `main`, follow the [deployment guide](docs/DEPLOYMENT.md).
+
 - Copy the example environment file for the Docker containers and customize it as needed:
 
 ```bash
