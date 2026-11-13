@@ -91,3 +91,7 @@ docker compose -f docker-compose.dev.yaml exec app php artisan migrate --seed
 ```
 
 - Access the application at `http://localhost:8000` and the Vite development server at `http://localhost:5173`.
+
+## Contributing
+
+Before contributing to the project, read the [contributing guide](CONTRIBUTING.md).
