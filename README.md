@@ -44,7 +44,7 @@ docker compose -f docker-compose.prod.yaml exec app php artisan key:generate
 docker compose -f docker-compose.prod.yaml exec app php artisan migrate --seed
 ```
 
-- Access the application at `http://localhost:8000`.
+- Access the application at `http://localhost`.
 
 ### Development
 
@@ -90,4 +90,4 @@ docker compose -f docker-compose.dev.yaml exec app php artisan key:generate
 docker compose -f docker-compose.dev.yaml exec app php artisan migrate --seed
 ```
 
-- Access the application at `http://localhost:8000` and the Vite development server at `http://localhost:5173`.
+- Access the application at `http://localhost` and the Vite development server at `http://localhost:5173`.
