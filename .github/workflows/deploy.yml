@@ -1,6 +1,6 @@
 name: Deploy
 
-# Deploys the production stack on the server where the self-hosted runner is installed.
+# Deploys the production stack in the project folder of the self-hosted runner.
 # Setup instructions: docs/DEPLOYMENT.md
 
 on:
@@ -10,41 +10,46 @@ on:
 
 # Only one deployment at a time; a new one waits for the current one to finish.
 concurrency:
-  group: deploy-production
+  group: deploy
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 env:
-  DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
   COMPOSE: docker compose -f docker-compose.prod.yaml
 
 jobs:
   deploy:
-    runs-on: [self-hosted, linux, intranet-uc-production]
+    runs-on: self-hosted
 
     defaults:
       run:
-        working-directory: ${{ vars.DEPLOY_PATH }}
+        shell: bash
 
     steps:
-      - name: Check deployment directory
-        working-directory: /
-        run: |
-          if [ -z "$DEPLOY_PATH" ]; then
-            echo "::error::The DEPLOY_PATH repository variable is not set."
-            exit 1
-          fi
-          for file in .git .env src/.env; do
-            if [ ! -e "$DEPLOY_PATH/$file" ]; then
-              echo "::error::$DEPLOY_PATH/$file does not exist. Follow docs/DEPLOYMENT.md."
-              exit 1
-            fi
-          done
+      - name: Download source code
+        uses: actions/checkout@v4
+        with:
+          # Keeps the environment files, which are not part of the repository.
+          clean: false
 
-      - name: Update source code
-        run: git pull --ff-only origin main
+      - name: Create environment files
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+          fi
+          if [ ! -f src/.env ]; then
+            sed -e 's/^APP_ENV=.*/APP_ENV=production/' -e 's/^APP_DEBUG=.*/APP_DEBUG=false/' \
+              src/.env.example > src/.env
+          fi
+          # The key must be saved in src/.env, since the image is rebuilt on every deployment.
+          if ! grep -q '^APP_KEY=base64:' src/.env; then
+            key="base64:$(head -c 32 /dev/urandom | base64)"
+            sed "s#^APP_KEY=.*#APP_KEY=$key#" src/.env > src/.env.tmp
+            mv src/.env.tmp src/.env
+          fi
+          chmod 600 .env src/.env
 
       - name: Build images
         run: $COMPOSE build
@@ -53,7 +58,23 @@ jobs:
         run: $COMPOSE up -d --remove-orphans
 
       - name: Run database migrations
-        run: $COMPOSE exec -T app php artisan migrate --force
+        run: |
+          # The database may take a few seconds to accept connections after it starts.
+          for attempt in $(seq 1 20); do
+            if $COMPOSE exec -T app php artisan migrate --force; then
+              exit 0
+            fi
+            echo "Waiting for the database ($attempt/20)..."
+            sleep 5
+          done
+          exit 1
+
+      - name: Load initial data on the first deployment
+        run: |
+          users=$($COMPOSE exec -T app php artisan tinker --execute='echo App\Models\User::count();' | tr -dc '0-9')
+          if [ "$users" = "0" ]; then
+            $COMPOSE exec -T app php artisan db:seed --force
+          fi
 
       - name: Cache configuration, routes and views
         run: $COMPOSE exec -T app php artisan optimize
