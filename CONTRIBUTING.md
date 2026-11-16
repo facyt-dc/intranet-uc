@@ -85,33 +85,28 @@ Every piece of work starts with an issue. Issues and _pull requests_ are written
 
 ## Pull requests
 
-- Every _pull request_ must use the repository template (`.github/pull_request_template.md`).
-- The issue it addresses is referenced in the **Issues** section as `#number`, without keywords like `Closes` or `Fixes`, which would close the issue automatically.
-- The **Description** summarizes what was done. It does not explain the problem, which is already described in the issue.
-- The **List of changes** describes how the behavior of the project changed (before and after) and why, so the reviewer knows what to test. It is not a list of files or commits: names of files, components or variables can be seen in the commits.
-- The **Additional context** is used for warnings, decisions or details that the reviewer or future contributors should know.
-- The text is written in the past tense ("Se agregó...", "Se corrigió..."). Words in English are written in _italics_, and abbreviations are written in full the first time they appear, for example "Material UI (MUI)".
+- GitHub applies the _pull request_ template automatically. The template describes what each section must contain.
+- The issue it addresses is referenced in the **Issues** section as `#number`, without keywords like `Closes` or `Fixes`, because an issue can be solved by more than one _pull request_.
 - The author assigns themselves to the _pull request_, requests a review and adds a label. The label is usually the same as the one of the issue, but it can be different; for example, a bug may need a new feature to be solved.
 - _Pull requests_ are merged with **Rebase and merge** to keep the history linear.
 
 ## Project status
 
-Issues and _pull requests_ are tracked in the GitHub project of the repository. The issue and its _pull request_ move together through these statuses:
+Issues and _pull requests_ are tracked in the GitHub project of the repository with these statuses:
 
-| Status | Meaning | Who moves it |
-| --- | --- | --- |
-| **Todo** | The work is registered but has not started. | Whoever opens the issue. |
-| **In Progress** | Someone is working on it: the branch was created, or changes requested in a review are being applied. | The author. |
-| **Waiting Review** | The _pull request_ is open and waiting for a review. | The author. |
-| **Error** | The work failed: the checks do not pass, the change does not solve the issue, or a problem appeared after merging it. The cause is explained in a comment. | The reviewer or the author. |
-| **Done** | The _pull request_ was merged and the result was verified. | The reviewer. |
+| Status | Meaning |
+| --- | --- |
+| **Todo** | The work has not started. |
+| **In progress** | The work is being done. |
+| **Delegated** | The work was delegated to another issue, which solves it. |
+| **Waiting For PR** | The issue is waiting for its _pull requests_ to be approved or merged. |
+| **Waiting Review** | The _pull request_ is waiting for a review. |
+| **Error** | The _pull request_ was reviewed and errors were identified. |
+| **Done** | The work was completed. |
 
-Possible flows:
+Main flows:
 
-- **Approved on the first review:**
-  `Todo` → `In Progress` → `Waiting Review` → `Done`
-- **Changes requested in the review:**
-  `Todo` → `In Progress` → `Waiting Review` → `In Progress` → `Waiting Review` → `Done`
-- **The change fails:**
-  `Todo` → `In Progress` → `Waiting Review` → `Error` → `In Progress` → `Waiting Review` → `Done`
-- **Issue solved with several _pull requests_:** each _pull request_ follows its own flow, and the issue stays in `In Progress` until the last one reaches `Done`.
+- **Issue:** `Todo` → `In progress` → `Waiting For PR` → `Done`. The issue stays in `Waiting For PR` until all its _pull requests_ are `Done`.
+- **Issue solved by another issue:** `Todo` → `Delegated`.
+- **_Pull request_ approved:** `Waiting Review` → `Done`.
+- **_Pull request_ with errors:** `Waiting Review` → `Error` → `In progress` → `Waiting Review` → `Done`. The errors are corrected while the _pull request_ is `In progress`, and it returns to `Waiting Review` for a new review.
