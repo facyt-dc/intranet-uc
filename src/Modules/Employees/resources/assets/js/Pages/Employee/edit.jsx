@@ -30,6 +30,7 @@ export default function EmployeeEdit({ auth, staffs, employee }) {
     const [showAlert, setShowAlert] = useState(false)
     const { data, setData, patch, post, processing, errors } = useForm({
         ...employee,
+        address: employee.address ?? '',
         birthday: dayjs(employee.birthday)
     })
     

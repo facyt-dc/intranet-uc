@@ -48,8 +48,8 @@ class Employee extends Model
     protected function address():Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => ucfirst($value),
-            set: fn(string $value) => ucfirst($value)
+            get: fn(?string $value) => $value !== null ? ucfirst($value) : null,
+            set: fn(?string $value) => $value !== null ? ucfirst($value) : null
         );
     }
 
